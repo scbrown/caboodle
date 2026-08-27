@@ -23,8 +23,6 @@ jobs:
   clean-machine-install:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      CABOODLE_E2E_DIR: ${{ runner.temp }}/caboodle-phase1
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -39,8 +37,8 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$PATH"
-          mkdir -p "$CABOODLE_E2E_DIR"
-          cd "$CABOODLE_E2E_DIR"
+          mkdir -p "$RUNNER_TEMP/caboodle-phase1"
+          cd "$RUNNER_TEMP/caboodle-phase1"
           printf 'retrieval\n' | caboodle init --guided | tee guided-interview.log
           test -s caboodle-plan.toml
           python3 - <<'PY'
@@ -54,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
-          cd "$CABOODLE_E2E_DIR"
+          cd "$RUNNER_TEMP/caboodle-phase1"
           caboodle install 2>&1 | tee first-install.log
           jq -e '
             .tools.quipu.verified == true and
@@ -65,7 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
-          cd "$CABOODLE_E2E_DIR"
+          cd "$RUNNER_TEMP/caboodle-phase1"
           caboodle install 2>&1 | tee resumed-install.log
           jq -e '[.tools[] | .applied and .verified] | all' .caboodle/state.json
           jq '{
@@ -81,7 +79,7 @@ jobs:
         run: |
           set -euo pipefail
           cargo test camayoc_verification_refuses_broken_control_retrieval_and_replay \
-            -- --exact --nocapture 2>&1 | tee "$CABOODLE_E2E_DIR/adversarial-controls.log"
+            -- --exact --nocapture 2>&1 | tee "$RUNNER_TEMP/caboodle-phase1/adversarial-controls.log"
       - name: Retain the reviewed plan and proof record
         if: always()
         uses: actions/upload-artifact@v4

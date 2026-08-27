@@ -77,6 +77,10 @@ and every claim along the way is a proof, not a banner.
 4. **The observability weave** — each tool's metrics contract is catalogued in
    camayoc (meaning and ownership live in the graph the box just installed),
    and wired into Prometheus by generated config.
+   And caboodle is itself a **quipu emitter**: every install and verification
+   outcome becomes an episode through camayoc's ingress discipline — what is
+   installed, at what version, last proven working when — so a fresh box's
+   first knowledge domain is the box itself.
 5. **`skills/caboodle`** — the agent-facing skill: install, verify, diagnose,
    upgrade. Its sibling `skills/camayoc` (the ontology-bootstrap interview)
    ships with camayoc; caboodle installs both.
@@ -127,6 +131,7 @@ profiles remain Phase 1+ work.
 | [creel](https://github.com/scbrown/creel) | parallel agent bursts, entirely in the browser |
 | [shanty](https://github.com/scbrown/shanty) | a terminal multiplexer wrapper that makes tmux feel like home |
 | [skein](https://github.com/scbrown/skein) | portable agentic skills — shell + HTTP only |
+| [beads](https://github.com/Dicklesworthstone/beads_rust) | issue tracking as agent memory — `br`, SQLite + JSONL |
 
 ## License
 

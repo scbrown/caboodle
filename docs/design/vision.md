@@ -53,6 +53,16 @@ creel, or both**: shantytown for a tmux-resident crew on a host, creel for paral
 agent bursts entirely in the browser. The choice rests on creel ↔ shantytown feature
 parity, tracked as its own workstream.
 
+**Beads is in the corpus.** The tracker (`br` — beads, SQLite + JSONL) installs
+like any other tool: agent memory is part of the kit, and the crew profiles
+depend on it.
+
+**Caboodle emits triples/episodes to quipu.** The engine's state transitions —
+installed, verified, upgraded, failed — are emitted as episodes through
+camayoc's ingress discipline, so the graph the box just installed immediately
+knows what the box contains. Bootstrap order handles the chicken-and-egg:
+emissions queue locally until quipu passes its own verify, then flush once.
+
 **Metrics are ontology, not just scrape targets.** Each tool's metrics contract is
 also a camayoc catalogue entry, so "what does this series mean and who owns it"
 lives in the graph the box just installed.

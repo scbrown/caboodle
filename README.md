@@ -138,6 +138,7 @@ profiles remain Phase 1+ work.
 | [shanty](https://github.com/scbrown/shanty) | a terminal multiplexer wrapper that makes tmux feel like home |
 | [skein](https://github.com/scbrown/skein) | portable agentic skills — shell + HTTP only |
 | [beads](https://github.com/Dicklesworthstone/beads_rust) | issue tracking as agent memory — `br`, SQLite + JSONL |
+| [shuttle](https://github.com/scbrown/shuttle) | workflow engine — signed runs, windowed export, frozen history |
 
 ## 📜 License
 

@@ -8,6 +8,7 @@ use std::{
 };
 
 use anyhow::{bail, Context, Result};
+use serde_json::{json, Value};
 
 use crate::model::ToolName;
 
@@ -21,6 +22,7 @@ pub trait Adapter {
 pub fn adapter(name: ToolName) -> Box<dyn Adapter> {
     match name {
         ToolName::Quipu => Box::new(Quipu),
+        ToolName::Camayoc => Box::new(Camayoc),
         ToolName::Bobbin => Box::new(Bobbin),
     }
 }
@@ -77,6 +79,35 @@ fn read_version(program: &str) -> Result<String> {
     Ok(version)
 }
 
+fn require_minimum_version(output: &str, minimum: (u64, u64, u64), program: &str) -> Result<()> {
+    let raw = output
+        .split_whitespace()
+        .nth(1)
+        .with_context(|| format!("{program} --version omitted a semantic version"))?;
+    let mut parts = raw.trim_start_matches('v').split('.');
+    let found = (
+        parts.next().and_then(|value| value.parse().ok()),
+        parts.next().and_then(|value| value.parse().ok()),
+        parts.next().and_then(|value| value.parse().ok()),
+    );
+    let found = match found {
+        (Some(major), Some(minor), Some(patch)) => (major, minor, patch),
+        _ => bail!("{program} returned an invalid semantic version: {raw}"),
+    };
+    if found < minimum {
+        bail!(
+            "{program} {}.{}.{} is too old; CABOODLE requires at least {}.{}.{}",
+            found.0,
+            found.1,
+            found.2,
+            minimum.0,
+            minimum.1,
+            minimum.2
+        );
+    }
+    Ok(())
+}
+
 struct Quipu;
 
 impl Adapter for Quipu {
@@ -87,14 +118,27 @@ impl Adapter for Quipu {
     fn install(&self) -> Result<()> {
         checked(
             "cargo",
-            ["install", "quipu-ai", "--version", "0.3.27", "--locked"],
+            [
+                "install",
+                "quipu-ai",
+                "--version",
+                "0.3.27",
+                "--locked",
+                "--features",
+                "full",
+                "--bins",
+            ],
             None,
         )?;
         Ok(())
     }
 
     fn version(&self) -> Result<String> {
-        read_version("quipu")
+        let client = read_version("quipu")?;
+        require_minimum_version(&client, (0, 3, 27), "quipu")?;
+        let server = read_version("quipu-server")?;
+        require_minimum_version(&server, (0, 3, 27), "quipu-server")?;
+        Ok(format!("{client}; {server}"))
     }
 
     fn verify(&self) -> Result<()> {
@@ -155,6 +199,38 @@ impl Adapter for Quipu {
 }
 
 struct Bobbin;
+
+struct Camayoc;
+
+impl Adapter for Camayoc {
+    fn name(&self) -> ToolName {
+        ToolName::Camayoc
+    }
+
+    fn install(&self) -> Result<()> {
+        install_camayoc_bundle()
+    }
+
+    fn version(&self) -> Result<String> {
+        let revision = fs::read_to_string(camayoc_root()?.join("REVISION"))
+            .context("read installed Camayoc revision")?;
+        let revision = revision.trim();
+        if revision.is_empty() {
+            bail!("installed Camayoc revision is empty");
+        }
+        Ok(format!("camayoc {revision}"))
+    }
+
+    fn verify(&self) -> Result<()> {
+        let root = camayoc_root()?;
+        checked(
+            "bash",
+            [root.join("scripts/bootstrap.sh").as_os_str()],
+            None,
+        )?;
+        verify_camayoc_first_ingest(&root)
+    }
+}
 
 impl Adapter for Bobbin {
     fn name(&self) -> ToolName {
@@ -302,6 +378,146 @@ fn install_bobbin_release() -> Result<()> {
     #[cfg(not(unix))]
     bail!("bobbin release installation currently requires a Unix host");
     Ok(())
+}
+
+const CAMAYOC_REVISION: &str = "5656292be5302a90b909f31c899d3b57ec0fb0f6";
+const CAMAYOC_ARCHIVE_SHA256: &str =
+    "217ebdb655bc6e0c87fae4664ce9216733e8055fd47ca2425349f8a6dc5ea0c6";
+
+fn camayoc_root() -> Result<PathBuf> {
+    if let Some(path) = env::var_os("CABOODLE_CAMAYOC_ROOT") {
+        return Ok(PathBuf::from(path));
+    }
+    let home = env::var_os("HOME").context("HOME is required to install Camayoc")?;
+    Ok(PathBuf::from(home)
+        .join(".local/share/caboodle/camayoc")
+        .join(CAMAYOC_REVISION))
+}
+
+fn install_camayoc_bundle() -> Result<()> {
+    let root = camayoc_root()?;
+    if root.join("REVISION").exists() {
+        return Ok(());
+    }
+    let download = tempfile::tempdir().context("create Camayoc download directory")?;
+    let archive = download.path().join("camayoc.tar.gz");
+    download_https(
+        &format!("https://github.com/scbrown/camayoc/archive/{CAMAYOC_REVISION}.tar.gz"),
+        &archive,
+    )?;
+    let digest = checked("sha256sum", [archive.as_os_str()], None)?;
+    let digest = String::from_utf8_lossy(&digest.stdout);
+    if digest.split_whitespace().next() != Some(CAMAYOC_ARCHIVE_SHA256) {
+        bail!("Camayoc archive checksum mismatch");
+    }
+    fs::create_dir_all(&root)
+        .with_context(|| format!("create Camayoc install root {}", root.display()))?;
+    checked(
+        "tar",
+        [
+            OsStr::new("-xzf"),
+            archive.as_os_str(),
+            OsStr::new("--strip-components=1"),
+            OsStr::new("-C"),
+            root.as_os_str(),
+        ],
+        None,
+    )?;
+    fs::write(root.join("REVISION"), format!("{CAMAYOC_REVISION}\n"))
+        .context("write installed Camayoc revision")?;
+    Ok(())
+}
+
+fn verify_camayoc_first_ingest(root: &Path) -> Result<()> {
+    let server = env::var("QUIPU_SERVER").unwrap_or_else(|_| "http://localhost:3030".to_owned());
+    let namespace = camayoc_aegis_namespace(&root.join("ontology/core.ttl"))?;
+    let control = "caboodle-camayoc-control-must-stay-absent";
+    let marker = "caboodle-camayoc-first-ingest-v1";
+
+    if label_count(&server, &namespace, control)? != 0 {
+        bail!("Camayoc negative control unexpectedly exists");
+    }
+
+    let turtle = format!(
+        "@prefix aegis: <{namespace}> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\
+         aegis:{marker} a aegis:Verification ; rdfs:label \"{marker}\" ; \
+         aegis:sourceKind \"observed\" ; aegis:falsifier \"the marker remains absent after ingest\" .\n"
+    );
+    let payload = json!({
+        "turtle": turtle,
+        "actor": "caboodle",
+        "source": "caboodle Camayoc first-ingest verification"
+    });
+    if label_count(&server, &namespace, marker)? == 0 {
+        let first = curl_json(&format!("{server}/knot"), &payload)?;
+        if first.get("count").and_then(Value::as_u64).unwrap_or(0) == 0 {
+            bail!("Camayoc first ingest wrote no triples");
+        }
+    }
+    if label_count(&server, &namespace, marker)? == 0 {
+        bail!("Camayoc first ingest was not retrievable");
+    }
+    curl_json(&format!("{server}/knot"), &payload)?;
+    if label_count(&server, &namespace, marker)? != 1 {
+        bail!("Camayoc idempotent replay wrote duplicate triples");
+    }
+    Ok(())
+}
+
+fn camayoc_aegis_namespace(path: &Path) -> Result<String> {
+    let body = fs::read_to_string(path)
+        .with_context(|| format!("read Camayoc ontology {}", path.display()))?;
+    body.lines()
+        .find_map(|line| {
+            line.trim()
+                .strip_prefix("@prefix aegis: <")
+                .and_then(|rest| rest.strip_suffix("> ."))
+                .map(str::to_owned)
+        })
+        .context("Camayoc ontology does not declare the aegis namespace")
+}
+
+fn label_count(server: &str, namespace: &str, label: &str) -> Result<u64> {
+    let query = format!(
+        "SELECT ?s WHERE {{ ?s <http://www.w3.org/2000/01/rdf-schema#label> \"{label}\" . FILTER(STRSTARTS(STR(?s), \"{namespace}\")) }}"
+    );
+    let response = curl_json(&format!("{server}/query"), &json!({"query": query}))?;
+    response["count"]
+        .as_u64()
+        .context("Quipu query response omitted numeric count")
+}
+
+fn curl_json(url: &str, payload: &Value) -> Result<Value> {
+    let body = payload.to_string();
+    let mut auth = None;
+    if let Ok(token) = env::var("QUIPU_AUTH_TOKEN") {
+        let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
+        fs::write(
+            file.path(),
+            format!("header = \"Authorization: Bearer {token}\"\n"),
+        )
+        .context("write temporary Quipu auth config")?;
+        auth = Some(file);
+    }
+    let mut args = vec![
+        OsString::from("--fail"),
+        OsString::from("--silent"),
+        OsString::from("--show-error"),
+        OsString::from("--request"),
+        OsString::from("POST"),
+        OsString::from("--header"),
+        OsString::from("Content-Type: application/json"),
+        OsString::from("--data"),
+        OsString::from(body),
+    ];
+    if let Some(file) = &auth {
+        args.push(OsString::from("--config"));
+        args.push(file.path().as_os_str().to_owned());
+    }
+    args.push(OsString::from(url));
+    let result = checked("curl", args, None)?;
+    serde_json::from_slice(&result.stdout)
+        .with_context(|| format!("parse JSON response from {url}"))
 }
 
 fn download_https(url: &str, destination: &Path) -> Result<()> {

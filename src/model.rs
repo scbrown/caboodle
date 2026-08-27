@@ -16,9 +16,9 @@ pub enum Profile {
 impl Profile {
     pub fn tools(self) -> Vec<ToolName> {
         match self {
-            Self::Kg => vec![ToolName::Quipu],
-            Self::Retrieval => vec![ToolName::Quipu, ToolName::Bobbin],
-            Self::Crew => vec![ToolName::Quipu, ToolName::Bobbin],
+            Self::Kg => vec![ToolName::Quipu, ToolName::Camayoc],
+            Self::Retrieval => vec![ToolName::Quipu, ToolName::Camayoc, ToolName::Bobbin],
+            Self::Crew => vec![ToolName::Quipu, ToolName::Camayoc, ToolName::Bobbin],
         }
     }
 }
@@ -147,6 +147,7 @@ impl CrewSelection {
 #[serde(rename_all = "lowercase")]
 pub enum ToolName {
     Quipu,
+    Camayoc,
     Bobbin,
 }
 
@@ -154,6 +155,7 @@ impl ToolName {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Quipu => "quipu",
+            Self::Camayoc => "camayoc",
             Self::Bobbin => "bobbin",
         }
     }

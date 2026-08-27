@@ -1,6 +1,6 @@
 ---
 name: caboodle
-description: Install, verify, diagnose, resume, or update the Quipu-stack tool corpus with CABOODLE. Use when an agent or human wants a review-first guided installation of Quipu and Bobbin, needs to resume an interrupted CABOODLE interview or apply, or needs functional proof that the installed stack works.
+description: Install, verify, diagnose, resume, or update the Quipu-stack tool corpus with CABOODLE. Use when an agent or human wants a review-first guided installation of Quipu, Camayoc, and Bobbin, needs to resume an interrupted CABOODLE interview or apply, or needs functional proof that the installed stack works.
 ---
 
 # CABOODLE

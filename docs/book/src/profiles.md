@@ -38,6 +38,11 @@ surfaces are intentionally not: Shantytown owns hooks and host-workspace access;
 Creel owns browser-BYO credentials (write-only to agents) and operator-granted
 browser permissions. Neither adapter is allowed to emit the other's fields.
 
-Phase 0 applies and verifies the `kg` and `retrieval` tool adapters. Crew plans
+The engine applies and verifies Quipu + Camayoc for `kg`, adding Bobbin for
+`retrieval`. Camayoc currently distributes its bootstrap ontology, shapes,
+queries, and gate proof as a repository bundle; CABOODLE pins and checksums
+that bundle until the designed `core.qpack` artifact is published.
+
+Crew plans
 already carry the reviewed runtime choice; the Shantytown and Creel install
 adapters remain Phase 1 work.

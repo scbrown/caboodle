@@ -23,16 +23,21 @@ fn path_with(bin: &Path) -> String {
 
 fn command(root: &Path, bin: &Path) -> Command {
     let mut command = Command::cargo_bin("caboodle").unwrap();
-    command.current_dir(root).env("PATH", path_with(bin));
+    command
+        .current_dir(root)
+        .env("PATH", path_with(bin))
+        .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))
+        .env("QUIPU_SERVER", "http://quipu.test")
+        .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"));
     command
 }
 
-fn install_fakes(bin: &Path) {
+fn install_fakes(root: &Path, bin: &Path) {
     fake_tool(
         bin,
         "quipu",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'quipu 0.test'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'quipu 0.3.27'; exit 0; fi
 if [ "${1:-}" = "episode" ]; then
   db=''
   while [ "$#" -gt 0 ]; do
@@ -56,6 +61,11 @@ exit 2
     );
     fake_tool(
         bin,
+        "quipu-server",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu-server 0.3.27'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        bin,
         "bobbin",
         r#"
 if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.test'; exit 0; fi
@@ -72,6 +82,46 @@ fi
 exit 2
 "#,
     );
+    fake_tool(
+        bin,
+        "curl",
+        r#"
+args=$*
+case "$args" in
+  *"/query"*)
+    case "$args" in
+      *caboodle-camayoc-control-must-stay-absent*)
+        if [ "${FAKE_CAMAYOC_MODE:-}" = control-present ]; then echo '{"count":1,"rows":[{"s":"bad-control"}]}'
+        else echo '{"count":0,"rows":[]}'; fi
+        ;;
+      *)
+        if [ "${FAKE_CAMAYOC_MODE:-}" = not-retrievable ]; then echo '{"count":0,"rows":[]}'
+        elif [ -f "$FAKE_CAMAYOC_STATE.duplicate" ]; then echo '{"count":2,"rows":[{"s":"marker"},{"s":"marker"}]}'
+        elif [ -f "$FAKE_CAMAYOC_STATE" ]; then echo '{"count":1,"rows":[{"s":"marker"}]}'
+        else echo '{"count":0,"rows":[]}'; fi
+        ;;
+    esac
+    ;;
+  *"/knot"*)
+    if [ "${FAKE_CAMAYOC_MODE:-}" = duplicate-replay ] && [ -f "$FAKE_CAMAYOC_STATE" ]; then touch "$FAKE_CAMAYOC_STATE.duplicate"; echo '{"count":4,"tx_id":2}'
+    elif [ "${FAKE_CAMAYOC_MODE:-}" = duplicate-replay ]; then touch "$FAKE_CAMAYOC_STATE"; echo '{"count":4,"tx_id":1}'
+    elif [ -f "$FAKE_CAMAYOC_STATE" ]; then echo '{"count":0,"tx_id":0}'
+    else touch "$FAKE_CAMAYOC_STATE"; echo '{"count":4,"tx_id":1}'; fi
+    ;;
+  *) exit 2 ;;
+esac
+"#,
+    );
+    let camayoc = root.join("camayoc");
+    fs::create_dir_all(camayoc.join("scripts")).unwrap();
+    fs::create_dir_all(camayoc.join("ontology")).unwrap();
+    fs::write(camayoc.join("REVISION"), "test-revision\n").unwrap();
+    fs::write(camayoc.join("scripts/bootstrap.sh"), "#!/bin/sh\nexit 0\n").unwrap();
+    fs::write(
+        camayoc.join("ontology/core.ttl"),
+        "@prefix aegis: <https://example.test/ontology/> .\n",
+    )
+    .unwrap();
 }
 
 #[test]
@@ -142,7 +192,7 @@ fn plan_install_verify_is_resumable() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
-    install_fakes(&bin);
+    install_fakes(root.path(), &bin);
 
     command(root.path(), &bin)
         .args(["plan", "--profile", "retrieval"])
@@ -171,15 +221,39 @@ fn plan_install_verify_is_resumable() {
 }
 
 #[test]
+fn camayoc_verification_refuses_broken_control_retrieval_and_replay() {
+    for (mode, message) in [
+        ("control-present", "negative control unexpectedly exists"),
+        ("not-retrievable", "first ingest was not retrievable"),
+        ("duplicate-replay", "idempotent replay wrote duplicate"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        install_fakes(root.path(), &bin);
+        command(root.path(), &bin)
+            .args(["plan", "--profile", "kg"])
+            .assert()
+            .success();
+        command(root.path(), &bin)
+            .arg("verify")
+            .env("FAKE_CAMAYOC_MODE", mode)
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(message));
+    }
+}
+
+#[test]
 fn verify_names_the_failing_adapter() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
-    install_fakes(&bin);
+    install_fakes(root.path(), &bin);
     fake_tool(
         &bin,
         "quipu",
-        "if [ \"${1:-}\" = --version ]; then echo 'quipu broken'; exit 0; fi\nexit 9",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu 0.3.27'; exit 0; fi\nexit 9",
     );
 
     command(root.path(), &bin)
@@ -191,6 +265,28 @@ fn verify_names_the_failing_adapter() {
         .assert()
         .failure()
         .stderr(predicate::str::contains("quipu functional verification"));
+}
+
+#[test]
+fn apply_refuses_a_quipu_too_old_for_camayoc() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fake_tool(
+        &bin,
+        "quipu",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu 0.3.7'; exit 0; fi\nexit 9",
+    );
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("requires at least 0.3.27"));
 }
 
 #[test]
@@ -242,7 +338,7 @@ fn plan_rejects_unknown_crew_mode_and_invalid_both_contract() {
         root.path().join("invalid.toml"),
         r#"schema_version = 1
 profile = "crew"
-tools = ["quipu", "bobbin"]
+tools = ["quipu", "camayoc", "bobbin"]
 
 [crew]
 mode = "both"
@@ -252,7 +348,7 @@ routing = "single-owner"
 
 [crew.policy]
 identity_source = "quipu"
-tools = ["quipu", "bobbin"]
+tools = ["quipu", "camayoc", "bobbin"]
 "#,
     )
     .unwrap();

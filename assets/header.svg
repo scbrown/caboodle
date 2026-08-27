@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 150" role="img" aria-label="Animated caboodle banner — a teal kit box with a gently tipping lid, three knotted cords flowing to the right with bobbing knots and beads">
+  <!-- flowing cords -->
+  <g stroke-linecap="round" fill="none">
+    <path d="M150 62 C 300 42, 450 82, 600 62 S 850 52, 900 66" stroke="#B3422E" stroke-width="5" stroke-dasharray="16 10">
+      <animate attributeName="stroke-dashoffset" from="0" to="-52" dur="3.2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M150 78 C 310 100, 460 56, 620 80 S 860 92, 900 78" stroke="#7EC8C3" stroke-width="5" stroke-dasharray="14 9">
+      <animate attributeName="stroke-dashoffset" from="0" to="-46" dur="4.1s" repeatCount="indefinite"/>
+    </path>
+    <path d="M150 94 C 320 76, 470 112, 640 92 S 870 82, 900 96" stroke="#E37E96" stroke-width="5" stroke-dasharray="12 8">
+      <animate attributeName="stroke-dashoffset" from="0" to="-40" dur="2.6s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- bobbing knots along the cords -->
+  <g>
+    <circle cx="320" cy="52" r="7" fill="#B3422E">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -5; 0 0" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="500" cy="70" r="7" fill="#C9A227">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 5; 0 0" dur="3.1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="660" cy="88" r="7" fill="#3E5C6E">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -6; 0 0" dur="2.8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="790" cy="64" r="7" fill="#E37E96">
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 4; 0 0" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- a little bead sliding the middle cord -->
+  <circle r="5.5" fill="#7EC8C3" stroke="#3D7A75" stroke-width="2">
+    <animateMotion dur="7s" repeatCount="indefinite" path="M150 78 C 310 100, 460 56, 620 80 S 860 92, 900 78"/>
+  </circle>
+
+  <!-- the kit box, left, lid gently tipping -->
+  <g>
+    <ellipse cx="82" cy="128" rx="58" ry="7" fill="#2A241D" opacity="0.10"/>
+    <!-- lid with a slow, small tip -->
+    <g>
+      <path d="M32 70 L44 44 L120 44 L132 70 Z" fill="#F2A3B3" stroke="#3D7A75" stroke-width="3">
+        <animateTransform attributeName="transform" type="rotate" values="0 32 70; -6 32 70; 0 32 70" dur="5s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <rect x="28" y="70" width="108" height="52" rx="8" fill="#7EC8C3" stroke="#3D7A75" stroke-width="3.5"/>
+    <rect x="72" y="82" width="18" height="14" rx="3.5" fill="#E37E96" stroke="#B3576D" stroke-width="2.5"/>
+    <path d="M66 70 Q82 58 98 70" fill="none" stroke="#3D7A75" stroke-width="4" stroke-linecap="round"/>
+    <!-- sparkles -->
+    <g fill="#C9A227">
+      <circle cx="20" cy="40" r="2.6">
+        <animate attributeName="opacity" values="0.2;1;0.2" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="140" cy="30" r="2.2">
+        <animate attributeName="opacity" values="1;0.15;1" dur="2.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="118" cy="128" r="2.2">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2.7s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+</svg>

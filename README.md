@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="assets/logo.svg" width="200" alt="Caboodle logo — an open kit chest with three knotted, colored cords rising out of it"/>
+  <img src="assets/header.svg" width="100%" alt="Animated banner — a teal kit box with a tipping lid and three flowing, knotted cords"/>
+</p>
+
+<p align="center">
+  <img src="assets/logo.svg" width="300" alt="Caboodle logo — a light-teal tackle box open with pink fold-out trays, each compartment holding a tool of the stack"/>
 </p>
 
 <h1 align="center">caboodle</h1>
@@ -28,7 +32,7 @@ That is this repo's job. Caboodle is an **AI-installable install wizard**: an LL
 agent — or a human answering the same interview — drives the install end to end,
 and every claim along the way is a proof, not a banner.
 
-## Role in the stack
+## 🧵 Role in the stack
 
 ```text
     caboodle                      (interview → plan → apply → verify → observe)
@@ -45,7 +49,7 @@ and every claim along the way is a proof, not a banner.
 - Camayoc ends at knowledge-graph bootstrapping; caboodle begins at
   "I have a fresh machine and I want this stack."
 
-## Three proofs, not one
+## 🔍 Three proofs, not one
 
 1. **Installed** — proven by version read-back, never by exit code.
 2. **Working** — a per-tool functional round-trip: quipu accepts an episode and a
@@ -57,7 +61,7 @@ and every claim along the way is a proof, not a banner.
    Caboodle generates the scrape config, a starter alert pack, and one
    consolidated dashboard.
 
-## What this repo owns
+## 🪢 What this repo owns
 
 1. **The interview** — `caboodle init --guided`: what do you want (knowledge
    graph only? retrieval? a full crew?), where does it run, do you have
@@ -85,7 +89,7 @@ and every claim along the way is a proof, not a banner.
    upgrade. Its sibling `skills/camayoc` (the ontology-bootstrap interview)
    ships with camayoc; caboodle installs both.
 
-## What runs today
+## 🧰 What runs today
 
 Phase 0 ships the plan/apply/verify engine and fixed convention adapters for
 Quipu and Bobbin. It does not need a tool manifest and does not assume a private
@@ -118,7 +122,7 @@ Use `--skip-install` when package installation belongs to another system; the
 version and functional checks still run. The guided interview and broader stack
 profiles remain Phase 1+ work.
 
-## The stack
+## 🧺 The stack
 
 | repo | what it is |
 |---|---|
@@ -133,6 +137,10 @@ profiles remain Phase 1+ work.
 | [skein](https://github.com/scbrown/skein) | portable agentic skills — shell + HTTP only |
 | [beads](https://github.com/Dicklesworthstone/beads_rust) | issue tracking as agent memory — `br`, SQLite + JSONL |
 
-## License
+## 📜 License
 
 [MIT](LICENSE)
+
+<p align="center">
+  <img src="assets/footer.svg" width="100%" alt="Animated footer — a woven band of teal, pink, and ochre cords with sliding beads"/>
+</p>

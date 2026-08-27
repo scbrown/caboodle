@@ -1,23 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Caboodle logo — an open kit chest with three knotted cords rising from it">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 230" role="img" aria-label="Caboodle logo — a light-teal tackle box open with pink fold-out trays, each compartment holding a tool of the stack: knotted quipu cord, bobbin spool, yupana counting board, yarn skein, bead string, and a creel basket">
   <!-- ground shadow -->
-  <ellipse cx="100" cy="172" rx="62" ry="9" fill="#2A241D" opacity="0.12"/>
-  <!-- three cords rising from the chest, each ending in a knot -->
-  <path d="M78 118 C70 96 84 84 74 62 C68 50 76 40 72 30" fill="none" stroke="#B3422E" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="72" cy="26" r="6" fill="#B3422E"/>
-  <circle cx="74" cy="62" r="4.5" fill="#B3422E"/>
-  <path d="M100 114 C100 92 96 78 102 58 C106 44 98 36 102 22" fill="none" stroke="#3E5C6E" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="102" cy="18" r="6" fill="#3E5C6E"/>
-  <circle cx="101" cy="58" r="4.5" fill="#3E5C6E"/>
-  <path d="M122 118 C132 98 118 86 130 66 C136 54 128 46 134 36" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="135" cy="32" r="6" fill="#C9A227"/>
-  <circle cx="130" cy="66" r="4.5" fill="#C9A227"/>
-  <!-- open lid, tipped back -->
-  <path d="M52 112 L64 84 L148 84 L160 112 Z" fill="#55402B"/>
-  <path d="M52 112 L64 84 L148 84 L160 112" fill="none" stroke="#2A241D" stroke-width="3" stroke-linejoin="round"/>
-  <!-- chest body -->
-  <rect x="48" y="112" width="104" height="56" rx="8" fill="#6B4F35" stroke="#2A241D" stroke-width="3"/>
-  <!-- banding -->
-  <line x1="48" y1="132" x2="152" y2="132" stroke="#2A241D" stroke-width="2.5" opacity="0.5"/>
-  <!-- clasp -->
-  <rect x="92" y="126" width="16" height="14" rx="3" fill="#C9A227" stroke="#2A241D" stroke-width="2.5"/>
+  <ellipse cx="160" cy="212" rx="120" ry="10" fill="#2A241D" opacity="0.10"/>
+
+  <!-- ===== left tray (pink, stepped out) ===== -->
+  <g>
+    <!-- arm -->
+    <line x1="118" y1="150" x2="66" y2="118" stroke="#4E8F8A" stroke-width="5" stroke-linecap="round"/>
+    <!-- tray -->
+    <rect x="10" y="96" width="112" height="30" rx="6" fill="#F2A3B3" stroke="#B3576D" stroke-width="3"/>
+    <line x1="47" y1="96" x2="47" y2="126" stroke="#B3576D" stroke-width="2.5"/>
+    <line x1="84" y1="96" x2="84" y2="126" stroke="#B3576D" stroke-width="2.5"/>
+    <!-- compartment 1: quipu — knotted cord -->
+    <line x1="28" y1="101" x2="28" y2="121" stroke="#B3422E" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="28" cy="106" r="3.2" fill="#B3422E"/>
+    <circle cx="28" cy="115" r="3.2" fill="#B3422E"/>
+    <!-- compartment 2: bobbin — thread spool -->
+    <rect x="59" y="102" width="14" height="18" rx="2" fill="#3E5C6E"/>
+    <rect x="56" y="100" width="20" height="4" rx="2" fill="#2C4454"/>
+    <rect x="56" y="118" width="20" height="4" rx="2" fill="#2C4454"/>
+    <line x1="60" y1="107" x2="72" y2="107" stroke="#A8DAD6" stroke-width="1.6"/>
+    <line x1="60" y1="111" x2="72" y2="111" stroke="#A8DAD6" stroke-width="1.6"/>
+    <line x1="60" y1="115" x2="72" y2="115" stroke="#A8DAD6" stroke-width="1.6"/>
+    <!-- compartment 3: yupana — counting board -->
+    <rect x="93" y="102" width="22" height="18" rx="2" fill="#C9A227"/>
+    <line x1="93" y1="111" x2="115" y2="111" stroke="#8F741C" stroke-width="1.6"/>
+    <line x1="104" y1="102" x2="104" y2="120" stroke="#8F741C" stroke-width="1.6"/>
+    <circle cx="98.5" cy="106.5" r="1.8" fill="#5C4A12"/>
+    <circle cx="109.5" cy="106.5" r="1.8" fill="#5C4A12"/>
+    <circle cx="98.5" cy="115.5" r="1.8" fill="#5C4A12"/>
+  </g>
+
+  <!-- ===== right tray (pink, stepped out) ===== -->
+  <g>
+    <line x1="202" y1="150" x2="254" y2="118" stroke="#4E8F8A" stroke-width="5" stroke-linecap="round"/>
+    <rect x="198" y="96" width="112" height="30" rx="6" fill="#F2A3B3" stroke="#B3576D" stroke-width="3"/>
+    <line x1="235" y1="96" x2="235" y2="126" stroke="#B3576D" stroke-width="2.5"/>
+    <line x1="272" y1="96" x2="272" y2="126" stroke="#B3576D" stroke-width="2.5"/>
+    <!-- compartment 4: skein — loop of yarn -->
+    <ellipse cx="216" cy="111" rx="9" ry="10" fill="none" stroke="#B3422E" stroke-width="3"/>
+    <line x1="209" y1="105" x2="223" y2="117" stroke="#B3422E" stroke-width="2"/>
+    <line x1="209" y1="117" x2="223" y2="105" stroke="#B3422E" stroke-width="2"/>
+    <!-- compartment 5: beads — a short string -->
+    <path d="M241 118 Q253 100 266 116" fill="none" stroke="#5C5344" stroke-width="1.6"/>
+    <circle cx="243" cy="115" r="3.4" fill="#3E5C6E"/>
+    <circle cx="250" cy="108" r="3.4" fill="#7EC8C3"/>
+    <circle cx="257" cy="106" r="3.4" fill="#E37E96"/>
+    <circle cx="264" cy="112" r="3.4" fill="#C9A227"/>
+    <!-- compartment 6: creel — woven basket -->
+    <path d="M279 104 L303 104 L299 121 L283 121 Z" fill="#C9A227" stroke="#8F741C" stroke-width="2"/>
+    <line x1="281" y1="110" x2="301" y2="110" stroke="#8F741C" stroke-width="1.5"/>
+    <line x1="282" y1="116" x2="300" y2="116" stroke="#8F741C" stroke-width="1.5"/>
+    <path d="M285 104 Q291 96 297 104" fill="none" stroke="#8F741C" stroke-width="2"/>
+  </g>
+
+  <!-- ===== cords rising from the open box ===== -->
+  <path d="M140 140 C132 118 146 106 138 86 C132 74 140 64 136 54" fill="none" stroke="#B3422E" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="136" cy="50" r="5" fill="#B3422E"/>
+  <circle cx="138" cy="86" r="4" fill="#B3422E"/>
+  <path d="M160 138 C160 116 156 102 162 84 C166 70 158 62 162 48" fill="none" stroke="#3E5C6E" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="162" cy="44" r="5" fill="#3E5C6E"/>
+  <circle cx="161" cy="84" r="4" fill="#3E5C6E"/>
+  <path d="M180 140 C190 120 176 108 188 88 C194 76 186 68 192 58" fill="none" stroke="#C9A227" stroke-width="4.5" stroke-linecap="round"/>
+  <circle cx="193" cy="54" r="5" fill="#C9A227"/>
+  <circle cx="188" cy="88" r="4" fill="#C9A227"/>
+
+  <!-- ===== lid, tipped back (teal with pink lining) ===== -->
+  <path d="M112 132 L124 104 L196 104 L208 132 Z" fill="#F2A3B3" stroke="#3D7A75" stroke-width="3"/>
+  <path d="M118 128 L127 108 L193 108 L202 128 Z" fill="#E37E96" opacity="0.55"/>
+
+  <!-- ===== box body (light teal) ===== -->
+  <rect x="108" y="132" width="104" height="72" rx="9" fill="#7EC8C3" stroke="#3D7A75" stroke-width="3.5"/>
+  <rect x="108" y="150" width="104" height="4" fill="#4E8F8A" opacity="0.55"/>
+  <!-- pink clasp + corner rivets -->
+  <rect x="151" y="146" width="18" height="15" rx="3.5" fill="#E37E96" stroke="#B3576D" stroke-width="2.5"/>
+  <circle cx="117" cy="141" r="2.4" fill="#F2A3B3"/>
+  <circle cx="203" cy="141" r="2.4" fill="#F2A3B3"/>
+  <circle cx="117" cy="196" r="2.4" fill="#F2A3B3"/>
+  <circle cx="203" cy="196" r="2.4" fill="#F2A3B3"/>
+  <!-- handle -->
+  <path d="M146 132 Q160 120 174 132" fill="none" stroke="#3D7A75" stroke-width="4" stroke-linecap="round"/>
 </svg>

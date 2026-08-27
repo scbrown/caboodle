@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 56" role="img" aria-label="Animated caboodle footer — a woven band of teal, pink, and ochre cords with a sliding bead">
+  <g stroke-linecap="round" fill="none">
+    <path d="M0 22 C 150 10, 300 34, 450 22 S 750 10, 900 24" stroke="#7EC8C3" stroke-width="4.5" stroke-dasharray="14 9">
+      <animate attributeName="stroke-dashoffset" from="0" to="-46" dur="3.8s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 32 C 160 44, 320 18, 480 32 S 760 44, 900 30" stroke="#E37E96" stroke-width="4.5" stroke-dasharray="12 8">
+      <animate attributeName="stroke-dashoffset" from="0" to="-40" dur="2.9s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 42 C 170 30, 340 50, 510 40 S 780 30, 900 44" stroke="#C9A227" stroke-width="4.5" stroke-dasharray="10 7">
+      <animate attributeName="stroke-dashoffset" from="0" to="-34" dur="4.6s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <circle r="5" fill="#F2A3B3" stroke="#B3576D" stroke-width="2">
+    <animateMotion dur="8s" repeatCount="indefinite" path="M0 32 C 160 44, 320 18, 480 32 S 760 44, 900 30"/>
+  </circle>
+  <circle r="4" fill="#3E5C6E">
+    <animateMotion dur="6s" begin="1.5s" repeatCount="indefinite" path="M900 24 C 750 10, 450 22, 300 34 S 150 10, 0 22"/>
+  </circle>
+</svg>

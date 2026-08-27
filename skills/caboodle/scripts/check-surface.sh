@@ -12,5 +12,9 @@ done
 "$caboodle_bin" plan --help | grep -q -- '--profile'
 "$caboodle_bin" apply --help | grep -q -- '--skip-install'
 "$caboodle_bin" verify --help | grep -q -- '--state'
+"$caboodle_bin" verify --help | grep -q -- '--creel-doctor'
+"$caboodle_bin" verify --help | grep -q -- '--creel-admission'
+"$caboodle_bin" install --help | grep -q -- '--creel-doctor'
+"$caboodle_bin" install --help | grep -q -- '--creel-admission'
 
 printf '%s\n' 'caboodle skill surface: verified'

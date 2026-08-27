@@ -126,14 +126,19 @@ If the interview loses input or its caller stops, rerun `caboodle init --guided`
 accepted answers resume from `.caboodle/interview.toml`. The session disappears
 only after the complete plan has been written successfully.
 
-Installable profiles today are `kg` (Quipu + Camayoc) and `retrieval` (plus
-Bobbin). Until Camayoc publishes `core.qpack`, CABOODLE installs its
+Installable profiles today are `kg` (Quipu + Camayoc), `retrieval` (plus
+Bobbin), and `crew` (Shantytown, Creel, both, or standalone). CABOODLE installs
+checksum-pinned Shantytown and Creel distributions. Creel verification remains
+browser-owned: it requires explicit machine-readable doctor and admission
+documents and refuses missing, unknown, unredacted, or non-admit evidence. See
+the [crew capability contracts](docs/book/src/crew-contracts.md).
+
+Until Camayoc publishes `core.qpack`, CABOODLE installs its
 checksum-pinned bootstrap distribution: ontology, shapes, queries, and the
 same fail-closed gate proof. Verification then proves a separate first ingest
 with an absent control, reader-path retrieval, and an idempotent replay.
 Use `--skip-install` when package installation belongs to another system; the
-version and functional checks still run. Broader stack profiles remain Phase 1+
-work.
+version and functional checks still run.
 
 ## 🧺 The stack
 

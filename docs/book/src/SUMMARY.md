@@ -7,6 +7,7 @@
 - [Architecture](architecture.md)
   - [Convention over manifest](conventions.md)
   - [Profiles](profiles.md)
+  - [Crew capability contracts](crew-contracts.md)
   - [Emitting to quipu](emission.md)
 - [The corpus](corpus.md)
 - [Roadmap](roadmap.md)

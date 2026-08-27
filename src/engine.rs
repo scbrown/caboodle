@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 
 use crate::{
     adapter::adapter,
+    crew::{self, CrewEvidence},
     model::{Plan, State, ToolState},
 };
 
@@ -42,10 +43,14 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
         state.write(state_path)?;
         println!("{}: applied", name.as_str());
     }
+    if let Some(selection) = &plan.crew {
+        crew::apply(selection, &mut state, skip_install)?;
+        state.write(state_path)?;
+    }
     Ok(state)
 }
 
-pub fn verify(plan: &Plan, state_path: &Path) -> Result<State> {
+pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
@@ -66,6 +71,10 @@ pub fn verify(plan: &Plan, state_path: &Path) -> Result<State> {
         );
         state.write(state_path)?;
         println!("{}: verified", name.as_str());
+    }
+    if let Some(selection) = &plan.crew {
+        crew::verify(selection, evidence, &mut state)?;
+        state.write(state_path)?;
     }
     Ok(state)
 }

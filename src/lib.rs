@@ -1,4 +1,5 @@
 pub mod adapter;
+pub mod crew;
 pub mod engine;
 pub mod interview;
 pub mod model;

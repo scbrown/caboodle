@@ -27,6 +27,7 @@ fn command(root: &Path, bin: &Path) -> Command {
         .current_dir(root)
         .env("PATH", path_with(bin))
         .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))
+        .env("CABOODLE_CREEL_ROOT", root.join("creel"))
         .env("QUIPU_SERVER", "http://quipu.test")
         .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"));
     command
@@ -84,6 +85,11 @@ exit 2
     );
     fake_tool(
         bin,
+        "st",
+        "if [ \"${1:-}\" = --version ]; then echo 'st 0.4.0 (test)'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        bin,
         "curl",
         r#"
 args=$*
@@ -120,6 +126,20 @@ esac
     fs::write(
         camayoc.join("ontology/core.ttl"),
         "@prefix aegis: <https://example.test/ontology/> .\n",
+    )
+    .unwrap();
+    let creel = root.join("creel");
+    fs::create_dir_all(creel.join("app/wasm/pkg")).unwrap();
+    fs::write(
+        creel.join("REVISION"),
+        "57606dcfa0ff72d6c1bb083d70644c9926b181eb\n",
+    )
+    .unwrap();
+    fs::write(creel.join("app/index.html"), "<!doctype html>").unwrap();
+    fs::write(creel.join("app/sw.js"), "// service worker").unwrap();
+    fs::write(
+        creel.join("app/wasm/pkg/creel_quipu_provider_bg.wasm"),
+        b"wasm",
     )
     .unwrap();
 }
@@ -420,5 +440,131 @@ fn projection_emits_only_the_selected_harness() {
             .join(present)
             .is_file());
         assert!(!root.path().join("caboodle-settings").join(absent).exists());
+    }
+}
+
+fn write_creel_contracts(root: &Path, doctor_status: &str, verdict: &str) -> (String, String) {
+    let doctor = root.join("creel-doctor.json");
+    let admission = root.join("creel-admission.json");
+    fs::write(
+        &doctor,
+        format!(
+            r#"{{
+  "schema_version": 1,
+  "overall": "{doctor_status}",
+  "checks": [{{
+    "id": "secure-context",
+    "status": "{doctor_status}",
+    "severity": "required",
+    "evidence": "browser reported a secure context",
+    "remediation": "serve Creel over HTTPS",
+    "redacted": true
+  }}]
+}}"#
+        ),
+    )
+    .unwrap();
+    fs::write(
+        &admission,
+        format!(
+            r#"{{
+  "schema_version": 1,
+  "verdict": "{verdict}",
+  "provider_window": {{"status":"pass","evidence":"window below ceiling"}},
+  "device_tab_cap": {{"status":"pass","evidence":"one slot available"}},
+  "signal_freshness": {{"status":"pass","evidence":"signals observed now"}},
+  "reason": "launch is within the redacted policy limits",
+  "redacted": true
+}}"#
+        ),
+    )
+    .unwrap();
+    (
+        doctor.to_string_lossy().into_owned(),
+        admission.to_string_lossy().into_owned(),
+    )
+}
+
+#[test]
+fn crew_install_records_shantytown_and_creel_without_crossing_ownership() {
+    for mode in ["shantytown", "creel", "both"] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        install_fakes(root.path(), &bin);
+        command(root.path(), &bin)
+            .args(["plan", "--profile", "crew", "--crew", mode])
+            .assert()
+            .success();
+        command(root.path(), &bin)
+            .args(["apply", "--skip-install"])
+            .assert()
+            .success();
+
+        let state: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(state["crew"].get("shantytown").is_some(), mode != "creel");
+        assert_eq!(state["crew"].get("creel").is_some(), mode != "shantytown");
+    }
+}
+
+#[test]
+fn creel_verification_requires_both_external_capability_contracts() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "crew", "--crew", "creel"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("requires --creel-doctor"));
+
+    let (doctor, admission) = write_creel_contracts(root.path(), "pass", "admit");
+    command(root.path(), &bin)
+        .args([
+            "verify",
+            "--creel-doctor",
+            &doctor,
+            "--creel-admission",
+            &admission,
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("creel: verified"));
+}
+
+#[test]
+fn creel_verification_refuses_unknown_doctor_and_policy_refusal() {
+    for (doctor_status, verdict, message) in [
+        ("unknown", "admit", "required doctor check"),
+        ("pass", "refuse", "governor did not admit"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        install_fakes(root.path(), &bin);
+        command(root.path(), &bin)
+            .args(["plan", "--profile", "crew", "--crew", "creel"])
+            .assert()
+            .success();
+        let (doctor, admission) = write_creel_contracts(root.path(), doctor_status, verdict);
+        command(root.path(), &bin)
+            .args([
+                "verify",
+                "--creel-doctor",
+                &doctor,
+                "--creel-admission",
+                &admission,
+            ])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(message));
     }
 }

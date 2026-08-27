@@ -53,7 +53,7 @@ where
     })
 }
 
-fn checked<I, S>(program: &str, args: I, cwd: Option<&Path>) -> Result<Output>
+pub(crate) fn checked<I, S>(program: &str, args: I, cwd: Option<&Path>) -> Result<Output>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
@@ -520,7 +520,7 @@ fn curl_json(url: &str, payload: &Value) -> Result<Value> {
         .with_context(|| format!("parse JSON response from {url}"))
 }
 
-fn download_https(url: &str, destination: &Path) -> Result<()> {
+pub(crate) fn download_https(url: &str, destination: &Path) -> Result<()> {
     checked(
         "curl",
         [

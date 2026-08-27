@@ -41,8 +41,7 @@ session that could fork the plan.
 If input ends, rerun the exact command. Accepted answers resume from
 `.caboodle/interview.toml`; no install has happened. For automation with choices
 already supplied, use `caboodle plan --profile kg|retrieval`. Crew plans may be
-generated with `--profile crew --crew shantytown|creel|both|standalone`, but the
-current release does not install the crew harnesses yet.
+generated with `--profile crew --crew shantytown|creel|both|standalone`.
 
 Read `caboodle-plan.toml` back to the operator. Confirm the selected profile and
 tools. Never apply a conversational answer directly: the plan file is the
@@ -68,6 +67,21 @@ so rerunning converges.
 Use `caboodle install` only as shorthand for apply + verify after the plan has
 already been reviewed. Use `--skip-install` only when an external package
 manager owns installation; it still requires version and functional proof.
+
+For a Creel or `both` plan, `apply` installs the checksum-pinned static browser
+bundle, but verification additionally requires browser-owned capability
+evidence:
+
+```sh
+caboodle verify \
+  --creel-doctor creel-doctor.json \
+  --creel-admission creel-admission.json
+```
+
+Those files must come from Creel's doctor and governor interfaces. Never invent
+them or translate a human-readable banner into them. Missing evidence, an
+unknown required doctor check, stale/unknown policy signals, or a refusal
+verdict must stop the install.
 
 Report the selected profile, each applied version, each verified adapter, and
 the retained plan/state paths. Exit status or an “installed” banner alone is

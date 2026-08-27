@@ -235,10 +235,19 @@ impl Plan {
 pub struct State {
     pub schema_version: u32,
     pub tools: BTreeMap<String, ToolState>,
+    #[serde(default)]
+    pub crew: BTreeMap<String, CrewRuntimeState>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolState {
+    pub version: String,
+    pub applied: bool,
+    pub verified: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CrewRuntimeState {
     pub version: String,
     pub applied: bool,
     pub verified: bool,
@@ -250,6 +259,7 @@ impl State {
             return Ok(Self {
                 schema_version: SCHEMA_VERSION,
                 tools: BTreeMap::new(),
+                crew: BTreeMap::new(),
             });
         }
         let body =

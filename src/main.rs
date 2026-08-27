@@ -2,6 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use caboodle::{
+    crew::CrewEvidence,
     engine, interview,
     model::{CrewMode, Plan, Profile},
     projection,
@@ -53,6 +54,12 @@ enum Commands {
         plan: PathBuf,
         #[arg(long, default_value = ".caboodle/state.json")]
         state: PathBuf,
+        /// Creel browser doctor JSON produced by its capability preflight
+        #[arg(long)]
+        creel_doctor: Option<PathBuf>,
+        /// Creel admission JSON produced by its provider-window governor
+        #[arg(long)]
+        creel_admission: Option<PathBuf>,
     },
     /// Apply and verify a previously reviewed plan
     Install {
@@ -62,6 +69,10 @@ enum Commands {
         state: PathBuf,
         #[arg(long)]
         skip_install: bool,
+        #[arg(long)]
+        creel_doctor: Option<PathBuf>,
+        #[arg(long)]
+        creel_admission: Option<PathBuf>,
     },
     /// Project one reviewed crew policy through harness-owned settings adapters
     ProjectSettings {
@@ -145,17 +156,38 @@ fn main() -> Result<()> {
         } => {
             engine::apply(&Plan::read(&plan)?, &state, skip_install)?;
         }
-        Commands::Verify { plan, state } => {
-            engine::verify(&Plan::read(&plan)?, &state)?;
+        Commands::Verify {
+            plan,
+            state,
+            creel_doctor,
+            creel_admission,
+        } => {
+            engine::verify(
+                &Plan::read(&plan)?,
+                &state,
+                &CrewEvidence {
+                    creel_doctor,
+                    creel_admission,
+                },
+            )?;
         }
         Commands::Install {
             plan,
             state,
             skip_install,
+            creel_doctor,
+            creel_admission,
         } => {
             let plan = Plan::read(&plan)?;
             engine::apply(&plan, &state, skip_install)?;
-            engine::verify(&plan, &state)?;
+            engine::verify(
+                &plan,
+                &state,
+                &CrewEvidence {
+                    creel_doctor,
+                    creel_admission,
+                },
+            )?;
         }
         Commands::ProjectSettings { plan, output } => {
             for name in projection::write(&Plan::read(&plan)?, &output)? {

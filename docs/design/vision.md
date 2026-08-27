@@ -49,9 +49,15 @@ alone.
 
 **Profiles**: `kg` (quipu + camayoc), `retrieval` (+ bobbin), `code-intel`
 (+ yupana), `crew`, `everything`. The `crew` profile is a choice — **shantytown,
-creel, or both**: shantytown for a tmux-resident crew on a host, creel for parallel
-agent bursts entirely in the browser. The choice rests on creel ↔ shantytown feature
-parity, tracked as its own workstream.
+creel, both, or standalone**: shantytown for a tmux-resident crew on a host, creel
+for parallel agent bursts entirely in the browser, both together, or standalone —
+no crew layer at all, the tools serving a single agent or a human directly. The
+shantytown/creel choice rests on their feature parity, tracked as its own workstream.
+
+**Both harnesses are first-class.** Caboodle supports **Claude Code and codex**
+equally: either can drive the install (the skill and the interview are
+harness-agnostic — shell + HTTP only), and when a crew is chosen the wizard asks
+which harness each role runs on, emitting the right per-harness configuration.
 
 **Beads is in the corpus.** The tracker (`br` — beads, SQLite + JSONL) installs
 like any other tool: agent memory is part of the kit, and the crew profiles

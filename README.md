@@ -76,8 +76,10 @@ and every claim along the way is a proof, not a banner.
    re-running converges; a failed step names itself.
 3. **Profiles** — `kg` (quipu + camayoc), `retrieval` (+ bobbin), `code-intel`
    (+ yupana), `crew`, `everything`. The `crew` profile is a choice:
-   **shantytown, creel, or both** — a tmux-resident crew on a host, parallel
-   agent bursts in the browser, or the pair.
+   **shantytown, creel, both, or standalone** — a tmux-resident crew on a host,
+   parallel agent bursts in the browser, the pair, or no crew layer at all.
+   Both harnesses are first-class: **Claude Code and codex** can each drive the
+   install, and crews can run roles on either.
 4. **The observability weave** — each tool's metrics contract is catalogued in
    camayoc (meaning and ownership live in the graph the box just installed),
    and wired into Prometheus by generated config.

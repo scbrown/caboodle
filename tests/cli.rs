@@ -75,6 +75,69 @@ exit 2
 }
 
 #[test]
+fn guided_interview_writes_the_same_reviewed_plan_as_plan_command() {
+    let guided_root = tempfile::tempdir().unwrap();
+    command(guided_root.path(), guided_root.path())
+        .args(["init", "--guided"])
+        .write_stdin("crew\nboth\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("profile [kg/retrieval/crew]"))
+        .stdout(predicate::str::contains(
+            "crew [shantytown/creel/both/standalone]",
+        ));
+
+    let direct_root = tempfile::tempdir().unwrap();
+    command(direct_root.path(), direct_root.path())
+        .args(["plan", "--profile", "crew", "--crew", "both"])
+        .assert()
+        .success();
+
+    assert_eq!(
+        fs::read(guided_root.path().join("caboodle-plan.toml")).unwrap(),
+        fs::read(direct_root.path().join("caboodle-plan.toml")).unwrap()
+    );
+    assert!(!guided_root.path().join(".caboodle/interview.toml").exists());
+}
+
+#[test]
+fn guided_interview_resumes_after_input_ends() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["init", "--guided"])
+        .write_stdin("crew\n")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("interview paused at end of input"));
+
+    let draft = fs::read_to_string(root.path().join(".caboodle/interview.toml")).unwrap();
+    assert!(draft.contains("profile = \"crew\""));
+
+    command(root.path(), root.path())
+        .args(["init", "--guided"])
+        .write_stdin("creel\n")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "resuming: profile already answered",
+        ));
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("mode = \"creel\""));
+}
+
+#[test]
+fn guided_interview_rejects_invalid_answers_without_a_plan() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["init", "--guided"])
+        .write_stdin("everything\n")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid profile"));
+    assert!(!root.path().join("caboodle-plan.toml").exists());
+}
+
+#[test]
 fn plan_install_verify_is_resumable() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");

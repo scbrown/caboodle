@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use caboodle::{
-    engine,
+    engine, interview,
     model::{CrewMode, Plan, Profile},
     projection,
 };
@@ -17,6 +17,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Run the resumable guided interview and write a reviewable plan
+    Init {
+        /// Use the guided question flow
+        #[arg(long)]
+        guided: bool,
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        output: PathBuf,
+        #[arg(long, default_value = ".caboodle/interview.toml")]
+        session: PathBuf,
+    },
     /// Write a reviewable install plan without changing the machine
     Plan {
         #[arg(long, value_enum, default_value_t = ProfileArg::Retrieval)]
@@ -100,6 +110,20 @@ impl From<ProfileArg> for Profile {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Commands::Init {
+            guided,
+            output,
+            session,
+        } => {
+            if !guided {
+                anyhow::bail!("caboodle init currently requires --guided");
+            }
+            let stdin = std::io::stdin();
+            let mut input = stdin.lock();
+            let stdout = std::io::stdout();
+            let mut output_stream = stdout.lock();
+            interview::guided(&mut input, &mut output_stream, &session, &output)?;
+        }
         Commands::Plan {
             profile,
             crew,

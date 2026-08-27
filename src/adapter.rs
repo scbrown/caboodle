@@ -380,9 +380,9 @@ fn install_bobbin_release() -> Result<()> {
     Ok(())
 }
 
-const CAMAYOC_REVISION: &str = "c7cff39833c17bd434d1afa69fadf24dbbc0970b";
+const CAMAYOC_REVISION: &str = "f33da14bba7bdd579852f5ddaa5d6328197d806f";
 const CAMAYOC_ARCHIVE_SHA256: &str =
-    "637780fbc86f57f861e543bc1ec3e506878c7b6a469d878f2ed8e29775f9b82d";
+    "e3e9ebb2975dd6c518c051930f5dd9b61560046195793356cde8b62d42483086";
 
 fn camayoc_root() -> Result<PathBuf> {
     if let Some(path) = env::var_os("CABOODLE_CAMAYOC_ROOT") {

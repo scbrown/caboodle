@@ -6,6 +6,12 @@ language = "en"
 src = "src"
 
 [output.html]
-default-theme = "light"
-preferred-dark-theme = "ayu"
+default-theme = "coal"
+preferred-dark-theme = "coal"
 git-repository-url = "https://github.com/scbrown/caboodle"
+edit-url-template = "https://github.com/scbrown/caboodle/edit/main/docs/book/{path}"
+additional-css = ["custom/css/custom.css"]
+site-url = "/caboodle/"
+
+[output.html.search]
+enable = true

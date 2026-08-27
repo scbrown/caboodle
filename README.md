@@ -83,15 +83,36 @@ and every claim along the way is a proof, not a banner.
 
 ## What runs today
 
-Nothing yet — this README is the contract, and
-[docs/design/vision.md](docs/design/vision.md) is the plan. In this house a
-claim of capability requires a demonstration, so this section only grows when
-something can be demonstrated; the stubs in the `justfile` currently **refuse
-loudly** rather than pretend.
+Phase 0 ships the plan/apply/verify engine and fixed convention adapters for
+Quipu and Bobbin. It does not need a tool manifest and does not assume a private
+network:
 
-Phase 0 target: the plan/apply/verify engine with convention adapters for quipu
-and bobbin, and a clean-machine install test in CI as the north-star acceptance
-— nothing that only works on one particular network.
+```bash
+cargo install --git https://github.com/scbrown/caboodle --locked
+
+# Review first: this only writes caboodle-plan.toml.
+caboodle plan --profile retrieval
+
+# Converge the reviewed plan, then prove both tools with isolated round trips.
+caboodle apply
+caboodle verify
+
+# Or run both phases together after review.
+caboodle install
+```
+
+`apply` installs a missing released tool and reads its version back; Bobbin comes
+from its checksummed release bundle (including its runtime), not a source build.
+A successful installer exit alone is not accepted. `verify` uses temporary
+isolated stores: it proves a marker is absent first, writes/indexes it, and then
+requires the reader path to return it. Progress is written atomically to
+`.caboodle/state.json`, so rerunning converges and preserves a still-current
+verified result.
+
+Profiles available in Phase 0 are `kg` (Quipu) and `retrieval` (Quipu + Bobbin).
+Use `--skip-install` when package installation belongs to another system; the
+version and functional checks still run. The guided interview and broader stack
+profiles remain Phase 1+ work.
 
 ## The stack
 

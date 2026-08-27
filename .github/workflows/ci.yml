@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo test --all-features
+
+  clean-machine-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install from a clean checkout
+        run: cargo install --path . --locked --root "$RUNNER_TEMP/caboodle"
+      - name: Prove the installed binary starts and writes a valid plan
+        run: |
+          export PATH="$RUNNER_TEMP/caboodle/bin:$PATH"
+          work="$RUNNER_TEMP/clean-machine"
+          mkdir "$work"
+          cd "$work"
+          caboodle --version
+          caboodle plan --profile retrieval
+          test -s caboodle-plan.toml
+          caboodle plan --profile kg --output kg.toml
+          test -s kg.toml

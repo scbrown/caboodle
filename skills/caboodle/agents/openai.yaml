@@ -1,0 +1,4 @@
+interface:
+  display_name: "CABOODLE"
+  short_description: "Install and prove the AI tool corpus"
+  default_prompt: "Use $caboodle to create, review, install, and verify a CABOODLE stack plan."

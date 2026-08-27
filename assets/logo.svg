@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Caboodle logo — an open kit chest with three knotted cords rising from it">
+  <!-- ground shadow -->
+  <ellipse cx="100" cy="172" rx="62" ry="9" fill="#2A241D" opacity="0.12"/>
+  <!-- three cords rising from the chest, each ending in a knot -->
+  <path d="M78 118 C70 96 84 84 74 62 C68 50 76 40 72 30" fill="none" stroke="#B3422E" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="72" cy="26" r="6" fill="#B3422E"/>
+  <circle cx="74" cy="62" r="4.5" fill="#B3422E"/>
+  <path d="M100 114 C100 92 96 78 102 58 C106 44 98 36 102 22" fill="none" stroke="#3E5C6E" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="102" cy="18" r="6" fill="#3E5C6E"/>
+  <circle cx="101" cy="58" r="4.5" fill="#3E5C6E"/>
+  <path d="M122 118 C132 98 118 86 130 66 C136 54 128 46 134 36" fill="none" stroke="#C9A227" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="135" cy="32" r="6" fill="#C9A227"/>
+  <circle cx="130" cy="66" r="4.5" fill="#C9A227"/>
+  <!-- open lid, tipped back -->
+  <path d="M52 112 L64 84 L148 84 L160 112 Z" fill="#55402B"/>
+  <path d="M52 112 L64 84 L148 84 L160 112" fill="none" stroke="#2A241D" stroke-width="3" stroke-linejoin="round"/>
+  <!-- chest body -->
+  <rect x="48" y="112" width="104" height="56" rx="8" fill="#6B4F35" stroke="#2A241D" stroke-width="3"/>
+  <!-- banding -->
+  <line x1="48" y1="132" x2="152" y2="132" stroke="#2A241D" stroke-width="2.5" opacity="0.5"/>
+  <!-- clasp -->
+  <rect x="92" y="126" width="16" height="14" rx="3" fill="#C9A227" stroke="#2A241D" stroke-width="2.5"/>
+</svg>

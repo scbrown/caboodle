@@ -53,6 +53,45 @@ pub struct CrewSelection {
     pub durable_owner: Option<CrewOwner>,
     pub burst_owner: Option<CrewOwner>,
     pub routing: Option<CrewRouting>,
+    pub policy: CrewPolicy,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CrewPolicy {
+    pub identity_source: IdentitySource,
+    pub model: Option<String>,
+    pub tools: Vec<ToolName>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum IdentitySource {
+    Quipu,
+}
+
+impl CrewPolicy {
+    fn standard() -> Self {
+        Self {
+            identity_source: IdentitySource::Quipu,
+            model: None,
+            tools: Profile::Crew.tools(),
+        }
+    }
+
+    fn validate(&self) -> Result<()> {
+        if self.tools != Profile::Crew.tools() {
+            bail!("crew policy tools must match the crew profile conventions");
+        }
+        if self
+            .model
+            .as_ref()
+            .is_some_and(|model| model.trim().is_empty())
+        {
+            bail!("crew policy model must be omitted or non-empty");
+        }
+        Ok(())
+    }
 }
 
 impl CrewSelection {
@@ -63,36 +102,43 @@ impl CrewSelection {
                 durable_owner: Some(CrewOwner::Shantytown),
                 burst_owner: None,
                 routing: Some(CrewRouting::SingleOwner),
+                policy: CrewPolicy::standard(),
             },
             CrewMode::Creel => Self {
                 mode,
                 durable_owner: None,
                 burst_owner: Some(CrewOwner::Creel),
                 routing: Some(CrewRouting::SingleOwner),
+                policy: CrewPolicy::standard(),
             },
             CrewMode::Both => Self {
                 mode,
                 durable_owner: Some(CrewOwner::Shantytown),
                 burst_owner: Some(CrewOwner::Creel),
                 routing: Some(CrewRouting::ExplicitHandoff),
+                policy: CrewPolicy::standard(),
             },
             CrewMode::Standalone => Self {
                 mode,
                 durable_owner: None,
                 burst_owner: None,
                 routing: None,
+                policy: CrewPolicy::standard(),
             },
         }
     }
 
     fn validate(&self) -> Result<()> {
-        if self != &Self::for_mode(self.mode) {
+        let mut expected = Self::for_mode(self.mode);
+        expected.policy = self.policy.clone();
+        if self != &expected {
             bail!(
                 "crew {:?} must use the declared ownership/routing contract; expected {:?}",
                 self.mode,
-                Self::for_mode(self.mode)
+                expected
             );
         }
+        self.policy.validate()?;
         Ok(())
     }
 }

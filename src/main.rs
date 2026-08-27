@@ -4,6 +4,7 @@ use anyhow::Result;
 use caboodle::{
     engine,
     model::{CrewMode, Plan, Profile},
+    projection,
 };
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -51,6 +52,13 @@ enum Commands {
         state: PathBuf,
         #[arg(long)]
         skip_install: bool,
+    },
+    /// Project one reviewed crew policy through harness-owned settings adapters
+    ProjectSettings {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+        #[arg(short, long, default_value = "caboodle-settings")]
+        output: PathBuf,
     },
 }
 
@@ -124,6 +132,11 @@ fn main() -> Result<()> {
             let plan = Plan::read(&plan)?;
             engine::apply(&plan, &state, skip_install)?;
             engine::verify(&plan, &state)?;
+        }
+        Commands::ProjectSettings { plan, output } => {
+            for name in projection::write(&Plan::read(&plan)?, &output)? {
+                println!("settings: {}", output.join(name).display());
+            }
         }
     }
     Ok(())

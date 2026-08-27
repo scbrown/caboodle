@@ -186,6 +186,10 @@ mode = "both"
 durable_owner = "creel"
 burst_owner = "shantytown"
 routing = "single-owner"
+
+[crew.policy]
+identity_source = "quipu"
+tools = ["quipu", "bobbin"]
 "#,
     )
     .unwrap();
@@ -196,4 +200,66 @@ routing = "single-owner"
         .stderr(predicate::str::contains(
             "declared ownership/routing contract",
         ));
+}
+
+#[test]
+fn both_settings_share_policy_but_keep_security_adapter_owned() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--profile", "crew", "--crew", "both"])
+        .assert()
+        .success();
+    command(root.path(), root.path())
+        .arg("project-settings")
+        .assert()
+        .success();
+
+    let shantytown: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(
+            root.path()
+                .join("caboodle-settings/shantytown.settings.json"),
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    let creel: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("caboodle-settings/creel.settings.json")).unwrap(),
+    )
+    .unwrap();
+
+    assert_eq!(shantytown["shared"], creel["shared"]);
+    assert_eq!(shantytown["hooks"], "adapter-emitted");
+    assert_eq!(shantytown["filesystem"], "host-workspace");
+    assert!(shantytown.get("credential_policy").is_none());
+    assert_eq!(creel["credential_policy"], "browser-byo-write-only");
+    assert_eq!(creel["browser_permissions"], "operator-granted");
+    assert!(creel.get("hooks").is_none());
+}
+
+#[test]
+fn projection_emits_only_the_selected_harness() {
+    for (mode, present, absent) in [
+        (
+            "shantytown",
+            "shantytown.settings.json",
+            "creel.settings.json",
+        ),
+        ("creel", "creel.settings.json", "shantytown.settings.json"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        command(root.path(), root.path())
+            .args(["plan", "--profile", "crew", "--crew", mode])
+            .assert()
+            .success();
+        command(root.path(), root.path())
+            .arg("project-settings")
+            .assert()
+            .success();
+        assert!(root
+            .path()
+            .join("caboodle-settings")
+            .join(present)
+            .is_file());
+        assert!(!root.path().join("caboodle-settings").join(absent).exists());
+    }
 }

@@ -10,6 +10,7 @@ pub const SCHEMA_VERSION: u32 = 1;
 pub enum Profile {
     Kg,
     Retrieval,
+    Crew,
 }
 
 impl Profile {
@@ -17,7 +18,82 @@ impl Profile {
         match self {
             Self::Kg => vec![ToolName::Quipu],
             Self::Retrieval => vec![ToolName::Quipu, ToolName::Bobbin],
+            Self::Crew => vec![ToolName::Quipu, ToolName::Bobbin],
         }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CrewMode {
+    Shantytown,
+    Creel,
+    Both,
+    Standalone,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CrewOwner {
+    Shantytown,
+    Creel,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CrewRouting {
+    SingleOwner,
+    ExplicitHandoff,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CrewSelection {
+    pub mode: CrewMode,
+    pub durable_owner: Option<CrewOwner>,
+    pub burst_owner: Option<CrewOwner>,
+    pub routing: Option<CrewRouting>,
+}
+
+impl CrewSelection {
+    pub fn for_mode(mode: CrewMode) -> Self {
+        match mode {
+            CrewMode::Shantytown => Self {
+                mode,
+                durable_owner: Some(CrewOwner::Shantytown),
+                burst_owner: None,
+                routing: Some(CrewRouting::SingleOwner),
+            },
+            CrewMode::Creel => Self {
+                mode,
+                durable_owner: None,
+                burst_owner: Some(CrewOwner::Creel),
+                routing: Some(CrewRouting::SingleOwner),
+            },
+            CrewMode::Both => Self {
+                mode,
+                durable_owner: Some(CrewOwner::Shantytown),
+                burst_owner: Some(CrewOwner::Creel),
+                routing: Some(CrewRouting::ExplicitHandoff),
+            },
+            CrewMode::Standalone => Self {
+                mode,
+                durable_owner: None,
+                burst_owner: None,
+                routing: None,
+            },
+        }
+    }
+
+    fn validate(&self) -> Result<()> {
+        if self != &Self::for_mode(self.mode) {
+            bail!(
+                "crew {:?} must use the declared ownership/routing contract; expected {:?}",
+                self.mode,
+                Self::for_mode(self.mode)
+            );
+        }
+        Ok(())
     }
 }
 
@@ -43,6 +119,8 @@ pub struct Plan {
     pub schema_version: u32,
     pub profile: Profile,
     pub tools: Vec<ToolName>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub crew: Option<CrewSelection>,
 }
 
 impl Plan {
@@ -51,6 +129,15 @@ impl Plan {
             schema_version: SCHEMA_VERSION,
             profile,
             tools: profile.tools(),
+            crew: None,
+        }
+    }
+
+    pub fn for_crew(mode: CrewMode) -> Self {
+        Self {
+            profile: Profile::Crew,
+            crew: Some(CrewSelection::for_mode(mode)),
+            ..Self::for_profile(Profile::Crew)
         }
     }
 
@@ -85,6 +172,12 @@ impl Plan {
                 "tools do not match the {:?} profile conventions",
                 self.profile
             );
+        }
+        match (self.profile, &self.crew) {
+            (Profile::Crew, Some(crew)) => crew.validate()?,
+            (Profile::Crew, None) => bail!("crew profile requires a [crew] selection"),
+            (_, Some(_)) => bail!("[crew] is only valid with profile = \"crew\""),
+            (_, None) => {}
         }
         Ok(())
     }

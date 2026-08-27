@@ -129,3 +129,71 @@ fn verify_names_the_failing_adapter() {
         .failure()
         .stderr(predicate::str::contains("quipu functional verification"));
 }
+
+#[test]
+fn crew_profile_records_each_runtime_choice() {
+    for mode in ["shantytown", "creel", "both", "standalone"] {
+        let root = tempfile::tempdir().unwrap();
+        let output = root.path().join(format!("{mode}.toml"));
+        command(root.path(), root.path())
+            .args([
+                "plan",
+                "--profile",
+                "crew",
+                "--crew",
+                mode,
+                "--output",
+                output.to_str().unwrap(),
+            ])
+            .assert()
+            .success();
+        let body = fs::read_to_string(output).unwrap();
+        assert!(body.contains(&format!("mode = \"{mode}\"")));
+    }
+}
+
+#[test]
+fn both_mode_names_owners_and_explicit_handoff() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--profile", "crew", "--crew", "both"])
+        .assert()
+        .success();
+
+    let body = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(body.contains("durable_owner = \"shantytown\""));
+    assert!(body.contains("burst_owner = \"creel\""));
+    assert!(body.contains("routing = \"explicit-handoff\""));
+}
+
+#[test]
+fn plan_rejects_unknown_crew_mode_and_invalid_both_contract() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--profile", "crew", "--crew", "unknown"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid value 'unknown'"));
+
+    fs::write(
+        root.path().join("invalid.toml"),
+        r#"schema_version = 1
+profile = "crew"
+tools = ["quipu", "bobbin"]
+
+[crew]
+mode = "both"
+durable_owner = "creel"
+burst_owner = "shantytown"
+routing = "single-owner"
+"#,
+    )
+    .unwrap();
+    command(root.path(), root.path())
+        .args(["apply", "--plan", "invalid.toml", "--skip-install"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "declared ownership/routing contract",
+        ));
+}

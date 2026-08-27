@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use caboodle::{
     engine,
-    model::{Plan, Profile},
+    model::{CrewMode, Plan, Profile},
 };
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -20,6 +20,9 @@ enum Commands {
     Plan {
         #[arg(long, value_enum, default_value_t = ProfileArg::Retrieval)]
         profile: ProfileArg,
+        /// Crew runtime when --profile crew is selected
+        #[arg(long, value_enum, default_value_t = CrewModeArg::Standalone)]
+        crew: CrewModeArg,
         #[arg(short, long, default_value = "caboodle-plan.toml")]
         output: PathBuf,
     },
@@ -55,6 +58,26 @@ enum Commands {
 enum ProfileArg {
     Kg,
     Retrieval,
+    Crew,
+}
+
+#[derive(Clone, Copy, ValueEnum)]
+enum CrewModeArg {
+    Shantytown,
+    Creel,
+    Both,
+    Standalone,
+}
+
+impl From<CrewModeArg> for CrewMode {
+    fn from(value: CrewModeArg) -> Self {
+        match value {
+            CrewModeArg::Shantytown => Self::Shantytown,
+            CrewModeArg::Creel => Self::Creel,
+            CrewModeArg::Both => Self::Both,
+            CrewModeArg::Standalone => Self::Standalone,
+        }
+    }
 }
 
 impl From<ProfileArg> for Profile {
@@ -62,14 +85,25 @@ impl From<ProfileArg> for Profile {
         match value {
             ProfileArg::Kg => Self::Kg,
             ProfileArg::Retrieval => Self::Retrieval,
+            ProfileArg::Crew => Self::Crew,
         }
     }
 }
 
 fn main() -> Result<()> {
     match Cli::parse().command {
-        Commands::Plan { profile, output } => {
-            Plan::for_profile(profile.into()).write(&output)?;
+        Commands::Plan {
+            profile,
+            crew,
+            output,
+        } => {
+            let profile = Profile::from(profile);
+            let plan = if profile == Profile::Crew {
+                Plan::for_crew(crew.into())
+            } else {
+                Plan::for_profile(profile)
+            };
+            plan.write(&output)?;
             println!("plan: {}", output.display());
         }
         Commands::Apply {

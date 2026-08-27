@@ -15,3 +15,11 @@ check:
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     cargo test --all-features
+
+# Build the mdBook (requires mdbook)
+book:
+    mdbook build docs/book
+
+# Serve the book locally with live reload
+book-serve:
+    mdbook serve docs/book --open

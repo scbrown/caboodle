@@ -1,0 +1,11 @@
+[book]
+title = "caboodle"
+description = "The whole kit — one wizard that installs the stack, proves it works, and watches it run"
+authors = ["Steve Brown"]
+language = "en"
+src = "src"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/scbrown/caboodle"

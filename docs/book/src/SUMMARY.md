@@ -1,0 +1,12 @@
+# Summary
+
+[Introduction](introduction.md)
+
+- [Three proofs, not one](proofs.md)
+- [Using caboodle](using.md)
+- [Architecture](architecture.md)
+  - [Convention over manifest](conventions.md)
+  - [Profiles](profiles.md)
+  - [Emitting to quipu](emission.md)
+- [The corpus](corpus.md)
+- [Roadmap](roadmap.md)

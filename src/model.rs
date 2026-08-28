@@ -165,6 +165,7 @@ pub enum ToolName {
     Camayoc,
     Bobbin,
     Yupana,
+    #[serde(rename = "desire-path")]
     DesirePath,
 }
 

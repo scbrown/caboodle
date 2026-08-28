@@ -102,6 +102,12 @@ Report the selected profile, each applied version, each verified adapter, and
 the retained plan/state paths. Exit status or an “installed” banner alone is
 not proof.
 
+When observability is requested, collect explicit `host:port` targets only for
+selected tools whose versioned contract declares a metrics endpoint. Run
+`caboodle render-observability`, then `caboodle validate-observability`, and
+present all four generated artifacts for review. Rendering is not deployment
+and is not evidence that Prometheus scraped a target.
+
 ## Diagnose and resume
 
 - Interview paused at EOF: rerun `caboodle init --guided` with the same

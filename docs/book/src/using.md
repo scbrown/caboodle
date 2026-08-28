@@ -68,3 +68,32 @@ expected = "fixture-service"
 The prose fields steer ontology and seed construction; the SPARQL and expected
 marker decide whether that construction is retrievable through the path a reader
 will actually use. Never put credentials in this file or the generated plan.
+
+## Review observability before deployment
+
+For every selected tool, CABOODLE emits a versioned contract. Quipu and Bobbin
+currently declare `/metrics` and required metric families; tools without an
+exporter remain explicit contracts with an unavailable reason rather than being
+silently omitted. Supply generic Prometheus targets without URL schemes:
+
+```toml
+[targets]
+quipu = "quipu.example:8080"
+bobbin = "bobbin.example:3030"
+```
+
+Then render and inspect the artifacts. Rendering never claims the targets were
+scraped or deploys anything:
+
+```bash
+caboodle render-observability --targets caboodle-observability.toml
+caboodle validate-observability
+less caboodle-observability/prometheus.yml
+less caboodle-observability/alerts.yml
+less caboodle-observability/dashboard.json
+less caboodle-observability/contracts.json
+```
+
+Validation fails on a missing or malformed selected target, a target for a tool
+whose pinned contract has no exporter, a missing scrape job, or an alert or
+dashboard metric absent from the versioned contracts.

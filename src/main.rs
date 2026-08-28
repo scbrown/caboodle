@@ -5,7 +5,7 @@ use caboodle::{
     crew::CrewEvidence,
     engine, interview,
     model::{CrewMode, InstallIntent, Plan, Profile},
-    projection,
+    observability, projection,
 };
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -91,6 +91,20 @@ enum Commands {
         /// Optional isolated Quipu database used by the question probes
         #[arg(long)]
         db: Option<PathBuf>,
+    },
+    /// Render reviewable Prometheus, alert, dashboard, and contract artifacts
+    RenderObservability {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+        #[arg(long, default_value = "caboodle-observability.toml")]
+        targets: PathBuf,
+        #[arg(short, long, default_value = "caboodle-observability")]
+        output: PathBuf,
+    },
+    /// Validate generated observability artifacts against their contracts
+    ValidateObservability {
+        #[arg(short, long, default_value = "caboodle-observability")]
+        output: PathBuf,
     },
 }
 
@@ -213,6 +227,18 @@ fn main() -> Result<()> {
         }
         Commands::VerifyQuestions { plan, db } => {
             engine::verify_questions(&Plan::read(&plan)?, db.as_deref())?;
+        }
+        Commands::RenderObservability {
+            plan,
+            targets,
+            output,
+        } => {
+            observability::render(&Plan::read(&plan)?, &targets, &output)?;
+            println!("observability: {}", output.display());
+        }
+        Commands::ValidateObservability { output } => {
+            observability::validate(&output)?;
+            println!("observability contracts: verified");
         }
     }
     Ok(())

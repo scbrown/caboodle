@@ -161,6 +161,11 @@ assets, so CABOODLE pins public source revision `1ca7b36`, stamps that identity
 into `dp version`, and proves an isolated ingest/list round trip. Neither
 verification can write into the user's normal Yupana state or Desire Path DB.
 
+`caboodle render-observability` converts the reviewed selection plus explicit
+generic targets into Prometheus scrape config, starter alerts, a dashboard, and
+versioned contracts. `validate-observability` fails closed on missing targets or
+uncovered metrics; rendering is review-only and never claims a live scrape.
+
 ## 🧺 The stack
 
 | repo | what it is |

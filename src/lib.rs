@@ -3,4 +3,5 @@ pub mod crew;
 pub mod engine;
 pub mod interview;
 pub mod model;
+pub mod observability;
 pub mod projection;

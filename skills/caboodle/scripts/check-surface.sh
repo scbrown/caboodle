@@ -4,7 +4,7 @@ set -eu
 caboodle_bin=${1:-caboodle}
 
 "$caboodle_bin" --version >/dev/null
-for command in init plan apply verify install project-settings verify-questions; do
+for command in init plan apply verify install project-settings verify-questions render-observability validate-observability; do
     "$caboodle_bin" "$command" --help >/dev/null
 done
 

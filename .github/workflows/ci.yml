@@ -93,6 +93,21 @@ jobs:
               idempotent_resume: true
             }
           }' .caboodle/state.json > proof.json
+      - name: Render and validate reviewable observability artifacts
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
+          cd "$RUNNER_TEMP/caboodle-phase2"
+          printf '%s\n' \
+            '[targets]' \
+            "quipu='127.0.0.1:8080'" \
+            "bobbin='127.0.0.1:3030'" \
+            > caboodle-observability.toml
+          caboodle render-observability
+          caboodle validate-observability
+          jq -e '.contracts | length == 5' caboodle-observability/contracts.json
+          grep -q 'quipu_graph_facts' caboodle-observability/alerts.yml
+          grep -q 'bobbin_up' caboodle-observability/dashboard.json
       - name: Prove adversarial negative controls turn verification red
         run: |
           set -euo pipefail
@@ -111,4 +126,5 @@ jobs:
             ${{ runner.temp }}/caboodle-phase2/caboodle-plan.toml
             ${{ runner.temp }}/caboodle-phase2/.caboodle/state.json
             ${{ runner.temp }}/caboodle-phase2/proof.json
+            ${{ runner.temp }}/caboodle-phase2/caboodle-observability/*
             ${{ runner.temp }}/caboodle-phase2/*.log

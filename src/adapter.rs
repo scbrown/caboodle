@@ -596,14 +596,33 @@ fn install_bobbin_release() -> Result<()> {
     fs::create_dir_all(&bin_dir)
         .with_context(|| format!("create binary directory {}", bin_dir.display()))?;
     let link = bin_dir.join("bobbin");
-    if link.exists() || link.symlink_metadata().is_ok() {
-        bail!(
-            "refusing to replace existing {}; remove or repair it explicitly",
-            link.display()
-        );
+    let target = install_root.join("bobbin");
+    ensure_bobbin_link(&link, &target)?;
+    Ok(())
+}
+
+fn ensure_bobbin_link(link: &Path, target: &Path) -> Result<()> {
+    if !target.is_file() {
+        bail!("Bobbin release archive omitted {}", target.display());
+    }
+    match link.symlink_metadata() {
+        Ok(metadata)
+            if metadata.file_type().is_symlink()
+                && fs::read_link(link).ok().as_deref() == Some(target) =>
+        {
+            return Ok(());
+        }
+        Ok(_) => {
+            bail!(
+                "refusing to replace existing {}; remove or repair it explicitly",
+                link.display()
+            );
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error).with_context(|| format!("inspect {}", link.display())),
     }
     #[cfg(unix)]
-    std::os::unix::fs::symlink(install_root.join("bobbin"), &link)
+    std::os::unix::fs::symlink(target, link)
         .with_context(|| format!("link bobbin into {}", link.display()))?;
     #[cfg(not(unix))]
     bail!("bobbin release installation currently requires a Unix host");
@@ -793,4 +812,32 @@ fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {
         bail!("checksum mismatch for {filename}");
     }
     Ok(())
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::ensure_bobbin_link;
+    use std::{fs, os::unix::fs::symlink};
+
+    #[test]
+    fn bobbin_link_accepts_its_restored_cache_entry_but_refuses_foreign_paths() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("release/bobbin");
+        fs::create_dir_all(target.parent().unwrap()).unwrap();
+        fs::write(&target, "binary fixture").unwrap();
+
+        let link = root.path().join("bin/bobbin");
+        fs::create_dir_all(link.parent().unwrap()).unwrap();
+        symlink(&target, &link).unwrap();
+        ensure_bobbin_link(&link, &target).unwrap();
+        assert_eq!(fs::read_link(&link).unwrap(), target);
+
+        let foreign = root.path().join("foreign");
+        fs::write(&foreign, "do not replace").unwrap();
+        fs::remove_file(&link).unwrap();
+        symlink(&foreign, &link).unwrap();
+        let error = ensure_bobbin_link(&link, &target).unwrap_err().to_string();
+        assert!(error.contains("refusing to replace existing"));
+        assert_eq!(fs::read_link(&link).unwrap(), foreign);
+    }
 }

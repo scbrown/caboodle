@@ -507,16 +507,16 @@ impl Adapter for DesirePath {
             .args([
                 "--db",
                 db.to_str().unwrap(),
-                "record",
+                "ingest",
                 "--source",
-                "caboodle",
+                "claude-code",
             ])
             .current_dir(root.path())
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::piped())
             .spawn()
-            .context("start Desire Path record verification")?;
+            .context("start Desire Path ingest verification")?;
         use std::io::Write as _;
         child
             .stdin
@@ -525,12 +525,12 @@ impl Adapter for DesirePath {
             .write_all(
                 format!(r#"{{"tool_name":"{marker}","error":"fixture failure"}}"#).as_bytes(),
             )?;
-        let recorded = child.wait_with_output()?;
-        if !recorded.status.success() {
+        let ingested = child.wait_with_output()?;
+        if !ingested.status.success() {
             bail!(
-                "Desire Path record verification failed ({}): {}",
-                recorded.status,
-                String::from_utf8_lossy(&recorded.stderr).trim()
+                "Desire Path ingest verification failed ({}): {}",
+                ingested.status,
+                String::from_utf8_lossy(&ingested.stderr).trim()
             );
         }
         let after = checked(
@@ -539,7 +539,7 @@ impl Adapter for DesirePath {
             Some(root.path()),
         )?;
         if !String::from_utf8_lossy(&after.stdout).contains(marker) {
-            bail!("Desire Path recorded the fixture but its reader path did not return it");
+            bail!("Desire Path ingested the fixture but its reader path did not return it");
         }
         Ok(())
     }

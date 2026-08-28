@@ -10,7 +10,7 @@
 Both harnesses are first-class: **Claude Code and codex** can each drive the
 install, and when a crew is chosen the wizard asks which harness each role runs
 on, emitting the right per-harness configuration.
-- `everything` — code-intel + Desire Path; isolated failure-record/read proof
+- `everything` — code-intel + Desire Path; isolated failure-ingest/read proof
 
 The crew choice is emitted today:
 

@@ -132,7 +132,7 @@ if [ "${1:-}" = "version" ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; 
 db=''
 while [ "$#" -gt 0 ]; do
   if [ "$1" = "--db" ]; then shift; db=$1; fi
-  if [ "$1" = "record" ]; then cat >/dev/null; touch "$db.recorded"; exit 0; fi
+  if [ "$1" = "ingest" ]; then cat >/dev/null; touch "$db.recorded"; exit 0; fi
   if [ "$1" = "list" ]; then
     if [ -f "$db.recorded" ]; then echo '[{"tool_name":"caboodle_desire_path_marker"}]'; else echo '[]'; fi
     exit 0

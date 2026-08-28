@@ -10,7 +10,9 @@ pub const SCHEMA_VERSION: u32 = 1;
 pub enum Profile {
     Kg,
     Retrieval,
+    CodeIntel,
     Crew,
+    Everything,
 }
 
 impl Profile {
@@ -18,7 +20,20 @@ impl Profile {
         match self {
             Self::Kg => vec![ToolName::Quipu, ToolName::Camayoc],
             Self::Retrieval => vec![ToolName::Quipu, ToolName::Camayoc, ToolName::Bobbin],
+            Self::CodeIntel => vec![
+                ToolName::Quipu,
+                ToolName::Camayoc,
+                ToolName::Bobbin,
+                ToolName::Yupana,
+            ],
             Self::Crew => vec![ToolName::Quipu, ToolName::Camayoc, ToolName::Bobbin],
+            Self::Everything => vec![
+                ToolName::Quipu,
+                ToolName::Camayoc,
+                ToolName::Bobbin,
+                ToolName::Yupana,
+                ToolName::DesirePath,
+            ],
         }
     }
 }
@@ -149,6 +164,8 @@ pub enum ToolName {
     Quipu,
     Camayoc,
     Bobbin,
+    Yupana,
+    DesirePath,
 }
 
 impl ToolName {
@@ -157,6 +174,8 @@ impl ToolName {
             Self::Quipu => "quipu",
             Self::Camayoc => "camayoc",
             Self::Bobbin => "bobbin",
+            Self::Yupana => "yupana",
+            Self::DesirePath => "desire-path",
         }
     }
 }

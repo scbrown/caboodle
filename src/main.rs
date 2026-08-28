@@ -98,7 +98,9 @@ enum Commands {
 enum ProfileArg {
     Kg,
     Retrieval,
+    CodeIntel,
     Crew,
+    Everything,
 }
 
 #[derive(Clone, Copy, ValueEnum)]
@@ -125,7 +127,9 @@ impl From<ProfileArg> for Profile {
         match value {
             ProfileArg::Kg => Self::Kg,
             ProfileArg::Retrieval => Self::Retrieval,
+            ProfileArg::CodeIntel => Self::CodeIntel,
             ProfileArg::Crew => Self::Crew,
+            ProfileArg::Everything => Self::Everything,
         }
     }
 }

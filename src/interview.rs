@@ -80,7 +80,12 @@ pub fn guided<R: BufRead, W: Write>(
     draft.write(session_path)?;
 
     if draft.profile.is_none() {
-        let answer = ask(input, output, "profile [kg/retrieval/crew]: ", session_path)?;
+        let answer = ask(
+            input,
+            output,
+            "profile [kg/retrieval/code-intel/crew/everything]: ",
+            session_path,
+        )?;
         draft.profile = Some(parse_profile(&answer)?);
         draft.write(session_path)?;
     } else {
@@ -273,8 +278,12 @@ fn parse_profile(answer: &str) -> Result<Profile> {
     match answer.to_ascii_lowercase().as_str() {
         "kg" => Ok(Profile::Kg),
         "retrieval" => Ok(Profile::Retrieval),
+        "code-intel" => Ok(Profile::CodeIntel),
         "crew" => Ok(Profile::Crew),
-        _ => bail!("invalid profile {answer:?}; expected kg, retrieval, or crew"),
+        "everything" => Ok(Profile::Everything),
+        _ => bail!(
+            "invalid profile {answer:?}; expected kg, retrieval, code-intel, crew, or everything"
+        ),
     }
 }
 

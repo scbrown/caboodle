@@ -1,7 +1,7 @@
 # Using caboodle
 
 Caboodle ships a resumable interview and the plan/apply/verify engine with
-adapters for Quipu and Bobbin.
+adapters for Quipu, Camayoc, Bobbin, Yupana, and Desire Path.
 
 ```bash
 cargo install --git https://github.com/scbrown/caboodle --locked
@@ -34,6 +34,12 @@ rejected and never produce a plan.
 
 Use `--skip-install` when package installation belongs to another system; the
 version and functional checks still run.
+
+`code-intel` adds checksum-pinned Yupana and proves a caller edge in a temporary
+repository with isolated HOME/state. `everything` additionally installs Desire
+Path from its pinned public revision (upstream has no tag/release yet), reads
+that revision back from `dp version`, and proves record/list against a temporary
+database. These checks never use the user's normal evidence stores.
 
 `caboodle-intent.toml` names the intended use, zero or more themed crew members,
 and at least one anticipated ontology question. A question is a contract, not a

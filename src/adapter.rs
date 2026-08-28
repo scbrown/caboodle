@@ -24,6 +24,8 @@ pub fn adapter(name: ToolName) -> Box<dyn Adapter> {
         ToolName::Quipu => Box::new(Quipu),
         ToolName::Camayoc => Box::new(Camayoc),
         ToolName::Bobbin => Box::new(Bobbin),
+        ToolName::Yupana => Box::new(Yupana),
+        ToolName::DesirePath => Box::new(DesirePath),
     }
 }
 
@@ -199,6 +201,8 @@ impl Adapter for Quipu {
 }
 
 struct Bobbin;
+struct Yupana;
+struct DesirePath;
 
 struct Camayoc;
 
@@ -310,6 +314,232 @@ impl Adapter for Bobbin {
         )?;
         if bobbin_result_count(&after.stdout)? == 0 {
             bail!("bobbin indexed the fixture but search did not return its marker");
+        }
+        Ok(())
+    }
+}
+
+const YUPANA_VERSION: &str = "0.6.4";
+const YUPANA_ARCHIVE_SHA256: &str =
+    "f227b965741851dff8f3bc59dbb80c80a0bd80d1469739b596c2eac0b36bcca2";
+
+impl Adapter for Yupana {
+    fn name(&self) -> ToolName {
+        ToolName::Yupana
+    }
+
+    fn install(&self) -> Result<()> {
+        if (env::consts::ARCH, env::consts::OS) != ("x86_64", "linux") {
+            bail!(
+                "Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {}-{}",
+                env::consts::ARCH,
+                env::consts::OS
+            );
+        }
+        let archive_name = format!("yupana-v{YUPANA_VERSION}-x86_64-linux-gnu.tar.gz");
+        let root = tempfile::tempdir().context("create Yupana download directory")?;
+        let archive = root.path().join(&archive_name);
+        download_https(
+            &format!("https://github.com/scbrown/yupana/releases/download/v{YUPANA_VERSION}/{archive_name}"),
+            &archive,
+        )?;
+        let digest = checked("sha256sum", [archive.as_os_str()], None)?;
+        if String::from_utf8_lossy(&digest.stdout)
+            .split_whitespace()
+            .next()
+            != Some(YUPANA_ARCHIVE_SHA256)
+        {
+            bail!("Yupana release checksum mismatch");
+        }
+        checked(
+            "tar",
+            [
+                OsStr::new("-xzf"),
+                archive.as_os_str(),
+                OsStr::new("-C"),
+                root.path().as_os_str(),
+            ],
+            None,
+        )?;
+        let home = env::var_os("HOME").context("HOME is required to install Yupana")?;
+        let bin = env::var_os("CARGO_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from(home).join(".cargo"))
+            .join("bin");
+        fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
+        fs::copy(root.path().join("yupana"), bin.join("yupana"))
+            .context("install checksummed Yupana binary")?;
+        Ok(())
+    }
+
+    fn version(&self) -> Result<String> {
+        let version = read_version("yupana")?;
+        require_minimum_version(&version, (0, 6, 4), "yupana")?;
+        Ok(version)
+    }
+
+    fn verify(&self) -> Result<()> {
+        let root = tempfile::tempdir().context("create Yupana verification repository")?;
+        let state = root.path().join("state");
+        fs::write(
+            root.path().join("control.rs"),
+            "pub fn caboodle_yupana_control() -> usize { 1 }\n",
+        )?;
+        yupana_checked(root.path(), &state, ["analyze", "."])?;
+        let before = yupana_checked(
+            root.path(),
+            &state,
+            ["callers", "caboodle_yupana_target", "."],
+        )?;
+        if String::from_utf8_lossy(&before.stdout).contains("caboodle_yupana_caller") {
+            bail!("Yupana negative control unexpectedly found the fixture caller");
+        }
+        fs::write(
+            root.path().join("fixture.rs"),
+            "pub fn caboodle_yupana_target() -> usize { 1 }\npub fn caboodle_yupana_caller() -> usize { caboodle_yupana_target() }\n",
+        )?;
+        yupana_checked(root.path(), &state, ["analyze", "."])?;
+        let after = yupana_checked(
+            root.path(),
+            &state,
+            ["callers", "caboodle_yupana_target", "."],
+        )?;
+        if !String::from_utf8_lossy(&after.stdout).contains("caboodle_yupana_caller") {
+            bail!("Yupana analyzed the fixture but callers did not return its caller");
+        }
+        Ok(())
+    }
+}
+
+fn yupana_checked<I, S>(cwd: &Path, state: &Path, args: I) -> Result<Output>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
+    let home = cwd.join("home");
+    fs::create_dir_all(&home)?;
+    let mut command = Command::new("yupana");
+    command
+        .args(args)
+        .current_dir(cwd)
+        .env("HOME", home)
+        .env("XDG_STATE_HOME", state);
+    let result = command
+        .output()
+        .context("run isolated Yupana verification")?;
+    if !result.status.success() {
+        bail!(
+            "isolated Yupana verification failed ({}): {}",
+            result.status,
+            String::from_utf8_lossy(&result.stderr).trim()
+        );
+    }
+    Ok(result)
+}
+
+const DESIRE_PATH_REVISION: &str = "1ca7b36a73a6c931ac962dbfd093455f85f2d8ca";
+const DESIRE_PATH_VERSION: &str = "v0.0.0-caboodle.20260827";
+
+impl Adapter for DesirePath {
+    fn name(&self) -> ToolName {
+        ToolName::DesirePath
+    }
+
+    fn install(&self) -> Result<()> {
+        let home = env::var_os("HOME").context("HOME is required to install Desire Path")?;
+        let bin = env::var_os("CARGO_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from(home).join(".cargo"))
+            .join("bin");
+        fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
+        let ldflags = format!(
+            "-X github.com/scbrown/desire-path/internal/cli.Version={DESIRE_PATH_VERSION} -X github.com/scbrown/desire-path/internal/cli.Commit={DESIRE_PATH_REVISION}"
+        );
+        let mut command = Command::new("go");
+        command
+            .args([
+                "install",
+                "-ldflags",
+                &ldflags,
+                &format!("github.com/scbrown/desire-path/cmd/dp@{DESIRE_PATH_REVISION}"),
+            ])
+            .env("GOBIN", &bin);
+        let result = command
+            .output()
+            .context("build pinned Desire Path revision")?;
+        if !result.status.success() {
+            bail!(
+                "Desire Path install failed ({}): {}",
+                result.status,
+                String::from_utf8_lossy(&result.stderr).trim()
+            );
+        }
+        Ok(())
+    }
+
+    fn version(&self) -> Result<String> {
+        let result = checked("dp", ["version"], None)?;
+        let version = String::from_utf8_lossy(&result.stdout).trim().to_owned();
+        if !version.contains(DESIRE_PATH_VERSION) || !version.contains(&DESIRE_PATH_REVISION[..7]) {
+            bail!("dp version is not the CABOODLE-pinned revision: {version}");
+        }
+        Ok(version)
+    }
+
+    fn verify(&self) -> Result<()> {
+        let root = tempfile::tempdir().context("create Desire Path verification directory")?;
+        let db = root.path().join("desires.db");
+        let marker = "caboodle_desire_path_marker";
+        let before = checked(
+            "dp",
+            [
+                "--db",
+                db.to_str().context("Desire Path DB path is not UTF-8")?,
+                "--json",
+                "list",
+            ],
+            Some(root.path()),
+        )?;
+        if String::from_utf8_lossy(&before.stdout).contains(marker) {
+            bail!("Desire Path negative control unexpectedly found the marker");
+        }
+        let mut child = Command::new("dp")
+            .args([
+                "--db",
+                db.to_str().unwrap(),
+                "record",
+                "--source",
+                "caboodle",
+            ])
+            .current_dir(root.path())
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .context("start Desire Path record verification")?;
+        use std::io::Write as _;
+        child
+            .stdin
+            .take()
+            .context("open Desire Path verification stdin")?
+            .write_all(
+                format!(r#"{{"tool_name":"{marker}","error":"fixture failure"}}"#).as_bytes(),
+            )?;
+        let recorded = child.wait_with_output()?;
+        if !recorded.status.success() {
+            bail!(
+                "Desire Path record verification failed ({}): {}",
+                recorded.status,
+                String::from_utf8_lossy(&recorded.stderr).trim()
+            );
+        }
+        let after = checked(
+            "dp",
+            ["--db", db.to_str().unwrap(), "--json", "list"],
+            Some(root.path()),
+        )?;
+        if !String::from_utf8_lossy(&after.stdout).contains(marker) {
+            bail!("Desire Path recorded the fixture but its reader path did not return it");
         }
         Ok(())
     }

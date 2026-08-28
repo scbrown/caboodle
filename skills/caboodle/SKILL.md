@@ -1,6 +1,6 @@
 ---
 name: caboodle
-description: Install, verify, diagnose, resume, or update the Quipu-stack tool corpus with CABOODLE. Use when an agent or human wants a review-first guided installation of Quipu, Camayoc, and Bobbin, needs to resume an interrupted CABOODLE interview or apply, or needs functional proof that the installed stack works.
+description: Install, verify, diagnose, resume, or update the Quipu-stack tool corpus with CABOODLE. Use when an agent or human wants a review-first guided installation of Quipu, Camayoc, Bobbin, Yupana, and Desire Path, needs to resume an interrupted CABOODLE interview or apply, or needs functional proof that the installed stack works.
 ---
 
 # CABOODLE
@@ -40,7 +40,7 @@ session that could fork the plan.
 
 If input ends, rerun the exact command. Accepted answers resume from
 `.caboodle/interview.toml`; no install has happened. For automation with choices
-already supplied, use `caboodle plan --profile kg|retrieval`. Crew plans may be
+already supplied, use `caboodle plan --profile kg|retrieval|code-intel|everything`. Crew plans may be
 generated with `--profile crew --crew shantytown|creel|both|standalone`.
 
 The interview must elicit intended use, each desired crew member's theme/domain/

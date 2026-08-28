@@ -112,6 +112,38 @@ exit 2
     );
     fake_tool(
         bin,
+        "yupana",
+        r#"
+if [ "${1:-}" = "--version" ]; then echo 'yupana 0.6.4'; exit 0; fi
+if [ "${1:-}" = "analyze" ]; then exit 0; fi
+if [ "${1:-}" = "callers" ]; then
+  if [ -f fixture.rs ]; then echo 'fixture.rs:2 caboodle_yupana_caller';
+  else echo 'no definition found'; fi
+  exit 0
+fi
+exit 2
+"#,
+    );
+    fake_tool(
+        bin,
+        "dp",
+        r#"
+if [ "${1:-}" = "version" ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi
+db=''
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = "--db" ]; then shift; db=$1; fi
+  if [ "$1" = "record" ]; then cat >/dev/null; touch "$db.recorded"; exit 0; fi
+  if [ "$1" = "list" ]; then
+    if [ -f "$db.recorded" ]; then echo '[{"tool_name":"caboodle_desire_path_marker"}]'; else echo '[]'; fi
+    exit 0
+  fi
+  shift
+done
+exit 2
+"#,
+    );
+    fake_tool(
+        bin,
         "curl",
         r#"
 args=$*
@@ -174,7 +206,9 @@ fn guided_interview_writes_the_same_reviewed_plan_as_plan_command() {
         .write_stdin("crew\nboth\nbuild a service graph\n1\nAda\nnavigator\nservices\nanswers dependencies\n1\nwhat depends on the service?\nentity list\nservice A depends on service B\nSELECT ?s WHERE { ?s ?p ?o }\nfixture-result\n")
         .assert()
         .success()
-        .stdout(predicate::str::contains("profile [kg/retrieval/crew]"))
+        .stdout(predicate::str::contains(
+            "profile [kg/retrieval/code-intel/crew/everything]",
+        ))
         .stdout(predicate::str::contains(
             "crew [shantytown/creel/both/standalone]",
         ));
@@ -297,11 +331,83 @@ fn guided_interview_rejects_invalid_answers_without_a_plan() {
     let root = tempfile::tempdir().unwrap();
     command(root.path(), root.path())
         .args(["init", "--guided"])
-        .write_stdin("everything\n")
+        .write_stdin("invalid\n")
         .assert()
         .failure()
         .stderr(predicate::str::contains("invalid profile"));
     assert!(!root.path().join("caboodle-plan.toml").exists());
+}
+
+#[test]
+fn code_intel_and_everything_profiles_expand_the_verified_corpus() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "code-intel", "--output", "code.toml"])
+        .assert()
+        .success();
+    let code = fs::read_to_string(root.path().join("code.toml")).unwrap();
+    assert!(code.contains("\"yupana\""));
+    assert!(!code.contains("\"desire-path\""));
+
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "everything"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("yupana: verified"))
+        .stdout(predicate::str::contains("desire-path: verified"));
+}
+
+#[test]
+fn expanded_adapter_negative_controls_turn_verification_red() {
+    let yupana_root = tempfile::tempdir().unwrap();
+    let yupana_bin = yupana_root.path().join("bin");
+    fs::create_dir(&yupana_bin).unwrap();
+    install_fakes(yupana_root.path(), &yupana_bin);
+    fake_tool(
+        &yupana_bin,
+        "yupana",
+        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.6.4'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
+    );
+    command(yupana_root.path(), &yupana_bin)
+        .args(["plan", "--profile", "code-intel"])
+        .assert()
+        .success();
+    command(yupana_root.path(), &yupana_bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Yupana negative control unexpectedly found",
+        ));
+
+    let dp_root = tempfile::tempdir().unwrap();
+    let dp_bin = dp_root.path().join("bin");
+    fs::create_dir(&dp_bin).unwrap();
+    install_fakes(dp_root.path(), &dp_bin);
+    fake_tool(
+        &dp_bin,
+        "dp",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi\necho '[{\"tool_name\":\"caboodle_desire_path_marker\"}]'",
+    );
+    command(dp_root.path(), &dp_bin)
+        .args(["plan", "--profile", "everything"])
+        .assert()
+        .success();
+    command(dp_root.path(), &dp_bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Desire Path negative control unexpectedly found",
+        ));
 }
 
 #[test]

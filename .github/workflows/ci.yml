@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.2'
       - uses: Swatinem/rust-cache@v2
       - name: Install from a clean checkout
         run: cargo install --path . --locked --root "$RUNNER_TEMP/caboodle"
@@ -37,10 +40,10 @@ jobs:
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$PATH"
-          mkdir -p "$RUNNER_TEMP/caboodle-phase1"
-          cd "$RUNNER_TEMP/caboodle-phase1"
+          mkdir -p "$RUNNER_TEMP/caboodle-phase2"
+          cd "$RUNNER_TEMP/caboodle-phase2"
           printf '%s\n' \
-            retrieval \
+            everything \
             'index repositories and answer code ownership questions' \
             0 \
             1 \
@@ -55,26 +58,28 @@ jobs:
           import tomllib
           with open("caboodle-plan.toml", "rb") as plan_file:
               plan = tomllib.load(plan_file)
-          assert plan["profile"] == "retrieval"
-          assert plan["tools"] == ["quipu", "camayoc", "bobbin"]
+          assert plan["profile"] == "everything"
+          assert plan["tools"] == ["quipu", "camayoc", "bobbin", "yupana", "desire-path"]
           assert plan["intent"]["anticipated_questions"][0]["expected"] == "caboodle-verify-roundtrip"
           PY
-      - name: Install and functionally verify the retrieval corpus
+      - name: Install and functionally verify the expanded corpus
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
-          cd "$RUNNER_TEMP/caboodle-phase1"
+          cd "$RUNNER_TEMP/caboodle-phase2"
           caboodle install 2>&1 | tee first-install.log
           jq -e '
             .tools.quipu.verified == true and
             .tools.camayoc.verified == true and
-            .tools.bobbin.verified == true
+            .tools.bobbin.verified == true and
+            .tools.yupana.verified == true and
+            .tools["desire-path"].verified == true
           ' .caboodle/state.json
       - name: Prove an interrupted apply can resume idempotently
         run: |
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
-          cd "$RUNNER_TEMP/caboodle-phase1"
+          cd "$RUNNER_TEMP/caboodle-phase2"
           caboodle install 2>&1 | tee resumed-install.log
           jq -e '[.tools[] | .applied and .verified] | all' .caboodle/state.json
           jq '{
@@ -90,16 +95,18 @@ jobs:
         run: |
           set -euo pipefail
           cargo test camayoc_verification_refuses_broken_control_retrieval_and_replay \
-            -- --exact --nocapture 2>&1 | tee "$RUNNER_TEMP/caboodle-phase1/adversarial-controls.log"
+            -- --exact --nocapture 2>&1 | tee "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+          cargo test expanded_adapter_negative_controls_turn_verification_red \
+            -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
       - name: Retain the reviewed plan and proof record
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: caboodle-phase1-proof
+          name: caboodle-phase2-proof
           if-no-files-found: error
           include-hidden-files: true
           path: |
-            ${{ runner.temp }}/caboodle-phase1/caboodle-plan.toml
-            ${{ runner.temp }}/caboodle-phase1/.caboodle/state.json
-            ${{ runner.temp }}/caboodle-phase1/proof.json
-            ${{ runner.temp }}/caboodle-phase1/*.log
+            ${{ runner.temp }}/caboodle-phase2/caboodle-plan.toml
+            ${{ runner.temp }}/caboodle-phase2/.caboodle/state.json
+            ${{ runner.temp }}/caboodle-phase2/proof.json
+            ${{ runner.temp }}/caboodle-phase2/*.log

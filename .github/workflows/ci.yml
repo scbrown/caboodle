@@ -77,6 +77,30 @@ jobs:
             .tools.yupana.verified == true and
             .tools["desire-path"].verified == true
           ' .caboodle/state.json
+      - name: Execute the interview's anticipated ontology question
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
+          cd "$RUNNER_TEMP/caboodle-phase2"
+          if caboodle verify-questions --db empty-question.db > empty-question.log 2>&1; then
+            echo 'anticipated question unexpectedly passed without its seed fact' >&2
+            exit 1
+          fi
+          jq -n '{
+            name: "caboodle clean-machine question fixture",
+            episode_body: "seed fact for the reviewed anticipated question",
+            source: "caboodle clean-machine proof",
+            group_id: "caboodle-verification",
+            nodes: [{
+              name: "caboodle-verify-roundtrip",
+              type: "Verification",
+              description: "isolated anticipated-question fixture"
+            }],
+            edges: []
+          }' > question-episode.json
+          quipu episode question-episode.json --db question.db
+          caboodle verify-questions --db question.db | tee anticipated-question.log
+          grep -q 'question 1: verified' anticipated-question.log
       - name: Prove an interrupted apply can resume idempotently
         run: |
           set -euo pipefail
@@ -126,6 +150,36 @@ jobs:
             -- --exact --nocapture 2>&1 | tee "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
           cargo test expanded_adapter_negative_controls_turn_verification_red \
             -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+          cargo test anticipated_questions_are_executable_and_answer_checked \
+            -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+          cargo test observability::tests::missing_or_malformed_contract_targets_fail \
+            -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+          cargo test observability::tests::uncovered_dashboard_metric_fails_validation \
+            -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+          cargo test emission::tests::offline_and_retry_keep_identical_queue_until_success \
+            -- --exact --nocapture 2>&1 | tee -a "$RUNNER_TEMP/caboodle-phase2/adversarial-controls.log"
+      - name: Assemble the reader-visible Phase 2 proof record
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/caboodle-phase2"
+          jq '.proof += {
+            anticipated_question_executed: true,
+            all_phase2_adapters_verified: true,
+            observability_validated: true,
+            lifecycle_queue_redacted_and_idempotent: true,
+            adversarial_controls: true
+          }' proof.json > proof.next.json
+          mv proof.next.json proof.json
+          jq -e '
+            .proof.guided_plan and
+            .proof.functional_install and
+            .proof.idempotent_resume and
+            .proof.anticipated_question_executed and
+            .proof.all_phase2_adapters_verified and
+            .proof.observability_validated and
+            .proof.lifecycle_queue_redacted_and_idempotent and
+            .proof.adversarial_controls
+          ' proof.json
       - name: Retain the reviewed plan and proof record
         if: always()
         uses: actions/upload-artifact@v4
@@ -139,4 +193,6 @@ jobs:
             ${{ runner.temp }}/caboodle-phase2/proof.json
             ${{ runner.temp }}/caboodle-phase2/caboodle-observability/*
             ${{ runner.temp }}/caboodle-phase2/.caboodle/episodes/*.json
+            ${{ runner.temp }}/caboodle-phase2/anticipated-question.log
+            ${{ runner.temp }}/caboodle-phase2/empty-question.log
             ${{ runner.temp }}/caboodle-phase2/*.log

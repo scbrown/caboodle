@@ -97,6 +97,10 @@ The plan/apply/verify engine, fixed convention adapters for Quipu and Bobbin,
 and the resumable guided interview run without a tool manifest or private
 network assumptions:
 
+For checksummed release binaries, source installs pinned to a reviewed commit,
+resume semantics, and removal boundaries, see the
+[install guide](docs/book/src/installing.md).
+
 ```bash
 cargo install --git https://github.com/scbrown/caboodle --locked
 

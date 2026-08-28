@@ -4,6 +4,7 @@
 
 - [Three proofs, not one](proofs.md)
 - [Using caboodle](using.md)
+- [Installing and removing](installing.md)
 - [Architecture](architecture.md)
   - [Convention over manifest](conventions.md)
   - [Profiles](profiles.md)

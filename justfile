@@ -12,9 +12,11 @@ verify plan="caboodle-plan.toml":
     cargo run -- verify --plan "{{plan}}"
 
 check:
+    sh -n scripts/install.sh scripts/check-release-assets.sh scripts/test-release-install.sh
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     cargo test --all-features
+    scripts/test-release-install.sh
 
 # Build the mdBook (requires mdbook)
 book:

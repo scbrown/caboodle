@@ -10,6 +10,9 @@ same CLI path in every harness; require only a shell for the current profiles.
 
 ## Bootstrap and preflight
 
+For CABOODLE itself, prefer the reviewed checksummed release path documented in
+`docs/book/src/installing.md`. A source install must pin a reviewed commit.
+
 1. If `caboodle` is absent and the request authorizes installation, install the public source with:
    `cargo install --git https://github.com/scbrown/caboodle --locked`.
    Otherwise stop and request authorization; bootstrapping CABOODLE is itself an

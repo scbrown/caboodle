@@ -22,6 +22,28 @@ fn path_with(bin: &Path) -> String {
 }
 
 fn command(root: &Path, bin: &Path) -> Command {
+    let intent = root.join("caboodle-intent.toml");
+    if !intent.exists() {
+        fs::write(
+            &intent,
+            r#"intended_use = "build a service graph"
+
+[[crew_members]]
+name = "Ada"
+theme = "navigator"
+domain = "services"
+role = "answers dependencies"
+
+[[anticipated_questions]]
+question = "what depends on the service?"
+answer_shape = "entity list"
+seed_intent = "service A depends on service B"
+sparql = "SELECT ?s WHERE { ?s ?p ?o }"
+expected = "fixture-result"
+"#,
+        )
+        .unwrap();
+    }
     let mut command = Command::cargo_bin("caboodle").unwrap();
     command
         .current_dir(root)
@@ -149,7 +171,7 @@ fn guided_interview_writes_the_same_reviewed_plan_as_plan_command() {
     let guided_root = tempfile::tempdir().unwrap();
     command(guided_root.path(), guided_root.path())
         .args(["init", "--guided"])
-        .write_stdin("crew\nboth\n")
+        .write_stdin("crew\nboth\nbuild a service graph\n1\nAda\nnavigator\nservices\nanswers dependencies\n1\nwhat depends on the service?\nentity list\nservice A depends on service B\nSELECT ?s WHERE { ?s ?p ?o }\nfixture-result\n")
         .assert()
         .success()
         .stdout(predicate::str::contains("profile [kg/retrieval/crew]"))
@@ -185,7 +207,7 @@ fn guided_interview_resumes_after_input_ends() {
 
     command(root.path(), root.path())
         .args(["init", "--guided"])
-        .write_stdin("creel\n")
+        .write_stdin("creel\nbuild a service graph\n1\nAda\nnavigator\nservices\nanswers dependencies\n1\nwhat depends on the service?\nentity list\nservice A depends on service B\nSELECT ?s WHERE { ?s ?p ?o }\nfixture-result\n")
         .assert()
         .success()
         .stdout(predicate::str::contains(
@@ -193,6 +215,81 @@ fn guided_interview_resumes_after_input_ends() {
         ));
     let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
     assert!(plan.contains("mode = \"creel\""));
+}
+
+#[test]
+fn guided_interview_resumes_inside_a_crew_member_without_losing_answers() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["init", "--guided"])
+        .write_stdin("retrieval\nbuild a service graph\n1\nAda\nnavigator\n")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("interview paused at end of input"));
+
+    command(root.path(), root.path())
+        .args(["init", "--guided"])
+        .write_stdin("services\nanswers dependencies\n1\nwhat depends on the service?\nentity list\nservice A depends on service B\nSELECT ?s WHERE { ?s ?p ?o }\nfixture-result\n")
+        .assert()
+        .success();
+
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("name = \"Ada\""));
+    assert!(plan.contains("theme = \"navigator\""));
+    assert_eq!(plan.matches("[[intent.crew_members]]").count(), 1);
+}
+
+#[test]
+fn plan_rejects_unshaped_or_secret_bearing_intent() {
+    for body in [
+        "intended_use = \"graph\"\nanticipated_questions = []\n",
+        r#"intended_use = "token=do-not-store-this"
+[[anticipated_questions]]
+question = "what exists?"
+answer_shape = "list"
+seed_intent = "fixture"
+sparql = "SELECT ?s WHERE { ?s ?p ?o }"
+expected = "marker"
+"#,
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        fs::write(root.path().join("bad.toml"), body).unwrap();
+        command(root.path(), root.path())
+            .args(["plan", "--intent", "bad.toml"])
+            .assert()
+            .failure();
+    }
+}
+
+#[test]
+fn anticipated_questions_are_executable_and_answer_checked() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin).arg("plan").assert().success();
+
+    fake_tool(
+        &bin,
+        "quipu",
+        "if [ \"${1:-}\" = read ]; then echo fixture-result; exit 0; fi\nexit 2",
+    );
+    command(root.path(), &bin)
+        .arg("verify-questions")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("question 1: verified"));
+
+    fake_tool(
+        &bin,
+        "quipu",
+        "if [ \"${1:-}\" = read ]; then echo wrong-result; exit 0; fi\nexit 2",
+    );
+    command(root.path(), &bin)
+        .arg("verify-questions")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("did not contain"));
 }
 
 #[test]

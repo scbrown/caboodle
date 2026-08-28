@@ -100,15 +100,17 @@ network assumptions:
 ```bash
 cargo install --git https://github.com/scbrown/caboodle --locked
 
-# Answer the interview. It only writes caboodle-plan.toml.
+# Answer the use-shaped interview. It asks who the themed crew members are and
+# which questions the finished graph must answer, then only writes a plan.
 caboodle init --guided
 
-# Or generate the same reviewable plan non-interactively.
-caboodle plan --profile retrieval
+# Or supply the same intended-use contract non-interactively.
+caboodle plan --profile retrieval --intent caboodle-intent.toml
 
 # Converge the reviewed plan, then prove both tools with isolated round trips.
 caboodle apply
 caboodle verify
+caboodle verify-questions
 
 # Or run both phases together after review.
 caboodle install
@@ -125,6 +127,14 @@ verified result.
 If the interview loses input or its caller stops, rerun `caboodle init --guided`:
 accepted answers resume from `.caboodle/interview.toml`. The session disappears
 only after the complete plan has been written successfully.
+
+The interview works backward from expected use. Each crew member has a free-form
+theme, domain, and role rather than a closed role enum. Each anticipated ontology
+question records its expected answer shape, the seed facts needed to exercise it,
+an executable `SELECT`/`ASK` query, and a result marker. `caboodle
+verify-questions` runs those reader-path checks after installation. Empty,
+duplicate, credential-bearing, or non-executable entries are refused before a
+plan is written.
 
 Installable profiles today are `kg` (Quipu + Camayoc), `retrieval` (plus
 Bobbin), and `crew` (Shantytown, Creel, both, or standalone). CABOODLE installs

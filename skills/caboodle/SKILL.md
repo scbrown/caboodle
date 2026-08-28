@@ -43,8 +43,15 @@ If input ends, rerun the exact command. Accepted answers resume from
 already supplied, use `caboodle plan --profile kg|retrieval`. Crew plans may be
 generated with `--profile crew --crew shantytown|creel|both|standalone`.
 
-Read `caboodle-plan.toml` back to the operator. Confirm the selected profile and
-tools. Never apply a conversational answer directly: the plan file is the
+The interview must elicit intended use, each desired crew member's theme/domain/
+role, and at least one question the finished ontology must answer. For an
+unattended run, write the same reviewed schema to `caboodle-intent.toml` and run
+`caboodle plan --intent caboodle-intent.toml`; do not substitute install flags
+for the use interview.
+
+Read `caboodle-plan.toml` back to the operator. Confirm the selected profile,
+tools, crew themes, and anticipated-question contracts. Never apply a
+conversational answer directly: the plan file is the
 review boundary. If the request did not already authorize installation, stop
 after presenting the plan. Do not run `apply`, `install`, `verify`, or
 `project-settings` at that boundary: verify performs functional writes and
@@ -57,6 +64,7 @@ After plan approval:
 ```sh
 caboodle apply
 caboodle verify
+caboodle verify-questions
 ```
 
 `apply` proves each installed binary by version read-back. `verify` then runs an
@@ -82,6 +90,10 @@ Those files must come from Creel's doctor and governor interfaces. Never invent
 them or translate a human-readable banner into them. Missing evidence, an
 unknown required doctor check, stale/unknown policy signals, or a refusal
 verdict must stop the install.
+
+`verify-questions` executes every planned `SELECT`/`ASK` through Quipu and
+requires its expected marker. A query that runs but answers the wrong shape is
+not a pass.
 
 Report the selected profile, each applied version, each verified adapter, and
 the retained plan/state paths. Exit status or an “installed” banner alone is

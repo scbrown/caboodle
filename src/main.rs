@@ -4,7 +4,7 @@ use anyhow::Result;
 use caboodle::{
     crew::CrewEvidence,
     engine, interview,
-    model::{CrewMode, Plan, Profile},
+    model::{CrewMode, InstallIntent, Plan, Profile},
     projection,
 };
 use clap::{Parser, Subcommand, ValueEnum};
@@ -35,6 +35,9 @@ enum Commands {
         /// Crew runtime when --profile crew is selected
         #[arg(long, value_enum, default_value_t = CrewModeArg::Standalone)]
         crew: CrewModeArg,
+        /// Reviewable intended-use, crew-theme, and ontology-question contract
+        #[arg(long, default_value = "caboodle-intent.toml")]
+        intent: PathBuf,
         #[arg(short, long, default_value = "caboodle-plan.toml")]
         output: PathBuf,
     },
@@ -80,6 +83,14 @@ enum Commands {
         plan: PathBuf,
         #[arg(short, long, default_value = "caboodle-settings")]
         output: PathBuf,
+    },
+    /// Execute every anticipated ontology question against the installed Quipu
+    VerifyQuestions {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+        /// Optional isolated Quipu database used by the question probes
+        #[arg(long)]
+        db: Option<PathBuf>,
     },
 }
 
@@ -138,14 +149,16 @@ fn main() -> Result<()> {
         Commands::Plan {
             profile,
             crew,
+            intent,
             output,
         } => {
             let profile = Profile::from(profile);
-            let plan = if profile == Profile::Crew {
+            let mut plan = if profile == Profile::Crew {
                 Plan::for_crew(crew.into())
             } else {
                 Plan::for_profile(profile)
             };
+            plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());
         }
@@ -193,6 +206,9 @@ fn main() -> Result<()> {
             for name in projection::write(&Plan::read(&plan)?, &output)? {
                 println!("settings: {}", output.join(name).display());
             }
+        }
+        Commands::VerifyQuestions { plan, db } => {
+            engine::verify_questions(&Plan::read(&plan)?, db.as_deref())?;
         }
     }
     Ok(())

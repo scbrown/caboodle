@@ -169,6 +169,109 @@ pub struct Plan {
     pub tools: Vec<ToolName>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crew: Option<CrewSelection>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub intent: Option<InstallIntent>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InstallIntent {
+    pub intended_use: String,
+    #[serde(default)]
+    pub crew_members: Vec<CrewMemberTheme>,
+    pub anticipated_questions: Vec<QuestionContract>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CrewMemberTheme {
+    pub name: String,
+    pub theme: String,
+    pub domain: String,
+    pub role: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct QuestionContract {
+    pub question: String,
+    pub answer_shape: String,
+    pub seed_intent: String,
+    pub sparql: String,
+    pub expected: String,
+}
+
+impl InstallIntent {
+    pub fn read(path: &Path) -> Result<Self> {
+        let body =
+            fs::read_to_string(path).with_context(|| format!("read intent {}", path.display()))?;
+        let intent: Self =
+            toml::from_str(&body).with_context(|| format!("parse intent {}", path.display()))?;
+        intent.validate()?;
+        Ok(intent)
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        require_safe_text("intended use", &self.intended_use)?;
+        if self.anticipated_questions.is_empty() {
+            bail!("intent requires at least one anticipated ontology question");
+        }
+        let mut names = std::collections::BTreeSet::new();
+        for member in &self.crew_members {
+            for (field, value) in [
+                ("crew member name", &member.name),
+                ("crew member theme", &member.theme),
+                ("crew member domain", &member.domain),
+                ("crew member role", &member.role),
+            ] {
+                require_safe_text(field, value)?;
+            }
+            if !names.insert(member.name.to_ascii_lowercase()) {
+                bail!("duplicate crew member name {:?}", member.name);
+            }
+        }
+        let mut questions = std::collections::BTreeSet::new();
+        for contract in &self.anticipated_questions {
+            for (field, value) in [
+                ("anticipated question", &contract.question),
+                ("answer shape", &contract.answer_shape),
+                ("seed intent", &contract.seed_intent),
+                ("expected answer", &contract.expected),
+            ] {
+                require_safe_text(field, value)?;
+            }
+            if !questions.insert(contract.question.to_ascii_lowercase()) {
+                bail!("duplicate anticipated question {:?}", contract.question);
+            }
+            let query = contract.sparql.to_ascii_uppercase();
+            if !(query.split_whitespace().any(|word| word == "SELECT")
+                || query.split_whitespace().any(|word| word == "ASK"))
+            {
+                bail!("anticipated question SPARQL must contain SELECT or ASK");
+            }
+            require_safe_text("anticipated question SPARQL", &contract.sparql)?;
+        }
+        Ok(())
+    }
+}
+
+fn require_safe_text(field: &str, value: &str) -> Result<()> {
+    if value.trim().is_empty() {
+        bail!("{field} must not be empty");
+    }
+    let lower = value.to_ascii_lowercase();
+    for marker in [
+        "password=",
+        "token=",
+        "secret=",
+        "authorization:",
+        "bearer ",
+    ] {
+        if lower.contains(marker) {
+            bail!("{field} appears to contain a credential ({marker})");
+        }
+    }
+    Ok(())
 }
 
 impl Plan {
@@ -178,6 +281,7 @@ impl Plan {
             profile,
             tools: profile.tools(),
             crew: None,
+            intent: None,
         }
     }
 
@@ -220,6 +324,9 @@ impl Plan {
                 "tools do not match the {:?} profile conventions",
                 self.profile
             );
+        }
+        if let Some(intent) = &self.intent {
+            intent.validate()?;
         }
         match (self.profile, &self.crew) {
             (Profile::Crew, Some(crew)) => crew.validate()?,

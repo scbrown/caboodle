@@ -39,7 +39,17 @@ jobs:
           export PATH="$RUNNER_TEMP/caboodle/bin:$PATH"
           mkdir -p "$RUNNER_TEMP/caboodle-phase1"
           cd "$RUNNER_TEMP/caboodle-phase1"
-          printf 'retrieval\n' | caboodle init --guided | tee guided-interview.log
+          printf '%s\n' \
+            retrieval \
+            'index repositories and answer code ownership questions' \
+            0 \
+            1 \
+            'which fixture symbol is indexed?' \
+            'one code symbol' \
+            'the clean-machine fixture repository and its marker symbol' \
+            'SELECT ?s WHERE { ?s ?p ?o }' \
+            caboodle-verify-roundtrip \
+            | caboodle init --guided | tee guided-interview.log
           test -s caboodle-plan.toml
           python3 - <<'PY'
           import tomllib
@@ -47,6 +57,7 @@ jobs:
               plan = tomllib.load(plan_file)
           assert plan["profile"] == "retrieval"
           assert plan["tools"] == ["quipu", "camayoc", "bobbin"]
+          assert plan["intent"]["anticipated_questions"][0]["expected"] == "caboodle-verify-roundtrip"
           PY
       - name: Install and functionally verify the retrieval corpus
         run: |

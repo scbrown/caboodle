@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{ffi::OsString, path::Path};
 
 use anyhow::{Context, Result};
 
@@ -77,4 +77,31 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         state.write(state_path)?;
     }
     Ok(state)
+}
+
+pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {
+    plan.validate()?;
+    let intent = plan.intent.as_ref().context(
+        "plan has no intended-use/question contract; regenerate it through the Phase 2 interview",
+    )?;
+    for (index, contract) in intent.anticipated_questions.iter().enumerate() {
+        let mut args = vec![OsString::from("read"), OsString::from(&contract.sparql)];
+        if let Some(db) = db {
+            args.push(OsString::from("--db"));
+            args.push(db.as_os_str().to_owned());
+        }
+        let result = crate::adapter::checked("quipu", args, None)
+            .with_context(|| format!("anticipated question {} query", index + 1))?;
+        let answer = String::from_utf8_lossy(&result.stdout);
+        if !answer.contains(&contract.expected) {
+            anyhow::bail!(
+                "anticipated question {} was executable but its answer did not contain {:?}: {}",
+                index + 1,
+                contract.expected,
+                contract.question
+            );
+        }
+        println!("question {}: verified — {}", index + 1, contract.question);
+    }
+    Ok(())
 }

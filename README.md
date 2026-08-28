@@ -166,6 +166,11 @@ generic targets into Prometheus scrape config, starter alerts, a dashboard, and
 versioned contracts. `validate-observability` fails closed on missing targets or
 uncovered metrics; rendering is review-only and never claims a live scrape.
 
+Applied/verified transitions and `br` JSONL lifecycle snapshots queue as
+redacted, content-addressed Quipu episodes. `flush-episodes` requires an HTTPS
+endpoint plus an environment-only token, proves a query marker first, and keeps
+the identical bytes pending on ambiguous delivery.
+
 ## 🧺 The stack
 
 | repo | what it is |

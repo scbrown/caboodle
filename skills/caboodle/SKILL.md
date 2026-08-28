@@ -108,6 +108,13 @@ selected tools whose versioned contract declares a metrics endpoint. Run
 present all four generated artifacts for review. Rendering is not deployment
 and is not evidence that Prometheus scraped a target.
 
+Applied and verified transitions queue automatically under
+`.caboodle/episodes`. For bead snapshots, run `caboodle queue-br <export.jsonl>`.
+Never put a token in a plan or queue: `flush-episodes` reads only
+`QUIPU_AUTH_TOKEN`, requires HTTPS or explicit localhost, and must leave an
+identical file pending on any ambiguous response. Report queued and delivered
+counts separately.
+
 ## Diagnose and resume
 
 - Interview paused at EOF: rerun `caboodle init --guided` with the same

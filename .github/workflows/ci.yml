@@ -108,6 +108,17 @@ jobs:
           jq -e '.contracts | length == 5' caboodle-observability/contracts.json
           grep -q 'quipu_graph_facts' caboodle-observability/alerts.yml
           grep -q 'bobbin_up' caboodle-observability/dashboard.json
+      - name: Prove lifecycle emission queue is redacted and idempotent
+        run: |
+          set -euo pipefail
+          export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
+          cd "$RUNNER_TEMP/caboodle-phase2"
+          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 10
+          printf '%s\n' '{"id":"demo-1","title":"token=fixture-secret","status":"closed","comments":[{"id":"c1","text":"done"}]}' > br-export.jsonl
+          caboodle queue-br br-export.jsonl
+          caboodle queue-br br-export.jsonl
+          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 13
+          ! grep -R -q 'fixture-secret' .caboodle/episodes
       - name: Prove adversarial negative controls turn verification red
         run: |
           set -euo pipefail
@@ -127,4 +138,5 @@ jobs:
             ${{ runner.temp }}/caboodle-phase2/.caboodle/state.json
             ${{ runner.temp }}/caboodle-phase2/proof.json
             ${{ runner.temp }}/caboodle-phase2/caboodle-observability/*
+            ${{ runner.temp }}/caboodle-phase2/.caboodle/episodes/*.json
             ${{ runner.temp }}/caboodle-phase2/*.log

@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use crate::{
     adapter::adapter,
     crew::{self, CrewEvidence},
+    emission,
     model::{Plan, State, ToolState},
 };
 
@@ -41,11 +42,20 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             },
         );
         state.write(state_path)?;
+        emission::queue_transition(
+            state_path,
+            name.as_str(),
+            "applied",
+            &state.tools[name.as_str()].version,
+        )?;
         println!("{}: applied", name.as_str());
     }
     if let Some(selection) = &plan.crew {
         crew::apply(selection, &mut state, skip_install)?;
         state.write(state_path)?;
+        for (name, runtime) in &state.crew {
+            emission::queue_transition(state_path, name, "applied", &runtime.version)?;
+        }
     }
     Ok(state)
 }
@@ -70,11 +80,20 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
             },
         );
         state.write(state_path)?;
+        emission::queue_transition(
+            state_path,
+            name.as_str(),
+            "verified",
+            &state.tools[name.as_str()].version,
+        )?;
         println!("{}: verified", name.as_str());
     }
     if let Some(selection) = &plan.crew {
         crew::verify(selection, evidence, &mut state)?;
         state.write(state_path)?;
+        for (name, runtime) in &state.crew {
+            emission::queue_transition(state_path, name, "verified", &runtime.version)?;
+        }
     }
     Ok(state)
 }

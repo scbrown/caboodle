@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use caboodle::{
     crew::CrewEvidence,
-    engine, interview,
+    emission, engine, interview,
     model::{CrewMode, InstallIntent, Plan, Profile},
     observability, projection,
 };
@@ -105,6 +105,19 @@ enum Commands {
     ValidateObservability {
         #[arg(short, long, default_value = "caboodle-observability")]
         output: PathBuf,
+    },
+    /// Queue created/commented/closed lifecycle episodes from a br JSONL snapshot
+    QueueBr {
+        input: PathBuf,
+        #[arg(short, long, default_value = ".caboodle/episodes")]
+        queue: PathBuf,
+    },
+    /// Deliver identical queued episodes after a Quipu readiness control passes
+    FlushEpisodes {
+        #[arg(short, long, default_value = ".caboodle/episodes")]
+        queue: PathBuf,
+        #[arg(long)]
+        endpoint: String,
     },
 }
 
@@ -239,6 +252,14 @@ fn main() -> Result<()> {
         Commands::ValidateObservability { output } => {
             observability::validate(&output)?;
             println!("observability contracts: verified");
+        }
+        Commands::QueueBr { input, queue } => {
+            let count = emission::queue_br_jsonl(&input, &queue)?;
+            println!("queued lifecycle projections: {count}");
+        }
+        Commands::FlushEpisodes { queue, endpoint } => {
+            let count = emission::flush(&queue, &endpoint)?;
+            println!("delivered queued episodes: {count}");
         }
     }
     Ok(())

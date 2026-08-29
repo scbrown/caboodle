@@ -51,6 +51,7 @@ expected = "fixture-result"
         .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))
         .env("CABOODLE_CREEL_ROOT", root.join("creel"))
         .env("QUIPU_SERVER", "http://quipu.test")
+        .env("FAKE_QUIPU_IMPORT_LOG", root.join("quipu-import.log"))
         .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"));
     command
 }
@@ -61,6 +62,15 @@ fn install_fakes(root: &Path, bin: &Path) {
         "quipu",
         r#"
 if [ "${1:-}" = "--version" ]; then echo 'quipu 0.3.27'; exit 0; fi
+if [ "${1:-}" = "import" ]; then
+  printf '%s\n' "$*" >> "$FAKE_QUIPU_IMPORT_LOG"
+  if [ "${FAKE_QUIPU_IMPORT_MODE:-}" = quarantined ]; then
+    echo '{"outcome":"quarantined","share_id":"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","staging_graph":"urn:quipu:import:quarantine:bbbb","promotion":{"eligible":false,"blockers":["off_vocabulary"]}}'
+  else
+    echo '{"outcome":"staged","share_id":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","staging_graph":"urn:quipu:import:staging:aaaa","promotion":{"eligible":true,"blockers":[]}}'
+  fi
+  exit 0
+fi
 if [ "${1:-}" = "episode" ]; then
   db=''
   while [ "$#" -gt 0 ]; do
@@ -441,6 +451,100 @@ fn plan_install_verify_is_resumable() {
     .unwrap();
     assert_eq!(state["tools"]["quipu"]["verified"], true);
     assert_eq!(state["tools"]["bobbin"]["verified"], true);
+}
+
+#[test]
+fn profile_stages_canonical_quipu_shares_without_promoting_them() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fs::create_dir(root.path().join("team-share")).unwrap();
+
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--share",
+            "team-share",
+            "--quipu-db",
+            "knowledge.db",
+        ])
+        .assert()
+        .success();
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("shares = [\"team-share\"]"));
+    assert!(plan.contains("quipu_db = \"knowledge.db\""));
+
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("share sha256:aaaa"))
+        .stdout(predicate::str::contains("promotion eligible: true"));
+
+    let log = fs::read_to_string(root.path().join("quipu-import.log")).unwrap();
+    assert_eq!(log.trim(), "import team-share --db knowledge.db");
+    assert!(!log.contains("promote"));
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(state["shares"].as_object().unwrap().len(), 1);
+    assert_eq!(
+        state["shares"]["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+            ["promotion_eligible"],
+        true
+    );
+}
+
+#[test]
+fn quarantined_share_is_preserved_for_review_and_never_auto_promoted() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fs::create_dir(root.path().join("foreign-share")).unwrap();
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "kg",
+            "--share",
+            "foreign-share",
+            "--quipu-db",
+            "knowledge.db",
+        ])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .env("FAKE_QUIPU_IMPORT_MODE", "quarantined")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quarantined"))
+        .stdout(predicate::str::contains("promotion eligible: false"));
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    let share =
+        &state["shares"]["sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"];
+    assert_eq!(share["blockers"][0], "off_vocabulary");
+    assert!(!fs::read_to_string(root.path().join("quipu-import.log"))
+        .unwrap()
+        .contains("promote"));
+}
+
+#[test]
+fn share_selection_requires_an_explicit_quipu_database() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--share", "team-share"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("--quipu-db"));
 }
 
 #[test]

@@ -12,6 +12,12 @@ install, and when a crew is chosen the wizard asks which harness each role runs
 on, emitting the right per-harness configuration.
 - `everything` — code-intel + Desire Path; isolated failure-ingest/read proof
 
+Any profile can extend its corpus with repeatable `--share` selections because
+all profiles include Quipu. Shares require an explicit `--quipu-db`, are staged
+through Quipu's canonical import command during `apply`, and are never promoted
+to ROOT automatically. The share choice is part of the reviewable plan rather
+than a hidden installer input.
+
 The crew choice is emitted today:
 
 ```console

@@ -40,6 +40,12 @@ enum Commands {
         intent: PathBuf,
         #[arg(short, long, default_value = "caboodle-plan.toml")]
         output: PathBuf,
+        /// Canonical Quipu share directories to stage during apply
+        #[arg(long = "share")]
+        shares: Vec<PathBuf>,
+        /// Explicit Quipu database that receives staged shares
+        #[arg(long, requires = "shares")]
+        quipu_db: Option<PathBuf>,
     },
     /// Converge installed tools and prove each binary by version read-back
     Apply {
@@ -182,6 +188,8 @@ fn main() -> Result<()> {
             crew,
             intent,
             output,
+            shares,
+            quipu_db,
         } => {
             let profile = Profile::from(profile);
             let mut plan = if profile == Profile::Crew {
@@ -189,6 +197,8 @@ fn main() -> Result<()> {
             } else {
                 Plan::for_profile(profile)
             };
+            plan.shares = shares;
+            plan.quipu_db = quipu_db;
             plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());

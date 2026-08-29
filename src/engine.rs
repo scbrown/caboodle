@@ -1,13 +1,28 @@
 use std::{ffi::OsString, path::Path};
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
+use serde::Deserialize;
 
 use crate::{
     adapter::adapter,
     crew::{self, CrewEvidence},
     emission,
-    model::{Plan, State, ToolState},
+    model::{Plan, ShareState, State, ToolState},
 };
+
+#[derive(Deserialize)]
+struct ImportPromotion {
+    eligible: bool,
+    blockers: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct ImportResult {
+    outcome: String,
+    share_id: String,
+    staging_graph: String,
+    promotion: ImportPromotion,
+}
 
 pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State> {
     plan.validate()?;
@@ -57,7 +72,55 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             emission::queue_transition(state_path, name, "applied", &runtime.version)?;
         }
     }
+    consume_shares(plan, &mut state, state_path)?;
     Ok(state)
+}
+
+fn consume_shares(plan: &Plan, state: &mut State, state_path: &Path) -> Result<()> {
+    let Some(db) = plan.quipu_db.as_deref() else {
+        return Ok(());
+    };
+    for share in &plan.shares {
+        let result = crate::adapter::checked(
+            "quipu",
+            [
+                OsString::from("import"),
+                share.as_os_str().to_owned(),
+                OsString::from("--db"),
+                db.as_os_str().to_owned(),
+            ],
+            None,
+        )
+        .with_context(|| format!("import canonical Quipu share {}", share.display()))?;
+        let imported: ImportResult = serde_json::from_slice(&result.stdout)
+            .with_context(|| format!("parse Quipu import result for {}", share.display()))?;
+        if !matches!(
+            imported.outcome.as_str(),
+            "staged" | "quarantined" | "unchanged"
+        ) {
+            bail!(
+                "Quipu returned unknown share import outcome {:?} for {}",
+                imported.outcome,
+                share.display()
+            );
+        }
+        state.shares.insert(
+            imported.share_id.clone(),
+            ShareState {
+                path: share.clone(),
+                staging_graph: imported.staging_graph,
+                outcome: imported.outcome.clone(),
+                promotion_eligible: imported.promotion.eligible,
+                blockers: imported.promotion.blockers,
+            },
+        );
+        state.write(state_path)?;
+        println!(
+            "share {}: {} (promotion eligible: {})",
+            imported.share_id, imported.outcome, imported.promotion.eligible
+        );
+    }
+    Ok(())
 }
 
 pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result<State> {

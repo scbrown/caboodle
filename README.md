@@ -111,6 +111,10 @@ caboodle init --guided
 # Or supply the same intended-use contract non-interactively.
 caboodle plan --profile retrieval --intent caboodle-intent.toml
 
+# Optionally add canonical Quipu share directories to the reviewed corpus.
+# The target database is explicit; apply stages imports but never promotes them.
+caboodle plan --profile retrieval --share ./team-share --quipu-db ./knowledge.db
+
 # Converge the reviewed plan, then prove both tools with isolated round trips.
 caboodle apply
 caboodle verify
@@ -170,6 +174,13 @@ Applied/verified transitions and `br` JSONL lifecycle snapshots queue as
 redacted, content-addressed Quipu episodes. `flush-episodes` requires an HTTPS
 endpoint plus an environment-only token, proves a query marker first, and keeps
 the identical bytes pending on ambiguous delivery.
+
+Profiles can also consume one or more directories produced by `quipu share`.
+Caboodle passes each directory unchanged to `quipu import`, records the returned
+share ID, staging graph, eligibility, and blockers in `.caboodle/state.json`,
+and leaves ROOT promotion to the explicit `quipu import promote` review step.
+Non-conforming or off-vocabulary shares remain quarantined and visible rather
+than being reshaped into a Caboodle-specific bundle.
 
 ## 🧺 The stack
 

@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use anyhow::{bail, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -187,6 +191,10 @@ pub struct Plan {
     pub schema_version: u32,
     pub profile: Profile,
     pub tools: Vec<ToolName>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub shares: Vec<PathBuf>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub quipu_db: Option<PathBuf>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crew: Option<CrewSelection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -300,6 +308,8 @@ impl Plan {
             schema_version: SCHEMA_VERSION,
             profile,
             tools: profile.tools(),
+            shares: Vec::new(),
+            quipu_db: None,
             crew: None,
             intent: None,
         }
@@ -345,6 +355,12 @@ impl Plan {
                 self.profile
             );
         }
+        if !self.shares.is_empty() && self.quipu_db.is_none() {
+            bail!("plans with knowledge shares require an explicit --quipu-db");
+        }
+        if self.shares.iter().any(|path| path.as_os_str().is_empty()) {
+            bail!("knowledge share paths must not be empty");
+        }
         if let Some(intent) = &self.intent {
             intent.validate()?;
         }
@@ -364,6 +380,8 @@ pub struct State {
     pub tools: BTreeMap<String, ToolState>,
     #[serde(default)]
     pub crew: BTreeMap<String, CrewRuntimeState>,
+    #[serde(default)]
+    pub shares: BTreeMap<String, ShareState>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -380,6 +398,15 @@ pub struct CrewRuntimeState {
     pub verified: bool,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ShareState {
+    pub path: PathBuf,
+    pub staging_graph: String,
+    pub outcome: String,
+    pub promotion_eligible: bool,
+    pub blockers: Vec<String>,
+}
+
 impl State {
     pub fn read(path: &Path) -> Result<Self> {
         if !path.exists() {
@@ -387,6 +414,7 @@ impl State {
                 schema_version: SCHEMA_VERSION,
                 tools: BTreeMap::new(),
                 crew: BTreeMap::new(),
+                shares: BTreeMap::new(),
             });
         }
         let body =

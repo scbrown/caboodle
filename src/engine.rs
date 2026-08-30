@@ -161,6 +161,90 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     Ok(state)
 }
 
+/// Compare the running toolchain to the releases reviewed by this Caboodle
+/// build. Returns true only when every selected tool is current.
+pub fn check_updates(plan: &Plan) -> Result<bool> {
+    plan.validate()?;
+    let mut current = true;
+    for &name in &plan.tools {
+        let adapter = adapter(name);
+        let desired = adapter.desired_version();
+        match adapter.version() {
+            Ok(installed) if adapter.is_current(&installed) => {
+                println!("{}: current ({installed})", name.as_str());
+            }
+            Ok(installed) => {
+                current = false;
+                println!(
+                    "{}: update available (installed: {installed}; reviewed: {desired})",
+                    name.as_str()
+                );
+            }
+            Err(error) => {
+                current = false;
+                println!(
+                    "{}: missing or unreadable ({error:#}); reviewed: {desired}",
+                    name.as_str()
+                );
+            }
+        }
+    }
+    Ok(current)
+}
+
+/// Converge drifted tools to the reviewed releases and functionally verify
+/// each changed tool before recording it as current.
+pub fn update(plan: &Plan, state_path: &Path) -> Result<State> {
+    plan.validate()?;
+    let mut state = State::read(state_path)?;
+    for &name in &plan.tools {
+        let adapter = adapter(name);
+        let before = adapter.version().ok();
+        if before
+            .as_deref()
+            .is_some_and(|installed| adapter.is_current(installed))
+        {
+            println!("{}: current", name.as_str());
+            continue;
+        }
+        eprintln!(
+            "{}: converging {:?} -> {}",
+            name.as_str(),
+            before,
+            adapter.desired_version()
+        );
+        adapter
+            .install()
+            .with_context(|| format!("{} reviewed update install", name.as_str()))?;
+        let version = adapter
+            .version()
+            .with_context(|| format!("{} version read-back after update", name.as_str()))?;
+        if !adapter.is_current(&version) {
+            bail!(
+                "{} update did not reach reviewed release {} (got {})",
+                name.as_str(),
+                adapter.desired_version(),
+                version
+            );
+        }
+        adapter
+            .verify()
+            .with_context(|| format!("{} verification after update", name.as_str()))?;
+        state.tools.insert(
+            name.as_str().to_owned(),
+            ToolState {
+                version: version.clone(),
+                applied: true,
+                verified: true,
+            },
+        );
+        state.write(state_path)?;
+        emission::queue_transition(state_path, name.as_str(), "updated", &version)?;
+        println!("{}: updated and verified", name.as_str());
+    }
+    Ok(state)
+}
+
 pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {
     plan.validate()?;
     let intent = plan.intent.as_ref().context(

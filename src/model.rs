@@ -367,7 +367,8 @@ impl Plan {
         match (self.profile, &self.crew) {
             (Profile::Crew, Some(crew)) => crew.validate()?,
             (Profile::Crew, None) => bail!("crew profile requires a [crew] selection"),
-            (_, Some(_)) => bail!("[crew] is only valid with profile = \"crew\""),
+            (Profile::Everything, Some(crew)) => crew.validate()?,
+            (_, Some(_)) => bail!("[crew] is only valid with profile = \"crew\" or \"everything\""),
             (_, None) => {}
         }
         Ok(())

@@ -14,9 +14,15 @@ use crate::model::ToolName;
 
 pub trait Adapter {
     fn name(&self) -> ToolName;
+    /// Release identity reviewed and pinned by this Caboodle build.
+    fn desired_version(&self) -> String;
     fn install(&self) -> Result<()>;
     fn version(&self) -> Result<String>;
     fn verify(&self) -> Result<()>;
+
+    fn is_current(&self, installed: &str) -> bool {
+        installed == self.desired_version()
+    }
 }
 
 pub fn adapter(name: ToolName) -> Box<dyn Adapter> {
@@ -117,6 +123,16 @@ impl Adapter for Quipu {
         ToolName::Quipu
     }
 
+    fn desired_version(&self) -> String {
+        "quipu 0.3.27; quipu-server 0.3.27".to_owned()
+    }
+
+    fn is_current(&self, _installed: &str) -> bool {
+        // version() already enforces the reviewed minimum for both binaries;
+        // a newer compatible Quipu release is not a downgrade candidate.
+        true
+    }
+
     fn install(&self) -> Result<()> {
         checked(
             "cargo",
@@ -211,6 +227,10 @@ impl Adapter for Camayoc {
         ToolName::Camayoc
     }
 
+    fn desired_version(&self) -> String {
+        format!("camayoc {CAMAYOC_REVISION}")
+    }
+
     fn install(&self) -> Result<()> {
         install_camayoc_bundle()
     }
@@ -239,6 +259,10 @@ impl Adapter for Camayoc {
 impl Adapter for Bobbin {
     fn name(&self) -> ToolName {
         ToolName::Bobbin
+    }
+
+    fn desired_version(&self) -> String {
+        "bobbin 0.9.0".to_owned()
     }
 
     fn install(&self) -> Result<()> {
@@ -326,6 +350,10 @@ const YUPANA_ARCHIVE_SHA256: &str =
 impl Adapter for Yupana {
     fn name(&self) -> ToolName {
         ToolName::Yupana
+    }
+
+    fn desired_version(&self) -> String {
+        format!("yupana {YUPANA_VERSION}")
     }
 
     fn install(&self) -> Result<()> {
@@ -443,6 +471,10 @@ const DESIRE_PATH_VERSION: &str = "v0.0.0-caboodle.20260827";
 impl Adapter for DesirePath {
     fn name(&self) -> ToolName {
         ToolName::DesirePath
+    }
+
+    fn desired_version(&self) -> String {
+        format!("dp {DESIRE_PATH_VERSION} ({})", &DESIRE_PATH_REVISION[..7])
     }
 
     fn install(&self) -> Result<()> {

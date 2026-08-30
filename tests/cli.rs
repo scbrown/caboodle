@@ -101,7 +101,7 @@ exit 2
         bin,
         "bobbin",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.test'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.9.0'; exit 0; fi
 if [ "${1:-}" = "init" ]; then mkdir -p .bobbin; exit 0; fi
 if [ "${1:-}" = "index" ]; then
   if [ -f fixture.rs ]; then cp fixture.rs .bobbin/indexed; else : > .bobbin/indexed; fi
@@ -185,7 +185,11 @@ esac
     let camayoc = root.join("camayoc");
     fs::create_dir_all(camayoc.join("scripts")).unwrap();
     fs::create_dir_all(camayoc.join("ontology")).unwrap();
-    fs::write(camayoc.join("REVISION"), "test-revision\n").unwrap();
+    fs::write(
+        camayoc.join("REVISION"),
+        "f33da14bba7bdd579852f5ddaa5d6328197d806f\n",
+    )
+    .unwrap();
     fs::write(camayoc.join("scripts/bootstrap.sh"), "#!/bin/sh\nexit 0\n").unwrap();
     fs::write(
         camayoc.join("ontology/core.ttl"),
@@ -373,6 +377,49 @@ fn code_intel_and_everything_profiles_expand_the_verified_corpus() {
         .success()
         .stdout(predicate::str::contains("yupana: verified"))
         .stdout(predicate::str::contains("desire-path: verified"));
+}
+
+#[test]
+fn everything_plan_can_include_both_crew_runtimes() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--profile", "everything", "--crew", "both"])
+        .assert()
+        .success();
+    let body = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(body.contains("mode = \"both\""));
+    assert!(body.contains("\"desire-path\""));
+    assert!(body.contains("durable_owner = \"shantytown\""));
+    assert!(body.contains("burst_owner = \"creel\""));
+}
+
+#[test]
+fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .arg("check-updates")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("bobbin: current (bobbin 0.9.0)"));
+
+    fake_tool(
+        &bin,
+        "bobbin",
+        "if [ \"${1:-}\" = --version ]; then echo 'bobbin 0.8.0'; exit 0; fi\nexit 2",
+    );
+    command(root.path(), &bin)
+        .arg("check-updates")
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("bobbin: update available"))
+        .stderr(predicate::str::contains("pending reviewed updates"));
 }
 
 #[test]

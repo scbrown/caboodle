@@ -122,6 +122,17 @@ caboodle verify-questions
 
 # Or run both phases together after review.
 caboodle install
+
+# Ask whether the running stack matches this Caboodle build's reviewed pins.
+# The command exits nonzero when anything is missing, unreadable, or drifted.
+caboodle check-updates
+
+# Converge only drifted tools, read every version back, and functionally verify
+# each changed tool before recording it as current.
+caboodle update
+
+# A full tool + crew plan is explicit and reviewable.
+caboodle plan --profile everything --crew both
 ```
 
 `apply` installs a missing released tool and reads its version back; Bobbin comes
@@ -131,6 +142,15 @@ isolated stores: it proves a marker is absent first, writes/indexes it, and then
 requires the reader path to return it. Progress is written atomically to
 `.caboodle/state.json`, so rerunning converges and preserves a still-current
 verified result.
+
+`check-updates` compares the running identities with the release versions and
+source revisions pinned in the selected plan's Caboodle build. It does not use
+an unreviewed “latest” endpoint. `update` is the mutation half: it installs only
+drifted selections through their existing checksummed/source-pinned adapters,
+requires version read-back to match the reviewed identity, runs the adapter's
+functional proof, and only then records an `updated` transition. A second run is
+current and performs no installation. This keeps release selection in review
+while making deployed-versus-released drift executable rather than anecdotal.
 
 If the interview loses input or its caller stops, rerun `caboodle init --guided`:
 accepted answers resume from `.caboodle/interview.toml`. The session disappears
@@ -145,8 +165,9 @@ duplicate, credential-bearing, or non-executable entries are refused before a
 plan is written.
 
 Installable profiles today are `kg` (Quipu + Camayoc), `retrieval` (plus
-Bobbin), `code-intel` (plus Yupana), `everything` (plus Desire Path), and
-`crew` (Shantytown, Creel, both, or standalone). CABOODLE installs
+Bobbin), `code-intel` (plus Yupana), `everything` (plus Desire Path and,
+when selected with `--crew`, Shantytown/Creel), and `crew` (Shantytown, Creel,
+both, or standalone). CABOODLE installs
 checksum-pinned Shantytown and Creel distributions. Creel verification remains
 browser-owned: it requires explicit machine-readable doctor and admission
 documents and refuses missing, unknown, unredacted, or non-admit evidence. See

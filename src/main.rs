@@ -83,6 +83,18 @@ enum Commands {
         #[arg(long)]
         creel_admission: Option<PathBuf>,
     },
+    /// Report drift from the releases reviewed by this Caboodle build
+    CheckUpdates {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+    },
+    /// Converge drifted tools to reviewed releases and verify each change
+    Update {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+        #[arg(long, default_value = ".caboodle/state.json")]
+        state: PathBuf,
+    },
     /// Project one reviewed crew policy through harness-owned settings adapters
     ProjectSettings {
         #[arg(short, long, default_value = "caboodle-plan.toml")]
@@ -192,10 +204,15 @@ fn main() -> Result<()> {
             quipu_db,
         } => {
             let profile = Profile::from(profile);
+            let crew: CrewMode = crew.into();
             let mut plan = if profile == Profile::Crew {
-                Plan::for_crew(crew.into())
+                Plan::for_crew(crew)
             } else {
-                Plan::for_profile(profile)
+                let mut plan = Plan::for_profile(profile);
+                if profile == Profile::Everything && crew != CrewMode::Standalone {
+                    plan.crew = Some(caboodle::model::CrewSelection::for_mode(crew));
+                }
+                plan
             };
             plan.shares = shares;
             plan.quipu_db = quipu_db;
@@ -242,6 +259,15 @@ fn main() -> Result<()> {
                     creel_admission,
                 },
             )?;
+        }
+        Commands::CheckUpdates { plan } => {
+            let plan = Plan::read(&plan)?;
+            if !engine::check_updates(&plan)? {
+                anyhow::bail!("selected stack has pending reviewed updates");
+            }
+        }
+        Commands::Update { plan, state } => {
+            engine::update(&Plan::read(&plan)?, &state)?;
         }
         Commands::ProjectSettings { plan, output } => {
             for name in projection::write(&Plan::read(&plan)?, &output)? {

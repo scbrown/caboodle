@@ -423,6 +423,26 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
 }
 
 #[test]
+fn update_is_idempotent_when_every_selected_release_is_current() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .arg("update")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quipu: current"))
+        .stdout(predicate::str::contains("camayoc: current"))
+        .stdout(predicate::str::contains("bobbin: current"));
+    assert!(!root.path().join(".caboodle/state.json").exists());
+}
+
+#[test]
 fn expanded_adapter_negative_controls_turn_verification_red() {
     let yupana_root = tempfile::tempdir().unwrap();
     let yupana_bin = yupana_root.path().join("bin");

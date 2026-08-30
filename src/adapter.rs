@@ -87,6 +87,21 @@ fn read_version(program: &str) -> Result<String> {
     Ok(version)
 }
 
+fn read_cargo_version(program: &str) -> Result<String> {
+    let cargo_home = env::var_os("CARGO_HOME")
+        .map(PathBuf::from)
+        .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".cargo")));
+    if let Some(path) = cargo_home.map(|home| home.join("bin").join(program)) {
+        if path.is_file() {
+            let path = path
+                .to_str()
+                .with_context(|| format!("{} path is not valid UTF-8", path.display()))?;
+            return read_version(path);
+        }
+    }
+    read_version(program)
+}
+
 fn require_minimum_version(output: &str, minimum: (u64, u64, u64), program: &str) -> Result<()> {
     let raw = output
         .split_whitespace()
@@ -152,9 +167,12 @@ impl Adapter for Quipu {
     }
 
     fn version(&self) -> Result<String> {
-        let client = read_version("quipu")?;
+        // `cargo install` writes these binaries under CARGO_HOME, which may be
+        // later on PATH than a legacy Quipu install. Read back the location we
+        // actually update so a successful install cannot be reported as stale.
+        let client = read_cargo_version("quipu")?;
         require_minimum_version(&client, (0, 3, 27), "quipu")?;
-        let server = read_version("quipu-server")?;
+        let server = read_cargo_version("quipu-server")?;
         require_minimum_version(&server, (0, 3, 27), "quipu-server")?;
         Ok(format!("{client}; {server}"))
     }

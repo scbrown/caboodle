@@ -48,6 +48,7 @@ expected = "fixture-result"
     command
         .current_dir(root)
         .env("PATH", path_with(bin))
+        .env("CARGO_HOME", root.join("cargo-home"))
         .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))
         .env("CABOODLE_CREEL_ROOT", root.join("creel"))
         .env("QUIPU_SERVER", "http://quipu.test")
@@ -420,6 +421,50 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
         .failure()
         .stdout(predicate::str::contains("bobbin: update available"))
         .stderr(predicate::str::contains("pending reviewed updates"));
+}
+
+#[test]
+fn check_updates_reads_quipu_from_cargo_home_before_a_shadowing_path() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    let cargo_bin = root.path().join("cargo/bin");
+    fs::create_dir(&bin).unwrap();
+    fs::create_dir_all(&cargo_bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fake_tool(
+        &bin,
+        "quipu",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu 0.3.7'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        &bin,
+        "quipu-server",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu-server 0.3.7'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        &cargo_bin,
+        "quipu",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu 0.3.27'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        &cargo_bin,
+        "quipu-server",
+        "if [ \"${1:-}\" = --version ]; then echo 'quipu-server 0.3.27'; exit 0; fi\nexit 2",
+    );
+
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .args(["plan", "--profile", "kg"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .arg("check-updates")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "quipu: current (quipu 0.3.27; quipu-server 0.3.27)",
+        ));
 }
 
 #[test]

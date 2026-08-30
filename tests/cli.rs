@@ -468,6 +468,40 @@ fn check_updates_reads_quipu_from_cargo_home_before_a_shadowing_path() {
 }
 
 #[test]
+fn check_updates_reads_desire_path_from_cargo_home_before_a_shadowing_path() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    let cargo_bin = root.path().join("cargo/bin");
+    fs::create_dir(&bin).unwrap();
+    fs::create_dir_all(&cargo_bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fake_tool(
+        &bin,
+        "dp",
+        "if [ \"${1:-}\" = version ]; then echo 'dp c964ea2 (c964ea2)'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        &cargo_bin,
+        "dp",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi\nexit 2",
+    );
+
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .args(["plan", "--profile", "everything"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .arg("check-updates")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "desire-path: current (dp v0.0.0-caboodle.20260827 (1ca7b36))",
+        ));
+}
+
+#[test]
 fn update_is_idempotent_when_every_selected_release_is_current() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");

@@ -35,8 +35,9 @@ pub fn adapter(name: ToolName) -> Box<dyn Adapter> {
     }
 }
 
-fn output<I, S>(program: &str, args: I, cwd: Option<&Path>) -> Result<Output>
+fn output<P, I, S>(program: P, args: I, cwd: Option<&Path>) -> Result<Output>
 where
+    P: AsRef<OsStr>,
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
@@ -44,6 +45,7 @@ where
         .into_iter()
         .map(|arg| arg.as_ref().to_os_string())
         .collect();
+    let program = program.as_ref();
     let mut command = Command::new(program);
     command.args(&args);
     if let Some(cwd) = cwd {
@@ -52,7 +54,7 @@ where
     command.output().with_context(|| {
         format!(
             "run {} {}",
-            program,
+            program.to_string_lossy(),
             args.iter()
                 .map(|arg| arg.to_string_lossy())
                 .collect::<Vec<_>>()
@@ -61,16 +63,18 @@ where
     })
 }
 
-pub(crate) fn checked<I, S>(program: &str, args: I, cwd: Option<&Path>) -> Result<Output>
+pub(crate) fn checked<P, I, S>(program: P, args: I, cwd: Option<&Path>) -> Result<Output>
 where
+    P: AsRef<OsStr>,
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
+    let program = program.as_ref();
     let result = output(program, args, cwd)?;
     if !result.status.success() {
         bail!(
             "{} failed ({}): {}",
-            program,
+            program.to_string_lossy(),
             result.status,
             String::from_utf8_lossy(&result.stderr).trim()
         );
@@ -88,18 +92,24 @@ fn read_version(program: &str) -> Result<String> {
 }
 
 fn read_cargo_version(program: &str) -> Result<String> {
+    let program_path = cargo_program(program);
+    read_version(
+        program_path
+            .to_str()
+            .with_context(|| format!("{} path is not valid UTF-8", program_path.display()))?,
+    )
+}
+
+fn cargo_program(program: &str) -> PathBuf {
     let cargo_home = env::var_os("CARGO_HOME")
         .map(PathBuf::from)
         .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".cargo")));
     if let Some(path) = cargo_home.map(|home| home.join("bin").join(program)) {
         if path.is_file() {
-            let path = path
-                .to_str()
-                .with_context(|| format!("{} path is not valid UTF-8", path.display()))?;
-            return read_version(path);
+            return path;
         }
     }
-    read_version(program)
+    PathBuf::from(program)
 }
 
 fn require_minimum_version(output: &str, minimum: (u64, u64, u64), program: &str) -> Result<()> {
@@ -535,7 +545,7 @@ impl Adapter for DesirePath {
     }
 
     fn version(&self) -> Result<String> {
-        let result = checked("dp", ["version"], None)?;
+        let result = checked(cargo_program("dp"), ["version"], None)?;
         let version = String::from_utf8_lossy(&result.stdout).trim().to_owned();
         if !version.contains(DESIRE_PATH_VERSION) || !version.contains(&DESIRE_PATH_REVISION[..7]) {
             bail!("dp version is not the CABOODLE-pinned revision: {version}");
@@ -544,11 +554,12 @@ impl Adapter for DesirePath {
     }
 
     fn verify(&self) -> Result<()> {
+        let dp = cargo_program("dp");
         let root = tempfile::tempdir().context("create Desire Path verification directory")?;
         let db = root.path().join("desires.db");
         let marker = "caboodle_desire_path_marker";
         let before = checked(
-            "dp",
+            &dp,
             [
                 "--db",
                 db.to_str().context("Desire Path DB path is not UTF-8")?,
@@ -560,7 +571,7 @@ impl Adapter for DesirePath {
         if String::from_utf8_lossy(&before.stdout).contains(marker) {
             bail!("Desire Path negative control unexpectedly found the marker");
         }
-        let mut child = Command::new("dp")
+        let mut child = Command::new(&dp)
             .args([
                 "--db",
                 db.to_str().unwrap(),
@@ -591,7 +602,7 @@ impl Adapter for DesirePath {
             );
         }
         let after = checked(
-            "dp",
+            &dp,
             ["--db", db.to_str().unwrap(), "--json", "list"],
             Some(root.path()),
         )?;

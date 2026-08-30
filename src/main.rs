@@ -94,6 +94,10 @@ enum Commands {
         plan: PathBuf,
         #[arg(long, default_value = ".caboodle/state.json")]
         state: PathBuf,
+        #[arg(long)]
+        creel_doctor: Option<PathBuf>,
+        #[arg(long)]
+        creel_admission: Option<PathBuf>,
     },
     /// Project one reviewed crew policy through harness-owned settings adapters
     ProjectSettings {
@@ -266,8 +270,20 @@ fn main() -> Result<()> {
                 anyhow::bail!("selected stack has pending reviewed updates");
             }
         }
-        Commands::Update { plan, state } => {
-            engine::update(&Plan::read(&plan)?, &state)?;
+        Commands::Update {
+            plan,
+            state,
+            creel_doctor,
+            creel_admission,
+        } => {
+            engine::update(
+                &Plan::read(&plan)?,
+                &state,
+                &CrewEvidence {
+                    creel_doctor,
+                    creel_admission,
+                },
+            )?;
         }
         Commands::ProjectSettings { plan, output } => {
             for name in projection::write(&Plan::read(&plan)?, &output)? {

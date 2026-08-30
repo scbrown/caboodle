@@ -221,6 +221,7 @@ struct Yupana;
 struct DesirePath;
 
 struct Camayoc;
+const BOBBIN_VERSION: &str = "0.10.3";
 
 impl Adapter for Camayoc {
     fn name(&self) -> ToolName {
@@ -262,7 +263,7 @@ impl Adapter for Bobbin {
     }
 
     fn desired_version(&self) -> String {
-        "bobbin 0.9.0".to_owned()
+        format!("bobbin {BOBBIN_VERSION}")
     }
 
     fn install(&self) -> Result<()> {
@@ -586,7 +587,6 @@ fn bobbin_result_count(stdout: &[u8]) -> Result<u64> {
 }
 
 fn install_bobbin_release() -> Result<()> {
-    const VERSION: &str = "0.9.0";
     let target = match (env::consts::ARCH, env::consts::OS) {
         ("x86_64", "linux") => "x86_64-unknown-linux-gnu",
         ("aarch64", "linux") => "aarch64-unknown-linux-gnu",
@@ -594,8 +594,8 @@ fn install_bobbin_release() -> Result<()> {
         ("aarch64", "macos") => "aarch64-apple-darwin",
         (arch, os) => bail!("bobbin has no CABOODLE release target for {arch}-{os}"),
     };
-    let archive = format!("bobbin-v{VERSION}-{target}.tar.gz");
-    let base = format!("https://github.com/scbrown/bobbin/releases/download/v{VERSION}");
+    let archive = format!("bobbin-v{BOBBIN_VERSION}-{target}.tar.gz");
+    let base = format!("https://github.com/scbrown/bobbin/releases/download/v{BOBBIN_VERSION}");
     let download = tempfile::tempdir().context("create bobbin download directory")?;
     let archive_path = download.path().join(&archive);
     let sums_path = download.path().join("SHA256SUMS.txt");
@@ -606,7 +606,7 @@ fn install_bobbin_release() -> Result<()> {
     let home = env::var_os("HOME").context("HOME is required to install bobbin")?;
     let install_root = PathBuf::from(&home)
         .join(".local/share/caboodle/bobbin")
-        .join(format!("v{VERSION}"));
+        .join(format!("v{BOBBIN_VERSION}"));
     fs::create_dir_all(&install_root)
         .with_context(|| format!("create bobbin install root {}", install_root.display()))?;
     checked(

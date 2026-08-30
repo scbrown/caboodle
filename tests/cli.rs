@@ -101,7 +101,7 @@ exit 2
         bin,
         "bobbin",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.9.0'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.10.3'; exit 0; fi
 if [ "${1:-}" = "init" ]; then mkdir -p .bobbin; exit 0; fi
 if [ "${1:-}" = "index" ]; then
   if [ -f fixture.rs ]; then cp fixture.rs .bobbin/indexed; else : > .bobbin/indexed; fi
@@ -407,7 +407,7 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
         .arg("check-updates")
         .assert()
         .success()
-        .stdout(predicate::str::contains("bobbin: current (bobbin 0.9.0)"));
+        .stdout(predicate::str::contains("bobbin: current (bobbin 0.10.3)"));
 
     fake_tool(
         &bin,

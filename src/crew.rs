@@ -69,6 +69,31 @@ pub fn verify(selection: &CrewSelection, evidence: &CrewEvidence, state: &mut St
     Ok(())
 }
 
+pub fn check_updates(selection: &CrewSelection) -> bool {
+    let mut current = true;
+    if selects_shantytown(selection.mode) {
+        match shantytown_version() {
+            Ok(version) => println!("shantytown: current ({version})"),
+            Err(error) => {
+                current = false;
+                println!(
+                    "shantytown: missing or drifted ({error:#}); reviewed: st {SHANTYTOWN_VERSION}"
+                );
+            }
+        }
+    }
+    if selects_creel(selection.mode) {
+        match verify_creel_bundle() {
+            Ok(()) => println!("creel: current (creel {CREEL_REVISION})"),
+            Err(error) => {
+                current = false;
+                println!("creel: missing or drifted ({error:#}); reviewed: creel {CREEL_REVISION}");
+            }
+        }
+    }
+    current
+}
+
 fn selects_shantytown(mode: CrewMode) -> bool {
     matches!(mode, CrewMode::Shantytown | CrewMode::Both)
 }

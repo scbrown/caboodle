@@ -189,12 +189,15 @@ pub fn check_updates(plan: &Plan) -> Result<bool> {
             }
         }
     }
+    if let Some(selection) = &plan.crew {
+        current &= crew::check_updates(selection);
+    }
     Ok(current)
 }
 
 /// Converge drifted tools to the reviewed releases and functionally verify
 /// each changed tool before recording it as current.
-pub fn update(plan: &Plan, state_path: &Path) -> Result<State> {
+pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
@@ -241,6 +244,16 @@ pub fn update(plan: &Plan, state_path: &Path) -> Result<State> {
         state.write(state_path)?;
         emission::queue_transition(state_path, name.as_str(), "updated", &version)?;
         println!("{}: updated and verified", name.as_str());
+    }
+    if let Some(selection) = &plan.crew {
+        if !crew::check_updates(selection) {
+            crew::apply(selection, &mut state, false)?;
+            crew::verify(selection, evidence, &mut state)?;
+            state.write(state_path)?;
+            for (name, runtime) in &state.crew {
+                emission::queue_transition(state_path, name, "updated", &runtime.version)?;
+            }
+        }
     }
     Ok(state)
 }

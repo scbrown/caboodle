@@ -266,6 +266,12 @@ impl Adapter for Bobbin {
         format!("bobbin {BOBBIN_VERSION}")
     }
 
+    fn is_current(&self, installed: &str) -> bool {
+        installed.strip_prefix("bobbin ").is_some_and(|rest| {
+            rest == BOBBIN_VERSION || rest.starts_with(&format!("{BOBBIN_VERSION} "))
+        })
+    }
+
     fn install(&self) -> Result<()> {
         install_bobbin_release()
     }

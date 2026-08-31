@@ -47,6 +47,7 @@ expected = "fixture-result"
     let mut command = Command::cargo_bin("caboodle").unwrap();
     command
         .current_dir(root)
+        .env("HOME", root)
         .env("PATH", path_with(bin))
         .env("CARGO_HOME", root.join("cargo-home"))
         .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))
@@ -593,6 +594,9 @@ fn plan_install_verify_is_resumable() {
         .assert()
         .success()
         .stdout(predicate::str::contains("caboodle-plan.toml"));
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("[stack_config.quipu.owl]"));
+    assert!(plan.contains("reactive_materialize = true"));
 
     command(root.path(), &bin)
         .args(["install", "--skip-install"])
@@ -600,6 +604,10 @@ fn plan_install_verify_is_resumable() {
         .success()
         .stdout(predicate::str::contains("quipu: verified"))
         .stdout(predicate::str::contains("bobbin: verified"));
+
+    let configured = fs::read_to_string(root.path().join(".config/bobbin/config.toml")).unwrap();
+    assert!(configured.contains("[quipu.owl]"));
+    assert!(configured.contains("reactive_materialize = true"));
 
     command(root.path(), &bin)
         .args(["apply", "--skip-install"])

@@ -221,11 +221,43 @@ pub struct Plan {
     #[serde(default, skip_serializing_if = "QuipuFlavor::is_release")]
     pub quipu_flavor: QuipuFlavor,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stack_config: Option<StackConfig>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crew: Option<CrewSelection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub intent: Option<InstallIntent>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub embedding_model: Option<crate::embedding::EmbeddingModel>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct StackConfig {
+    pub quipu: QuipuStackConfig,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct QuipuStackConfig {
+    pub owl: QuipuOwlConfig,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct QuipuOwlConfig {
+    pub reactive_materialize: bool,
+}
+
+impl StackConfig {
+    pub fn recommended() -> Self {
+        Self {
+            quipu: QuipuStackConfig {
+                owl: QuipuOwlConfig {
+                    reactive_materialize: true,
+                },
+            },
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -338,6 +370,7 @@ impl Plan {
             shares: Vec::new(),
             quipu_db: None,
             quipu_flavor: QuipuFlavor::default(),
+            stack_config: Some(StackConfig::recommended()),
             crew: None,
             intent: None,
             embedding_model: None,

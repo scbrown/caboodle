@@ -5,6 +5,7 @@ use serde::Deserialize;
 
 use crate::{
     adapter::adapter,
+    configuration,
     crew::{self, CrewEvidence},
     embedding, emission,
     model::{ModelArtifactState, Plan, ShareState, State, ToolState},
@@ -64,6 +65,10 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             &state.tools[name.as_str()].version,
         )?;
         println!("{}: applied", name.as_str());
+    }
+    if let Some(config) = &plan.stack_config {
+        configuration::apply(config)?;
+        println!("stack configuration: applied");
     }
     if let Some(model) = &plan.embedding_model {
         let provisioned = embedding::provision(model, crate::adapter::download_https)

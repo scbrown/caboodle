@@ -1,4 +1,5 @@
 pub mod adapter;
+pub mod configuration;
 pub mod crew;
 pub mod embedding;
 pub mod emission;

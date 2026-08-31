@@ -47,6 +47,42 @@ answers resume from `.caboodle/interview.toml`; install state resumes from
 `.caboodle/state.json`. A green result means version read-back and functional
 reader-path checks passed, not merely that an installer exited zero.
 
+## Claude Code cloud environments
+
+`scripts/setup-environment.sh` is the version-controlled copy of the setup
+script for a Claude Code cloud environment. Paste its body into the Setup
+script field (claude.ai/code → the cloud icon above the message box →
+Add/edit environment) — the field takes a script, not a path, and it runs
+before the repo is available, which is why the file exists to be pasted from
+rather than executed.
+
+It bootstraps quipu (built from source — the long pole, so its lane starts
+first), caboodle itself (prebuilt release binary via `scripts/install.sh`),
+the shared tooling the stack's quality gates need (`just`, `bd`,
+`pre-commit`, `mdbook`, `mdbook-mermaid`, `cffi`), and stages the stack
+knowledge packs into `~/.caboodle/packs/`, verified with
+`quipu pack --verify` — a pack that fails verification is deleted rather
+than trusted. It deliberately does **not** build the rest of the corpus:
+that is caboodle's own job, and a session that needs the full stack runs
+`caboodle install` against a reviewed plan so every tool is proved rather
+than assumed.
+
+## Stack knowledge packs
+
+`packs/` carries quipu knowledge packs for working with the stack:
+
+- `stack-map.qpack.db` — what each tool is, where it lives, and how the
+  pieces relate.
+- `stack-operations.qpack.db` — how each repo builds, tests, and proves
+  itself, and the git discipline that binds them.
+
+Each pack is an ordinary quipu SQLite store with a one-row manifest. Attach
+one to any quipu database with `quipu unpack`, or prove one with
+`quipu pack --verify`. The Turtle sources live in `packs/src/` and are the
+review surface; `scripts/build-stack-packs.sh` rebuilds the artifacts from
+them (run by hand when the sources change — packs stamp their creation time,
+so a rebuild without a source change is hash churn, not content).
+
 ## Uninstall
 
 Remove only the Caboodle binary and optional local Caboodle state. Installed

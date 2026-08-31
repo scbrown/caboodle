@@ -1,0 +1,67 @@
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix caboodle: <https://caboodle.dev/ns#> .
+@prefix stack:    <https://caboodle.dev/stack/> .
+
+# ── The stack map ───────────────────────────────────────────────────────────
+# What each tool IS and how the pieces relate. Facts true at write time:
+# roles and repository locations, not versions or health — those decay, and
+# caboodle's verify proofs exist to measure them live instead.
+
+stack:caboodle a caboodle:StackComponent ;
+    rdfs:label "caboodle" ;
+    rdfs:comment "The whole kit — an AI-installable install wizard that installs the stack, proves it works with paired negative controls, and watches it run." ;
+    caboodle:repository <https://github.com/scbrown/caboodle> ;
+    caboodle:language "Rust" ;
+    caboodle:installs stack:quipu, stack:camayoc, stack:bobbin, stack:yupana, stack:shantytown ;
+    caboodle:observes stack:prometheus .
+
+stack:quipu a caboodle:StackComponent ;
+    rdfs:label "quipu" ;
+    rdfs:comment "AI-native knowledge graph with strict ontology enforcement — the governed store. Bitemporal EAVT fact log, SPARQL, SHACL-gated writes, named graphs, knowledge packs." ;
+    caboodle:repository <https://github.com/scbrown/quipu> ;
+    caboodle:language "Rust" ;
+    caboodle:roleInStack "governed store" .
+
+stack:camayoc a caboodle:StackComponent ;
+    rdfs:label "camayoc" ;
+    rdfs:comment "The knot-keeper: bootstrap ontology, knowledge ingress discipline, and knowledge-pack production. Owns what facts MEAN and how they earn their way into the graph; runs the governed RML executor for structured sources." ;
+    caboodle:repository <https://github.com/scbrown/camayoc> ;
+    caboodle:language "Python" ;
+    caboodle:roleInStack "ingress keeper" ;
+    caboodle:writesTo stack:quipu .
+
+stack:bobbin a caboodle:StackComponent ;
+    rdfs:label "bobbin" ;
+    rdfs:comment "Semantic code indexing and retrieval — chunks code, generates embeddings into LanceDB, and serves search, context injection, and RAG over MCP." ;
+    caboodle:repository <https://github.com/scbrown/bobbin> ;
+    caboodle:language "Rust" ;
+    caboodle:roleInStack "retrieval index" ;
+    caboodle:readsFrom stack:quipu .
+
+stack:yupana a caboodle:StackComponent ;
+    rdfs:label "yupana" ;
+    rdfs:comment "In-memory, multi-tenant code-analysis engine — AST, symbols, and call graph as the structural signal, served over MCP/HTTP with tier-tagged facts." ;
+    caboodle:repository <https://github.com/scbrown/yupana> ;
+    caboodle:language "Rust" ;
+    caboodle:roleInStack "structural code facts" ;
+    caboodle:feedsInto stack:bobbin .
+
+stack:shantytown a caboodle:StackComponent ;
+    rdfs:label "shantytown" ;
+    rdfs:comment "A small zero-dependency Python harness for running a crew of coding agents; installs the st console script." ;
+    caboodle:repository <https://github.com/scbrown/shantytown> ;
+    caboodle:language "Python" ;
+    caboodle:roleInStack "crew harness" .
+
+stack:creel a caboodle:StackComponent ;
+    rdfs:label "creel" ;
+    rdfs:comment "A static page that runs agent loops in browser tabs — no server, no build step, in-page MCP backends, durable state pushed to creel-state." ;
+    caboodle:repository <https://github.com/scbrown/creel> ;
+    caboodle:language "JavaScript" ;
+    caboodle:roleInStack "browser harness" .
+
+stack:prometheus a caboodle:StackComponent ;
+    rdfs:label "prometheus" ;
+    rdfs:comment "Every tool's metrics, consolidated. Caboodle's third proof: observable means Prometheus actually scrapes each tool's declared exporter." ;
+    caboodle:roleInStack "observability" .

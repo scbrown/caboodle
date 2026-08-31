@@ -1,0 +1,63 @@
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix caboodle: <https://caboodle.dev/ns#> .
+@prefix stack:    <https://caboodle.dev/stack/> .
+
+# ── Working the stack ───────────────────────────────────────────────────────
+# The operational knowledge an agent needs on arrival: how each repo builds,
+# tests, and proves itself, and the git discipline that binds them. Commands
+# are entry points, not transcripts — each repo's own instruction file stays
+# authoritative for detail.
+
+stack:quipu
+    caboodle:buildCommand "just check" ;
+    caboodle:testCommand "just test" ;
+    caboodle:docsCommand "just docs build" ;
+    caboodle:installMethod "cargo install --locked --git https://github.com/scbrown/quipu --features shacl,onnx --bin quipu --bin quipu-server (no prebuilt release binaries; both bins named because quipu-server declares required-features and a plain build silently skips it)" ;
+    caboodle:verifyProof "quipu accepts an episode via knot and a control-gated SPARQL query finds it; the negative control corrupts a byte and must go red" ;
+    caboodle:gitDiscipline "trunk-based, straight to main; quality gates are the only gate; never force-push main" .
+
+stack:camayoc
+    caboodle:buildCommand "just check" ;
+    caboodle:testCommand "just test" ;
+    caboodle:verifyProof "gate probes must be able to FAIL: a probe that cannot distinguish a refusal from an unreachable store is not a gate (scripts/gate_probe.sh)" ;
+    caboodle:gitDiscipline "trunk-based, straight to main; quality gates are the only gate; never force-push main" ;
+    caboodle:operationalNote "RML executor: scripts/rml_executor.py validate|execute — governed mappings fetched from quipu, deterministic N-Quads, commits through the SHACL-governed /knot lane" .
+
+stack:bobbin
+    caboodle:buildCommand "just build" ;
+    caboodle:testCommand "just test" ;
+    caboodle:verifyProof "bobbin indexes a fixture and search returns it" ;
+    caboodle:gitDiscipline "trunk-based, straight to main" ;
+    caboodle:operationalNote "use bobbin's own interfaces before ad-hoc search: MCP tools first, bobbin CLI second, HTTP GET /search?q=... as fallback (not a JSON POST)" .
+
+stack:yupana
+    caboodle:buildCommand "just build" ;
+    caboodle:testCommand "just test" ;
+    caboodle:docsCommand "just docs build" ;
+    caboodle:verifyProof "yupana answers impact on a fixture repo" ;
+    caboodle:gitDiscipline "trunk-based, straight to main" ;
+    caboodle:operationalNote "every served fact carries a tier; freshness is omitted rather than faked wherever unknown" .
+
+stack:shantytown
+    caboodle:buildCommand "python -m pip install -e ." ;
+    caboodle:testCommand "python3 -m pytest -q" ;
+    caboodle:verifyProof "a check must be able to fail: anything reporting health must be demonstrated returning red" ;
+    caboodle:operationalNote "zero runtime dependencies is a design constraint, not an accident; version constant lives in BOTH pyproject.toml and shantytown/__init__.py" .
+
+stack:creel
+    caboodle:buildCommand "just check" ;
+    caboodle:testCommand "just test" ;
+    caboodle:verifyProof "tests/browser.js drives real headless Chromium over CDP" ;
+    caboodle:gitDiscipline "trunk-based, straight to main; work is not finished until git push succeeds" ;
+    caboodle:operationalNote "no dependencies, no build step; app/ is the deployable artifact; harness scripts share one global scope and their load order is semantics" .
+
+stack:caboodle
+    caboodle:buildCommand "just check" ;
+    caboodle:installMethod "curl -fsSL https://raw.githubusercontent.com/scbrown/caboodle/main/scripts/install.sh | sh (prebuilt release binary, sha256-verified)" ;
+    caboodle:verifyProof "three proofs, not one: installed (version read-back), working (functional round-trip with a paired negative control), observable (Prometheus actually scrapes)" ;
+    caboodle:operationalNote "caboodle install --plan caboodle-plan.toml applies a reviewed plan; caboodle verify re-proves an installed stack" .
+
+# Cross-cutting: how knowledge itself moves through the stack.
+stack:quipu caboodle:knowledgeFlow
+    "structured sources -> camayoc RML executor -> quipu governed named graphs -> bobbin retrieval / quipu packs. Packs (.qpack.db) are ordinary quipu SQLite stores with a manifest: quipu unpack <pack> attaches one; quipu pack --verify <pack> proves integrity." ;
+    rdfs:seeAlso <https://github.com/scbrown/quipu/blob/main/docs/design/spanner-capabilities.md> .

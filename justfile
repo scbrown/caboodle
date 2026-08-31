@@ -12,7 +12,7 @@ verify plan="caboodle-plan.toml":
     cargo run -- verify --plan "{{plan}}"
 
 check:
-    sh -n scripts/install.sh scripts/check-release-assets.sh scripts/test-release-install.sh
+    sh -n scripts/install.sh scripts/check-release-assets.sh scripts/test-release-install.sh scripts/setup-environment.sh scripts/build-stack-packs.sh
     cargo fmt --check
     cargo clippy --all-targets --all-features -- -D warnings
     cargo test --all-features

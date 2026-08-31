@@ -3,7 +3,8 @@
 > **Status: analysis, 2026-08-31.** Compared [txtai](https://github.com/neuml/txtai)
 > v9.14.0 (commit `546e777`, source examined directly) against the stack as it
 > exists on disk today: quipu v0.3.27, bobbin v0.10.4, yupana v0.6.4, camayoc,
-> plus the harness layer (shantytown, creel, skein, shuttle). Every claim about
+> shuttle v0.1.0 (source examined), plus the harness layer (shantytown, creel,
+> skein). Every claim about
 > our side was checked against source, not README ambition; txtai claims come
 > from its source tree and docs. Gaps are proposals, not commitments — each
 > should become a bead/pitch in its home repo before anyone implements it.
@@ -40,7 +41,7 @@ knowledge/graph substrate — and diverge everywhere else on purpose.
 | Document ingestion | Textractor (PDF/Office/HTML), segmentation/chunking, tabular, URL retrieve | Code + markdown chunking, opt-in PDF *text* only (bobbin); **no generic document loader** (quipu embeds per-entity, no chunking) |
 | Multimodal | Text, image (CLIP/caption/objects), audio (transcribe/TTS), video | PDF text extraction; image captioning named-and-deferred; audio/video: no seam |
 | LLM / RAG generation | First-class: LLM pipeline (HF, llama.cpp, LiteLLM), RAG incl. GraphRAG, guided generation | **Deliberately none.** Stack retrieves and assembles; the agent generates |
-| Pipelines / workflows | ~30 pipelines, YAML workflows, cron scheduling | Agent harnesses (shantytown/creel), portable skills (skein), shuttle workflow engine — a different decomposition, agent-driven |
+| Pipelines / workflows | ~30 pipelines, YAML workflows, cron scheduling — an in-process *executor* of unsigned data pipelines | Shuttle: declared state machines, per-agent ed25519-**signed** transitions, JSONL hot path, export into quipu's time-windowed graphs, deep-freezable history — a governed *record*, deliberately no daemon/queue/executor; execution belongs to agents (shantytown/creel) and skills (skein) |
 | Agents | Built-in agent framework with tools (search, bash, file edit, grep) | The stack *serves* agents (Claude Code, codex) rather than shipping one |
 | API / bindings | FastAPI, MCP, OpenAI-compatible endpoints, cluster sharding; JS/Java/Rust/Go bindings | REST + MCP (44 quipu tools, 31 bobbin, 15 yupana), CLIs; **no Python bindings** (quipu 🔜) |
 | Temporal | None (index-time snapshot) | Bitemporal everywhere — even embeddings carry `valid_from`/`valid_to`; time-travel queries |
@@ -55,7 +56,10 @@ Worth stating so the gap list below is read in proportion:
 - **Everything governance**: refusal-at-write (SHACL/OWL/policy/authority),
   trust planes with quarantine and authority-gated promotion, bitemporal
   time-travel, signed verdicts and deterministic `T ⊨ Σ` audit, provenance-
-  refusing ingress, certified knowledge packs with dual signatures. txtai has
+  refusing ingress, certified knowledge packs with dual signatures, and
+  signed workflow history (shuttle: every run transition ed25519-signed by
+  the performing agent, re-verifiable from the exported graph alone, with
+  completed windows deep-frozen and still queryable). txtai has
   no analogue for any of this; its "graph" is similarity clusters, not an
   ontology.
 - **Structural code intelligence** (yupana): tier-tagged AST/call-graph facts,
@@ -175,16 +179,27 @@ Python producers (which currently hand-roll HTTP).
   the use case in our query language; adding SQL would be a second dialect.
 - **MLflow-style per-component tracing.** Bobbin's feedback lineage and the
   metrics spools cover the operational questions; trace UIs are nice-to-have.
+- **Workflow scheduling and execution** (txtai's cron-scheduled workflows).
+  Shuttle v1 deliberately ships no daemon, queue, or scheduler — agents
+  advance runs, and its own deferral list (HTTP/MCP server, write-gate
+  signature enforcement) is on its tracker. If a production workload ever
+  needs scheduled runs, the answer is a thin driver that *advances shuttle
+  runs* on a timer (cron, a shantytown role), not a second engine. Revisit
+  only when shuttle's "first production workload" exists to measure against.
 
 ## Non-gaps — absent by design, and should stay absent
 
 - **LLM inference / RAG answer synthesis in the store.** "Not an LLM framework
   — it doesn't call LLMs; agents call it" (quipu vision doc). Generation in
   the retrieval layer would also break camayoc's observed/inferred boundary.
-- **A pipeline/workflow/agent framework.** txtai's agents-with-bash-tools are
-  a small Claude Code. The stack's decomposition puts that in the harness
-  layer (shantytown, creel, skein, shuttle) where the store can't be steered
-  by its own content.
+- **An in-process pipeline/agent framework.** txtai's agents-with-bash-tools
+  are a small Claude Code, and its workflows are unsigned callables in one
+  Python process. The stack already has a workflow engine — shuttle — and it
+  is deliberately the *inverse* shape: it owns the governed record (declared
+  state machines, signed transitions, freezable history in quipu) and refuses
+  to be the executor. Execution stays with agents and harnesses (shantytown,
+  creel, skein), where the store can't be steered by its own content. Porting
+  txtai's executor shape into shuttle would erase its reason to exist.
 - **Audio/video/speech/OCR multimodal.** No deterministic parser exists, so
   under ingress rule 3 the output would be inference wearing observation's
   clothes. If ever needed, transcripts arrive as *documents* (G3) produced

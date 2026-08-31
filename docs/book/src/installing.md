@@ -47,10 +47,13 @@ answers resume from `.caboodle/interview.toml`; install state resumes from
 `.caboodle/state.json`. A green result means version read-back and functional
 reader-path checks passed, not merely that an installer exited zero.
 
-A plan-level choice documented with its proof in [Profiles](profiles.md):
-`--quipu-flavor lancedb` builds the reviewed Quipu revision with the lancedb
-feature compiled in, proven by the server's `GET /version` per-feature
-compile map.
+Two plan-level choices extend what the box installs, both documented with
+their proofs in [Profiles](profiles.md): `--quipu-flavor lancedb` builds the
+reviewed Quipu revision with the lancedb feature compiled in (proven by the
+server's `GET /version` per-feature compile map), and
+`--embedding-model <spec.toml>` provisions checksum-pinned embedding-model
+artifacts (a mismatched download is deleted and fails the step; verify
+re-hashes the artifacts on disk).
 
 ## Claude Code cloud environments
 

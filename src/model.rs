@@ -224,6 +224,8 @@ pub struct Plan {
     pub crew: Option<CrewSelection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub intent: Option<InstallIntent>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub embedding_model: Option<crate::embedding::EmbeddingModel>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -338,6 +340,7 @@ impl Plan {
             quipu_flavor: QuipuFlavor::default(),
             crew: None,
             intent: None,
+            embedding_model: None,
         }
     }
 
@@ -390,6 +393,9 @@ impl Plan {
         if let Some(intent) = &self.intent {
             intent.validate()?;
         }
+        if let Some(model) = &self.embedding_model {
+            model.validate()?;
+        }
         match (self.profile, &self.crew) {
             (Profile::Crew, Some(crew)) => crew.validate()?,
             (Profile::Crew, None) => bail!("crew profile requires a [crew] selection"),
@@ -409,6 +415,8 @@ pub struct State {
     pub crew: BTreeMap<String, CrewRuntimeState>,
     #[serde(default)]
     pub shares: BTreeMap<String, ShareState>,
+    #[serde(default)]
+    pub models: BTreeMap<String, ModelArtifactState>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -422,6 +430,16 @@ pub struct ToolState {
 pub struct CrewRuntimeState {
     pub version: String,
     pub applied: bool,
+    pub verified: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelArtifactState {
+    pub path: PathBuf,
+    pub sha256: String,
+    pub provisioned: bool,
+    /// True only after verify re-hashed the artifact on disk; a fetch alone
+    /// records `provisioned`, never `verified`.
     pub verified: bool,
 }
 
@@ -442,6 +460,7 @@ impl State {
                 tools: BTreeMap::new(),
                 crew: BTreeMap::new(),
                 shares: BTreeMap::new(),
+                models: BTreeMap::new(),
             });
         }
         let body =

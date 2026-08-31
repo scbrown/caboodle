@@ -53,6 +53,7 @@ expected = "fixture-result"
         .env("CABOODLE_CREEL_ROOT", root.join("creel"))
         .env("QUIPU_SERVER", "http://quipu.test")
         .env("FAKE_QUIPU_IMPORT_LOG", root.join("quipu-import.log"))
+        .env("FAKE_MODEL_FETCH_LOG", root.join("model-fetch.log"))
         .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"));
     command
 }
@@ -159,6 +160,15 @@ exit 2
         r#"
 args=$*
 case "$args" in
+  *"models.test"*)
+    out=''
+    while [ "$#" -gt 0 ]; do
+      if [ "$1" = "--output" ]; then shift; out=$1; fi
+      shift || true
+    done
+    printf '%s' "${FAKE_MODEL_BODY:-caboodle-model-fixture}" > "$out"
+    printf '%s\n' fetched >> "$FAKE_MODEL_FETCH_LOG"
+    ;;
   *"/version"*)
     if [ "${FAKE_QUIPU_LANCEDB:-}" = present ]; then echo '{"version":"0.3.27","features":{"lancedb":true,"onnx":true}}'
     elif [ "${FAKE_QUIPU_LANCEDB:-}" = absent ]; then echo '{"version":"0.3.27","features":{"lancedb":false,"onnx":true}}'
@@ -1104,4 +1114,142 @@ fn release_flavor_verification_never_consults_the_compile_map() {
         .assert()
         .success()
         .stdout(predicate::str::contains("quipu: verified"));
+}
+
+const MODEL_FIXTURE_SHA256: &str =
+    "4c0087274c62d351549815a5b54dd28e827ed1a5d383b8c1d01b9f737616a9e2";
+
+fn write_model_spec(root: &Path) -> String {
+    let spec = root.join("embedding-model.toml");
+    fs::write(
+        &spec,
+        format!(
+            r#"destination = "models"
+
+[[artifacts]]
+name = "model.onnx"
+url = "https://models.test/model.onnx"
+sha256 = "{MODEL_FIXTURE_SHA256}"
+"#
+        ),
+    )
+    .unwrap();
+    spec.to_string_lossy().into_owned()
+}
+
+#[test]
+fn embedding_model_artifacts_are_fetched_pinned_idempotent_and_recorded() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let spec = write_model_spec(root.path());
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg", "--embedding-model", &spec])
+        .assert()
+        .success();
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("[embedding_model]"));
+    assert!(plan.contains(MODEL_FIXTURE_SHA256));
+
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "embedding-model model.onnx: provisioned",
+        ));
+    assert_eq!(
+        fs::read(root.path().join("models/model.onnx")).unwrap(),
+        b"caboodle-model-fixture"
+    );
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(state["models"]["model.onnx"]["provisioned"], true);
+    assert_eq!(state["models"]["model.onnx"]["verified"], false);
+    assert_eq!(
+        state["models"]["model.onnx"]["sha256"],
+        MODEL_FIXTURE_SHA256
+    );
+
+    // The artifact is already pinned on disk, so a rerun records it as
+    // current without another download.
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "embedding-model model.onnx: current",
+        ));
+    let fetches = fs::read_to_string(root.path().join("model-fetch.log")).unwrap();
+    assert_eq!(fetches.lines().count(), 1);
+
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "embedding-model model.onnx: digest re-checked",
+        ));
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(state["models"]["model.onnx"]["verified"], true);
+}
+
+#[test]
+fn embedding_model_checksum_mismatch_refuses_and_deletes_the_download() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let spec = write_model_spec(root.path());
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg", "--embedding-model", &spec])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .env("FAKE_MODEL_BODY", "tampered-model-bytes")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("model.onnx checksum mismatch"))
+        .stderr(predicate::str::contains(
+            "embedding-model provisioning step",
+        ));
+    // The refused bytes must be gone: no artifact and no staging leftovers.
+    assert!(!root.path().join("models/model.onnx").exists());
+    assert_eq!(fs::read_dir(root.path().join("models")).unwrap().count(), 0);
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    assert!(state["models"].as_object().unwrap().is_empty());
+}
+
+#[test]
+fn embedding_model_verify_goes_red_when_bytes_drift_on_disk() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let spec = write_model_spec(root.path());
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg", "--embedding-model", &spec])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success();
+
+    fs::write(root.path().join("models/model.onnx"), b"drifted-bytes").unwrap();
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("model.onnx drifted on disk"));
 }

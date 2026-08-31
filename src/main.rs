@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use caboodle::{
     crew::CrewEvidence,
+    embedding::EmbeddingModel,
     emission, engine, interview,
     model::{CrewMode, InstallIntent, Plan, Profile, QuipuFlavor},
     observability, projection,
@@ -50,6 +51,9 @@ enum Commands {
         /// with the lancedb cargo feature compiled in
         #[arg(long, value_enum, default_value_t = QuipuFlavorArg::Release)]
         quipu_flavor: QuipuFlavorArg,
+        /// Checksum-pinned embedding-model artifact spec copied into the plan
+        #[arg(long)]
+        embedding_model: Option<PathBuf>,
     },
     /// Converge installed tools and prove each binary by version read-back
     Apply {
@@ -226,6 +230,7 @@ fn main() -> Result<()> {
             shares,
             quipu_db,
             quipu_flavor,
+            embedding_model,
         } => {
             let profile = Profile::from(profile);
             let crew: CrewMode = crew.into();
@@ -241,6 +246,9 @@ fn main() -> Result<()> {
             plan.shares = shares;
             plan.quipu_db = quipu_db;
             plan.quipu_flavor = quipu_flavor.into();
+            if let Some(spec) = embedding_model {
+                plan.embedding_model = Some(EmbeddingModel::read(&spec)?);
+            }
             plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());

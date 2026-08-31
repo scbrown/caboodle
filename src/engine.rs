@@ -6,8 +6,8 @@ use serde::Deserialize;
 use crate::{
     adapter::adapter,
     crew::{self, CrewEvidence},
-    emission,
-    model::{Plan, ShareState, State, ToolState},
+    embedding, emission,
+    model::{ModelArtifactState, Plan, ShareState, State, ToolState},
 };
 
 #[derive(Deserialize)]
@@ -64,6 +64,39 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             &state.tools[name.as_str()].version,
         )?;
         println!("{}: applied", name.as_str());
+    }
+    if let Some(model) = &plan.embedding_model {
+        let provisioned = embedding::provision(model, crate::adapter::download_https)
+            .context("embedding-model provisioning step")?;
+        for artifact in provisioned {
+            // Like tools, a re-fetch of identical pinned bytes keeps its
+            // verified mark; anything else must earn it again.
+            let remains_verified = state
+                .models
+                .get(&artifact.name)
+                .is_some_and(|previous| previous.sha256 == artifact.sha256 && previous.verified);
+            state.models.insert(
+                artifact.name.clone(),
+                ModelArtifactState {
+                    path: artifact.path.clone(),
+                    sha256: artifact.sha256.clone(),
+                    provisioned: true,
+                    verified: remains_verified,
+                },
+            );
+            state.write(state_path)?;
+            emission::queue_transition(
+                state_path,
+                &format!("embedding-model/{}", artifact.name),
+                "applied",
+                &artifact.sha256,
+            )?;
+            let outcome = match artifact.outcome {
+                embedding::ArtifactOutcome::Fetched => "provisioned",
+                embedding::ArtifactOutcome::Current => "current",
+            };
+            println!("embedding-model {}: {outcome}", artifact.name);
+        }
     }
     if let Some(selection) = &plan.crew {
         crew::apply(selection, &mut state, skip_install)?;
@@ -150,6 +183,30 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
             &state.tools[name.as_str()].version,
         )?;
         println!("{}: verified", name.as_str());
+    }
+    if let Some(model) = &plan.embedding_model {
+        // This is deliberately a re-hash, not an embed round-trip; see
+        // embedding::verify for why claiming more would be a banner.
+        embedding::verify(model).context("embedding-model artifact re-hash step")?;
+        for artifact in &model.artifacts {
+            state.models.insert(
+                artifact.name.clone(),
+                ModelArtifactState {
+                    path: model.destination.join(&artifact.name),
+                    sha256: artifact.sha256.clone(),
+                    provisioned: true,
+                    verified: true,
+                },
+            );
+            state.write(state_path)?;
+            emission::queue_transition(
+                state_path,
+                &format!("embedding-model/{}", artifact.name),
+                "verified",
+                &artifact.sha256,
+            )?;
+            println!("embedding-model {}: digest re-checked", artifact.name);
+        }
     }
     if let Some(selection) = &plan.crew {
         crew::verify(selection, evidence, &mut state)?;

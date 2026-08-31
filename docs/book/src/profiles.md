@@ -83,3 +83,44 @@ is never accepted as the proof. Because the flavor is invisible to plain
 version read-back, `check-updates` cannot see flavor drift; `verify` is the
 command that catches it, and its failure names the exact reinstall command
 that converges.
+
+## Embedding model artifacts
+
+Quipu deliberately bundles no model weights (its onnx feature ships the
+runtime only), so a box that should embed needs the artifacts provisioned —
+and that belongs in the reviewed plan, not in an ad-hoc download script. The
+plan's `[embedding_model]` section names a destination directory and a list of
+artifacts, each pinned by URL **and** sha256:
+
+```toml
+[embedding_model]
+destination = "/var/lib/quipu/embedding-model"
+
+[[embedding_model.artifacts]]
+name = "model.onnx"
+url = "https://models.example/reviewed/model.onnx"
+sha256 = "…64 lowercase hex characters…"
+
+[[embedding_model.artifacts]]
+name = "tokenizer.json"
+url = "https://models.example/reviewed/tokenizer.json"
+sha256 = "…"
+```
+
+`caboodle plan --embedding-model <spec.toml>` copies a spec of that shape into
+the plan. During `apply`, each artifact is downloaded beside its destination
+and hashed **before** it may take the artifact's name; a checksum mismatch
+deletes the download and fails the named `embedding-model` step with a
+nonzero exit. An artifact already on disk with the pinned digest is a
+recorded no-op, so re-running converges without re-downloading weights.
+Provisioned artifacts land in `.caboodle/state.json` under `models`, exactly
+like every other step.
+
+**What verify proves today, stated plainly:** verification re-hashes every
+artifact on disk against the plan's pinned digest and goes red on drift or
+absence. It does **not** yet prove an embed-and-search round-trip — the
+installed Quipu exposes no reviewed embeddings contract for caboodle to
+drive, and wiring a proof that cannot fail would be exactly the banner the
+three-proofs rule forbids. When that contract lands, the round-trip
+(auto-embedded episode against an isolated store, absent-control first,
+search finds it) is the check that belongs here.

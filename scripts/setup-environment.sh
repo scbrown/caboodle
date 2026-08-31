@@ -15,9 +15,8 @@
 #      `set -u` without `-e`, `|| true` on everything optional, and an
 #      unconditional `exit 0`.
 #   2. Must finish in ~5 minutes or the environment cache never builds — and
-#      without the cache this runs on EVERY session instead of once. Quipu
-#      alone is 4m19s measured, so the lanes below run in PARALLEL and the
-#      total is the slowest lane, not the sum.
+#      without the cache this runs on EVERY session instead of once. The lanes
+#      below run in PARALLEL so total time is the slowest lane, not the sum.
 #   3. Needs network. GitHub (git, release assets, raw files), crates.io,
 #      npmjs and PyPI are all on the default Trusted allowlist.
 #
@@ -43,24 +42,39 @@ export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
 export DEBIAN_FRONTEND=noninteractive
 mkdir -p "$HOME/.local/bin"
 
-# ── Lane 1: quipu — the long pole, so start it first ────────────────────────
+# ── Lane 1: quipu — checksummed release binaries ───────────────────────────
 #
-# There is no prebuilt binary: quipu's releases are release-plz source tags
-# with empty asset lists. Measured 4m19s for a release build on 4 vCPUs.
-#
-# --features shacl,onnx is mandatory, not a preference:
-#   shacl → enforces governance at WRITE time; without it ungoverned facts
-#           store silently, which is the exact failure the store exists to
-#           prevent.
-#   onnx  → the embedding runtime. Without it quipu_context and
-#           quipu_hybrid_search degrade to SPARQL CONTAINS.
-#
-# Both bins are named explicitly because quipu-server declares
-# `required-features` and a plain build SILENTLY SKIPS it — exit 0, no
-# warning.
+# Quipu publishes the reviewed full-feature build (including SHACL and ONNX)
+# as a checksummed archive. Source compilation is deliberately opt-in: a
+# transient release outage must not turn the five-minute setup lane into an
+# unbounded 10–12 GB Rust build.
+install_quipu_release() {
+  local version=0.3.27 target=x86_64-unknown-linux-gnu
+  local archive="quipu-v${version}-${target}.tar.gz"
+  local base="https://github.com/scbrown/quipu/releases/download/v${version}"
+  local tmp status
+  [ "$(uname -s)-$(uname -m)" = "Linux-x86_64" ] || return 1
+  tmp=$(mktemp -d) || return 1
+  curl -fsSL "$base/$archive" -o "$tmp/$archive" &&
+    curl -fsSL "$base/$archive.sha256" -o "$tmp/$archive.sha256" &&
+    (cd "$tmp" && sha256sum -c "$archive.sha256") >/dev/null 2>&1 &&
+    tar -xzf "$tmp/$archive" -C "$tmp" &&
+    install -m 0755 "$tmp/quipu-v${version}-${target}/quipu" "$HOME/.local/bin/quipu" &&
+    install -m 0755 "$tmp/quipu-v${version}-${target}/quipu-server" "$HOME/.local/bin/quipu-server"
+  status=$?
+  rm -rf "$tmp"
+  return "$status"
+}
+
+install_quipu_source_fallback() {
+  cargo install --locked --git https://github.com/scbrown/quipu \
+    --features shacl,onnx --bin quipu --bin quipu-server >/dev/null 2>&1
+}
+
 (
-  have quipu || cargo install --locked --git https://github.com/scbrown/quipu \
-      --features shacl,onnx --bin quipu --bin quipu-server >/dev/null 2>&1 || true
+  if ! have quipu && ! install_quipu_release; then
+    [ "${CABOODLE_ALLOW_SOURCE_FALLBACK:-0}" = 1 ] && install_quipu_source_fallback || true
+  fi
 ) &
 QUIPU_PID=$!
 

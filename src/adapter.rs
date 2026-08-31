@@ -182,8 +182,16 @@ impl Adapter for Quipu {
     }
 
     fn install(&self) -> Result<()> {
-        checked("cargo", quipu_install_args(self.flavor), None)?;
-        Ok(())
+        match self.flavor {
+            QuipuFlavor::Release => install_quipu_release(),
+            // The published archive is the reviewed `full` build. LanceDB is
+            // an explicit non-default flavor and still needs a source build
+            // until Quipu publishes a separately identifiable artifact.
+            QuipuFlavor::Lancedb => {
+                checked("cargo", quipu_install_args(self.flavor), None)?;
+                Ok(())
+            }
+        }
     }
 
     fn version(&self) -> Result<String> {
@@ -257,6 +265,54 @@ impl Adapter for Quipu {
     }
 }
 
+fn quipu_release_target() -> Result<&'static str> {
+    match (env::consts::ARCH, env::consts::OS) {
+        ("x86_64", "linux") => Ok("x86_64-unknown-linux-gnu"),
+        (arch, os) => bail!("Quipu has no checksummed CABOODLE release for {arch}-{os}"),
+    }
+}
+
+fn install_quipu_release() -> Result<()> {
+    let target = quipu_release_target()?;
+    let archive_name = format!("quipu-v{QUIPU_VERSION}-{target}.tar.gz");
+    let base = format!("https://github.com/scbrown/quipu/releases/download/v{QUIPU_VERSION}");
+    let download = tempfile::tempdir().context("create Quipu download directory")?;
+    let archive = download.path().join(&archive_name);
+    let checksum = download.path().join(format!("{archive_name}.sha256"));
+    download_https(&format!("{base}/{archive_name}"), &archive)?;
+    download_https(&format!("{base}/{archive_name}.sha256"), &checksum)?;
+    verify_checksum(&archive, &checksum)?;
+
+    let unpacked = download
+        .path()
+        .join(format!("quipu-v{QUIPU_VERSION}-{target}"));
+    checked(
+        "tar",
+        [
+            OsStr::new("-xzf"),
+            archive.as_os_str(),
+            OsStr::new("-C"),
+            download.path().as_os_str(),
+        ],
+        None,
+    )?;
+    let home = env::var_os("HOME").context("HOME is required to install Quipu")?;
+    let bin = env::var_os("CARGO_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(home).join(".cargo"))
+        .join("bin");
+    fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
+    for program in ["quipu", "quipu-server"] {
+        let source = unpacked.join(program);
+        if !source.is_file() {
+            bail!("Quipu release archive omitted {}", source.display());
+        }
+        fs::copy(&source, bin.join(program))
+            .with_context(|| format!("install checksummed Quipu binary {program}"))?;
+    }
+    Ok(())
+}
+
 fn quipu_install_args(flavor: QuipuFlavor) -> [&'static str; 8] {
     [
         "install",
@@ -305,7 +361,7 @@ struct Yupana;
 struct DesirePath;
 
 struct Camayoc;
-const BOBBIN_VERSION: &str = "0.10.3";
+const BOBBIN_VERSION: &str = "0.10.4";
 
 impl Adapter for Camayoc {
     fn name(&self) -> ToolName {
@@ -950,7 +1006,7 @@ fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {
 
 #[cfg(test)]
 mod flavor_tests {
-    use super::{quipu_install_args, require_compiled_feature};
+    use super::{quipu_install_args, quipu_release_target, require_compiled_feature};
     use crate::model::QuipuFlavor;
     use serde_json::json;
 
@@ -965,6 +1021,13 @@ mod flavor_tests {
         assert_eq!(release[..6], lancedb[..6]);
         assert_eq!(release[7..], lancedb[7..]);
         assert!(release.contains(&"--locked"));
+    }
+
+    #[test]
+    fn default_quipu_release_has_a_supported_host_artifact() {
+        if (std::env::consts::ARCH, std::env::consts::OS) == ("x86_64", "linux") {
+            assert_eq!(quipu_release_target().unwrap(), "x86_64-unknown-linux-gnu");
+        }
     }
 
     #[test]

@@ -64,8 +64,8 @@ Add/edit environment) — the field takes a script, not a path, and it runs
 before the repo is available, which is why the file exists to be pasted from
 rather than executed.
 
-It bootstraps quipu (built from source — the long pole, so its lane starts
-first), caboodle itself (prebuilt release binary via `scripts/install.sh`),
+It bootstraps quipu (checksummed prebuilt `quipu` and `quipu-server` release
+binaries), caboodle itself (prebuilt release binary via `scripts/install.sh`),
 the shared tooling the stack's quality gates need (`just`, `bd`,
 `pre-commit`, `mdbook`, `mdbook-mermaid`, `cffi`), and stages the stack
 knowledge packs into `~/.caboodle/packs/`, verified with
@@ -74,6 +74,10 @@ than trusted. It deliberately does **not** build the rest of the corpus:
 that is caboodle's own job, and a session that needs the full stack runs
 `caboodle install` against a reviewed plan so every tool is proved rather
 than assumed.
+
+Set `CABOODLE_ALLOW_SOURCE_FALLBACK=1` only when the Quipu release artifact is
+unavailable and the environment has enough time and memory for a Rust build.
+The normal setup path never compiles Quipu from source.
 
 ## Stack knowledge packs
 

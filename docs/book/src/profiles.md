@@ -59,3 +59,27 @@ It refuses when either contract is absent, when a required doctor result is not
 Camayoc currently distributes its bootstrap ontology, shapes, queries, and gate
 proof as a repository bundle; CABOODLE pins and checksums that bundle until the
 designed `core.qpack` artifact is published.
+
+## Quipu install flavor
+
+Every profile installs Quipu, and the plan's `quipu_flavor` field decides how.
+The default, `release`, installs the reviewed release feature set, which
+deliberately excludes the `lancedb` cargo feature — so
+`vector.backend = "lancedb"` refuses at startup on a default box. The
+`lancedb` flavor builds the **same reviewed revision** with
+`--features full,lancedb`; only the feature list changes, so choosing the
+flavor can never pull in an unreviewed Quipu:
+
+```console
+caboodle plan --profile retrieval --quipu-flavor lancedb
+```
+
+The flavor is proven, never assumed. `quipu --version` cannot say which
+features were compiled in, so verification asks the running Quipu server's
+`GET /version` per-feature compile map and goes red when the plan asked for
+`lancedb` and the map lacks it — or when the server reports no map at all,
+because an unprovable claim is a refusal, not a pass. An installer exit code
+is never accepted as the proof. Because the flavor is invisible to plain
+version read-back, `check-updates` cannot see flavor drift; `verify` is the
+command that catches it, and its failure names the exact reinstall command
+that converges.

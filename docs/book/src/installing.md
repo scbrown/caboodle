@@ -47,6 +47,11 @@ answers resume from `.caboodle/interview.toml`; install state resumes from
 `.caboodle/state.json`. A green result means version read-back and functional
 reader-path checks passed, not merely that an installer exited zero.
 
+A plan-level choice documented with its proof in [Profiles](profiles.md):
+`--quipu-flavor lancedb` builds the reviewed Quipu revision with the lancedb
+feature compiled in, proven by the server's `GET /version` per-feature
+compile map.
+
 ## Claude Code cloud environments
 
 `scripts/setup-environment.sh` is the version-controlled copy of the setup

@@ -28,7 +28,7 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
-        let adapter = adapter(name);
+        let adapter = adapter(name, plan.quipu_flavor);
         let version = match adapter.version() {
             Ok(version) => version,
             Err(error) if !skip_install => {
@@ -127,7 +127,7 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
-        let adapter = adapter(name);
+        let adapter = adapter(name, plan.quipu_flavor);
         let version = adapter
             .version()
             .with_context(|| format!("{} version read-back", name.as_str()))?;
@@ -167,7 +167,7 @@ pub fn check_updates(plan: &Plan) -> Result<bool> {
     plan.validate()?;
     let mut current = true;
     for &name in &plan.tools {
-        let adapter = adapter(name);
+        let adapter = adapter(name, plan.quipu_flavor);
         let desired = adapter.desired_version();
         match adapter.version() {
             Ok(installed) if adapter.is_current(&installed) => {
@@ -201,7 +201,7 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
-        let adapter = adapter(name);
+        let adapter = adapter(name, plan.quipu_flavor);
         let before = adapter.version().ok();
         if before
             .as_deref()

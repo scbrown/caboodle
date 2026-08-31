@@ -159,6 +159,11 @@ exit 2
         r#"
 args=$*
 case "$args" in
+  *"/version"*)
+    if [ "${FAKE_QUIPU_LANCEDB:-}" = present ]; then echo '{"version":"0.3.27","features":{"lancedb":true,"onnx":true}}'
+    elif [ "${FAKE_QUIPU_LANCEDB:-}" = absent ]; then echo '{"version":"0.3.27","features":{"lancedb":false,"onnx":true}}'
+    else echo '{"version":"0.3.27"}'; fi
+    ;;
   *"/query"*)
     case "$args" in
       *caboodle-camayoc-control-must-stay-absent*)
@@ -1020,4 +1025,83 @@ fn creel_verification_refuses_unknown_doctor_and_policy_refusal() {
             .failure()
             .stderr(predicate::str::contains(message));
     }
+}
+
+#[test]
+fn plan_records_the_quipu_flavor_only_when_it_departs_from_release() {
+    let root = tempfile::tempdir().unwrap();
+    command(root.path(), root.path())
+        .args(["plan", "--profile", "kg"])
+        .assert()
+        .success();
+    let default = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(!default.contains("quipu_flavor"));
+
+    command(root.path(), root.path())
+        .args([
+            "plan",
+            "--profile",
+            "kg",
+            "--quipu-flavor",
+            "lancedb",
+            "--output",
+            "lancedb.toml",
+        ])
+        .assert()
+        .success();
+    let flavored = fs::read_to_string(root.path().join("lancedb.toml")).unwrap();
+    assert!(flavored.contains("quipu_flavor = \"lancedb\""));
+}
+
+#[test]
+fn lancedb_flavor_is_proven_by_the_compile_map_and_refused_without_it() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg", "--quipu-flavor", "lancedb"])
+        .assert()
+        .success();
+
+    command(root.path(), &bin)
+        .arg("verify")
+        .env("FAKE_QUIPU_LANCEDB", "present")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quipu: verified"));
+
+    command(root.path(), &bin)
+        .arg("verify")
+        .env("FAKE_QUIPU_LANCEDB", "absent")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("compiled without it"));
+
+    // A server that reports no compile map cannot prove the flavor either way;
+    // that must read as a refusal, never as a pass.
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("no per-feature compile map"));
+}
+
+#[test]
+fn release_flavor_verification_never_consults_the_compile_map() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg"])
+        .assert()
+        .success();
+    // FAKE_QUIPU_LANCEDB stays unset: if the release flavor asked /version it
+    // would see no compile map and go red, so green proves it never asked.
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quipu: verified"));
 }

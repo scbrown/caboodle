@@ -10,7 +10,7 @@ use std::{
 use anyhow::{bail, Context, Result};
 use serde_json::{json, Value};
 
-use crate::model::ToolName;
+use crate::model::{QuipuFlavor, ToolName};
 
 pub trait Adapter {
     fn name(&self) -> ToolName;
@@ -25,9 +25,11 @@ pub trait Adapter {
     }
 }
 
-pub fn adapter(name: ToolName) -> Box<dyn Adapter> {
+pub fn adapter(name: ToolName, quipu_flavor: QuipuFlavor) -> Box<dyn Adapter> {
     match name {
-        ToolName::Quipu => Box::new(Quipu),
+        ToolName::Quipu => Box::new(Quipu {
+            flavor: quipu_flavor,
+        }),
         ToolName::Camayoc => Box::new(Camayoc),
         ToolName::Bobbin => Box::new(Bobbin),
         ToolName::Yupana => Box::new(Yupana),
@@ -141,7 +143,21 @@ fn require_minimum_version(output: &str, minimum: (u64, u64, u64), program: &str
     Ok(())
 }
 
-struct Quipu;
+struct Quipu {
+    flavor: QuipuFlavor,
+}
+
+const QUIPU_VERSION: &str = "0.3.27";
+
+/// The reviewed feature set per flavor. Both flavors build the identical
+/// pinned revision — only the feature list differs — so choosing `lancedb`
+/// can never smuggle in an unreviewed Quipu.
+fn quipu_features(flavor: QuipuFlavor) -> &'static str {
+    match flavor {
+        QuipuFlavor::Release => "full",
+        QuipuFlavor::Lancedb => "full,lancedb",
+    }
+}
 
 impl Adapter for Quipu {
     fn name(&self) -> ToolName {
@@ -149,30 +165,24 @@ impl Adapter for Quipu {
     }
 
     fn desired_version(&self) -> String {
-        "quipu 0.3.27; quipu-server 0.3.27".to_owned()
+        match self.flavor {
+            QuipuFlavor::Release => format!("quipu {QUIPU_VERSION}; quipu-server {QUIPU_VERSION}"),
+            QuipuFlavor::Lancedb => {
+                format!("quipu {QUIPU_VERSION}; quipu-server {QUIPU_VERSION} (+lancedb)")
+            }
+        }
     }
 
     fn is_current(&self, _installed: &str) -> bool {
         // version() already enforces the reviewed minimum for both binaries;
         // a newer compatible Quipu release is not a downgrade candidate.
+        // Flavor drift is invisible here — `quipu --version` cannot say which
+        // features were compiled in — so verify() is what catches it.
         true
     }
 
     fn install(&self) -> Result<()> {
-        checked(
-            "cargo",
-            [
-                "install",
-                "quipu-ai",
-                "--version",
-                "0.3.27",
-                "--locked",
-                "--features",
-                "full",
-                "--bins",
-            ],
-            None,
-        )?;
+        checked("cargo", quipu_install_args(self.flavor), None)?;
         Ok(())
     }
 
@@ -188,6 +198,9 @@ impl Adapter for Quipu {
     }
 
     fn verify(&self) -> Result<()> {
+        if self.flavor == QuipuFlavor::Lancedb {
+            verify_quipu_lancedb_feature()?;
+        }
         let root = tempfile::tempdir().context("create quipu verification directory")?;
         let db = root.path().join("verify.db");
         let episode = root.path().join("episode.json");
@@ -242,6 +255,49 @@ impl Adapter for Quipu {
         }
         Ok(())
     }
+}
+
+fn quipu_install_args(flavor: QuipuFlavor) -> [&'static str; 8] {
+    [
+        "install",
+        "quipu-ai",
+        "--version",
+        QUIPU_VERSION,
+        "--locked",
+        "--features",
+        quipu_features(flavor),
+        "--bins",
+    ]
+}
+
+/// The plan asked for the lancedb flavor. `quipu --version` cannot say which
+/// features were compiled in, so ask the running server's per-feature compile
+/// map — the only read-back that can prove the flavor, as opposed to trusting
+/// that `cargo install --features lancedb` exited zero.
+fn verify_quipu_lancedb_feature() -> Result<()> {
+    let server = env::var("QUIPU_SERVER").unwrap_or_else(|_| "http://localhost:3030".to_owned());
+    let version = curl_get_json(&format!("{server}/version"))
+        .context("read the Quipu server per-feature compile map")?;
+    require_compiled_feature(&version, "lancedb")
+}
+
+fn require_compiled_feature(version: &Value, feature: &str) -> Result<()> {
+    let compiled = version
+        .get("features")
+        .and_then(Value::as_object)
+        .with_context(|| {
+            format!(
+                "Quipu /version returned no per-feature compile map; cannot prove the {feature} flavor"
+            )
+        })?;
+    if compiled.get(feature).and_then(Value::as_bool) != Some(true) {
+        bail!(
+            "the plan requires the {feature} flavor but the running Quipu was compiled without it; \
+             reinstall the reviewed revision with `cargo install quipu-ai --version {QUIPU_VERSION} \
+             --locked --features full,{feature} --bins`"
+        );
+    }
+    Ok(())
 }
 
 struct Bobbin;
@@ -804,7 +860,14 @@ fn label_count(server: &str, namespace: &str, label: &str) -> Result<u64> {
 }
 
 fn curl_json(url: &str, payload: &Value) -> Result<Value> {
-    let body = payload.to_string();
+    curl_json_request(url, Some(payload.to_string()))
+}
+
+fn curl_get_json(url: &str) -> Result<Value> {
+    curl_json_request(url, None)
+}
+
+fn curl_json_request(url: &str, body: Option<String>) -> Result<Value> {
     let mut auth = None;
     if let Ok(token) = env::var("QUIPU_AUTH_TOKEN") {
         let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
@@ -819,13 +882,17 @@ fn curl_json(url: &str, payload: &Value) -> Result<Value> {
         OsString::from("--fail"),
         OsString::from("--silent"),
         OsString::from("--show-error"),
-        OsString::from("--request"),
-        OsString::from("POST"),
-        OsString::from("--header"),
-        OsString::from("Content-Type: application/json"),
-        OsString::from("--data"),
-        OsString::from(body),
     ];
+    if let Some(body) = body {
+        args.extend([
+            OsString::from("--request"),
+            OsString::from("POST"),
+            OsString::from("--header"),
+            OsString::from("Content-Type: application/json"),
+            OsString::from("--data"),
+            OsString::from(body),
+        ]);
+    }
     if let Some(file) = &auth {
         args.push(OsString::from("--config"));
         args.push(file.path().as_os_str().to_owned());
@@ -879,6 +946,52 @@ fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {
         bail!("checksum mismatch for {filename}");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod flavor_tests {
+    use super::{quipu_install_args, require_compiled_feature};
+    use crate::model::QuipuFlavor;
+    use serde_json::json;
+
+    #[test]
+    fn install_args_add_only_the_lancedb_feature_to_the_reviewed_pin() {
+        let release = quipu_install_args(QuipuFlavor::Release);
+        let lancedb = quipu_install_args(QuipuFlavor::Lancedb);
+        assert_eq!(release[6], "full");
+        assert_eq!(lancedb[6], "full,lancedb");
+        // Everything but the feature list must be identical, so the lancedb
+        // flavor stays pinned to the same reviewed revision.
+        assert_eq!(release[..6], lancedb[..6]);
+        assert_eq!(release[7..], lancedb[7..]);
+        assert!(release.contains(&"--locked"));
+    }
+
+    #[test]
+    fn compile_map_proof_requires_a_true_lancedb_entry() {
+        require_compiled_feature(&json!({"features": {"lancedb": true}}), "lancedb").unwrap();
+
+        let absent = require_compiled_feature(&json!({"features": {"onnx": true}}), "lancedb")
+            .unwrap_err()
+            .to_string();
+        assert!(absent.contains("compiled without it"), "{absent}");
+
+        let disabled =
+            require_compiled_feature(&json!({"features": {"lancedb": false}}), "lancedb")
+                .unwrap_err()
+                .to_string();
+        assert!(disabled.contains("compiled without it"), "{disabled}");
+
+        // A server too old to report the map proves nothing; that is a
+        // refusal, not a pass.
+        let unmapped = require_compiled_feature(&json!({"version": "0.3.27"}), "lancedb")
+            .unwrap_err()
+            .to_string();
+        assert!(
+            unmapped.contains("no per-feature compile map"),
+            "{unmapped}"
+        );
+    }
 }
 
 #[cfg(all(test, unix))]

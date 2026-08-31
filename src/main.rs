@@ -4,7 +4,7 @@ use anyhow::Result;
 use caboodle::{
     crew::CrewEvidence,
     emission, engine, interview,
-    model::{CrewMode, InstallIntent, Plan, Profile},
+    model::{CrewMode, InstallIntent, Plan, Profile, QuipuFlavor},
     observability, projection,
 };
 use clap::{Parser, Subcommand, ValueEnum};
@@ -46,6 +46,10 @@ enum Commands {
         /// Explicit Quipu database that receives staged shares
         #[arg(long, requires = "shares")]
         quipu_db: Option<PathBuf>,
+        /// Quipu install flavor; lancedb builds the same reviewed revision
+        /// with the lancedb cargo feature compiled in
+        #[arg(long, value_enum, default_value_t = QuipuFlavorArg::Release)]
+        quipu_flavor: QuipuFlavorArg,
     },
     /// Converge installed tools and prove each binary by version read-back
     Apply {
@@ -153,6 +157,21 @@ enum ProfileArg {
 }
 
 #[derive(Clone, Copy, ValueEnum)]
+enum QuipuFlavorArg {
+    Release,
+    Lancedb,
+}
+
+impl From<QuipuFlavorArg> for QuipuFlavor {
+    fn from(value: QuipuFlavorArg) -> Self {
+        match value {
+            QuipuFlavorArg::Release => Self::Release,
+            QuipuFlavorArg::Lancedb => Self::Lancedb,
+        }
+    }
+}
+
+#[derive(Clone, Copy, ValueEnum)]
 enum CrewModeArg {
     Shantytown,
     Creel,
@@ -206,6 +225,7 @@ fn main() -> Result<()> {
             output,
             shares,
             quipu_db,
+            quipu_flavor,
         } => {
             let profile = Profile::from(profile);
             let crew: CrewMode = crew.into();
@@ -220,6 +240,7 @@ fn main() -> Result<()> {
             };
             plan.shares = shares;
             plan.quipu_db = quipu_db;
+            plan.quipu_flavor = quipu_flavor.into();
             plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());

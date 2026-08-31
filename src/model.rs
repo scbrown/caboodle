@@ -185,6 +185,29 @@ impl ToolName {
     }
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum QuipuFlavor {
+    /// The reviewed release feature set, which deliberately excludes the
+    /// `lancedb` cargo feature — `vector.backend = "lancedb"` refuses at
+    /// startup on a box installed this way.
+    #[default]
+    Release,
+    /// The same reviewed revision built with the `lancedb` feature added.
+    /// Only the feature list changes, so this flavor cannot drift to an
+    /// unreviewed Quipu.
+    Lancedb,
+}
+
+impl QuipuFlavor {
+    /// The default flavor is omitted from serialized plans so that plans
+    /// written before this field existed and plans written today stay
+    /// byte-identical.
+    fn is_release(&self) -> bool {
+        *self == Self::Release
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Plan {
@@ -195,6 +218,8 @@ pub struct Plan {
     pub shares: Vec<PathBuf>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quipu_db: Option<PathBuf>,
+    #[serde(default, skip_serializing_if = "QuipuFlavor::is_release")]
+    pub quipu_flavor: QuipuFlavor,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crew: Option<CrewSelection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -310,6 +335,7 @@ impl Plan {
             tools: profile.tools(),
             shares: Vec::new(),
             quipu_db: None,
+            quipu_flavor: QuipuFlavor::default(),
             crew: None,
             intent: None,
         }

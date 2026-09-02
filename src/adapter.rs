@@ -791,6 +791,32 @@ fn ensure_bobbin_link(link: &Path, target: &Path) -> Result<()> {
         {
             return Ok(());
         }
+        // A DANGLING symlink is caboodle's own debris, not a user's install, and
+        // refusing to repair it deadlocks the tool against itself.
+        //
+        // Measured on caboodle CI, red on main 2026-08-31 -> 2026-09-02, one job,
+        // every run:
+        //
+        //     bobbin: not installed (run bobbin --version:
+        //             No such file or directory (os error 2)); installing
+        //     Error: bobbin install step
+        //     Caused by: refusing to replace existing
+        //                /home/runner/.cargo/bin/bobbin; remove or repair it explicitly
+        //
+        // Those two lines are the SAME fact seen from two sides. Executing a
+        // symlink whose target is gone fails with ENOENT, which is exactly why the
+        // probe a moment earlier concluded bobbin was not installed — so the
+        // installer refuses to repair the very condition that summoned it. The
+        // state is then permanent: never detected as present, never allowed to be
+        // written. Nothing a re-run can do changes it.
+        //
+        // The refusal is right for anything a person could still be using — a real
+        // binary, a directory, a symlink that resolves. A dangling link is none of
+        // those: following it is an error for every reader, so there is no working
+        // installation here to protect.
+        Ok(metadata) if metadata.file_type().is_symlink() && !link.exists() => {
+            fs::remove_file(link).with_context(|| format!("remove dangling {}", link.display()))?;
+        }
         Ok(_) => {
             bail!(
                 "refusing to replace existing {}; remove or repair it explicitly",
@@ -1082,5 +1108,39 @@ mod tests {
         let error = ensure_bobbin_link(&link, &target).unwrap_err().to_string();
         assert!(error.contains("refusing to replace existing"));
         assert_eq!(fs::read_link(&link).unwrap(), foreign);
+    }
+
+    #[test]
+    fn bobbin_link_repairs_its_own_dangling_link_but_still_refuses_a_real_file() {
+        // The CI deadlock, both arms. A dangling link makes `bobbin --version`
+        // fail with ENOENT, so the probe reports "not installed" and calls the
+        // installer -- which then refused to touch it. Never present, never
+        // writable, and no re-run could break the tie.
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("release/bobbin");
+        fs::create_dir_all(target.parent().unwrap()).unwrap();
+        fs::write(&target, "binary fixture").unwrap();
+        let link = root.path().join("bin/bobbin");
+        fs::create_dir_all(link.parent().unwrap()).unwrap();
+
+        symlink(root.path().join("gone/bobbin"), &link).unwrap();
+        assert!(link.symlink_metadata().is_ok(), "the link itself exists");
+        assert!(
+            !link.exists(),
+            "but it resolves to nothing -- this is the ENOENT"
+        );
+        ensure_bobbin_link(&link, &target).unwrap();
+        assert_eq!(fs::read_link(&link).unwrap(), target);
+
+        // and the repair must not have widened into "replace whatever is there":
+        // a REGULAR FILE is somebody's binary and is still refused.
+        fs::remove_file(&link).unwrap();
+        fs::write(&link, "a real bobbin somebody installed").unwrap();
+        let error = ensure_bobbin_link(&link, &target).unwrap_err().to_string();
+        assert!(error.contains("refusing to replace existing"));
+        assert_eq!(
+            fs::read_to_string(&link).unwrap(),
+            "a real bobbin somebody installed"
+        );
     }
 }

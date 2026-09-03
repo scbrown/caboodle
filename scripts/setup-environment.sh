@@ -78,24 +78,13 @@ install_quipu_source_fallback() {
 ) &
 QUIPU_PID=$!
 
-# ── Lane 2: caboodle + stack knowledge packs ───────────────────────────────
+# ── Lane 2: caboodle ───────────────────────────────────────────────────────
 (
   # Prebuilt, sha256-verified release binary — seconds, not a cargo build.
   have caboodle || curl -fsSL \
       https://raw.githubusercontent.com/scbrown/caboodle/main/scripts/install.sh \
       | sh >/dev/null 2>&1 || true
 
-  # Stage the stack knowledge packs where any session can `quipu unpack`
-  # them without waiting for a clone. These are quipu .qpack.db artifacts
-  # carrying the stack map and per-tool operational knowledge; verification
-  # happens below, AFTER the quipu lane finishes, because only quipu can
-  # prove a pack rather than merely download it.
-  mkdir -p "$HOME/.caboodle/packs"
-  for pack in stack-map stack-operations; do
-      [ -f "$HOME/.caboodle/packs/$pack.qpack.db" ] || curl -fsSL \
-          "https://raw.githubusercontent.com/scbrown/caboodle/main/packs/$pack.qpack.db" \
-          -o "$HOME/.caboodle/packs/$pack.qpack.db" 2>/dev/null || true
-  done
 ) &
 CABOODLE_PID=$!
 
@@ -133,15 +122,17 @@ TOOLS_PID=$!
 
 wait "$QUIPU_PID" "$CABOODLE_PID" "$TOOLS_PID" 2>/dev/null || true
 
-# ── Post-install: verify the staged packs now that quipu can exist ─────────
-# A pack that fails verification is deleted rather than left in place: a
-# half-downloaded or tampered pack sitting where sessions trust it is worse
-# than an absent one, and absence is visible in the report below.
-if have quipu; then
-    for p in "$HOME/.caboodle/packs/"*.qpack.db; do
-        [ -f "$p" ] || continue
-        quipu pack --verify "$p" >/dev/null 2>&1 || rm -f "$p"
-    done
+# ── Post-install: consume a repository share directly by reference ─────────
+# A qpack is a text share, not a SQLite file. The caller pins an immutable
+# release URL; Quipu fetches it into bounded memory and verifies it before the
+# transient store is opened. No user-visible download is staged here.
+SHARE_STATUS="not requested"
+if have quipu && [ -n "${CABOODLE_QUIPU_SHARE_URL:-}" ]; then
+    if quipu import "$CABOODLE_QUIPU_SHARE_URL" >/dev/null 2>&1; then
+        SHARE_STATUS="verified and imported from $CABOODLE_QUIPU_SHARE_URL"
+    else
+        SHARE_STATUS="FAILED verification/import from $CABOODLE_QUIPU_SHARE_URL"
+    fi
 fi
 
 # ── Verify: report what is actually present ────────────────────────────────
@@ -155,10 +146,8 @@ for tool in just bd pre-commit mdbook mdbook-mermaid quipu quipu-server caboodle
         printf '  %-24s MISSING\n' "$tool"
     fi
 done
-log "Stack packs"
-for p in "$HOME/.caboodle/packs/"*.qpack.db; do
-    [ -f "$p" ] && printf '  %s (verified)\n' "$p" || printf '  none staged\n'
-done
+log "Repository share"
+printf '  %s\n' "$SHARE_STATUS"
 
 # Never fail the session: a missing optional tool degrades a lane, it does
 # not stop Claude from working on everything else.

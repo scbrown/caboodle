@@ -97,35 +97,30 @@ so a rebuild without a source change is hash churn, not content).
 
 ### Shipping a pack from a repository
 
-Each repository can publish its own graph beside its release binaries. Build
-the graph in a named layer, then record the checkout and producer versions in
-the pack manifest:
+Each repository can publish its graph beside its release binaries as a Quipu
+share. A `.qpack.tar.gz` release asset is a deterministic archive of the same
+text bundle, not a SQLite database:
 
 ```bash
-REPO=scbrown/example
-SHA=$(git rev-parse HEAD)
-GRAPH=https://example.org/knowledge/repository/example
-quipu pack "$GRAPH" --db .bobbin/quipu/quipu.db \
-  --out "example-${SHA}.qpack.db" \
-  --repo "$REPO" --repo-sha "$SHA" \
-  --model-id all-MiniLM-L6-v2 --model-version 1
-quipu pack --verify "example-${SHA}.qpack.db"
+quipu share --graph https://example.org/knowledge/repository/example \
+  --db .bobbin/quipu/quipu.db --out repository-share
+tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
+  -czf repository.qpack.tar.gz -C repository-share .
 ```
 
-Commit small packs when they are useful offline; publish packs larger than
-10 MiB as checksummed release assets instead of adding them to normal Git
-history. A clone downloads the pack to a temporary path, verifies it, and only
-then loads it:
+Publish the archive as an immutable release asset. A clone points Quipu at the
+asset; Quipu fetches bounded bytes, verifies the manifest and payload, and opens
+a fresh in-memory store without a local download step:
 
 ```bash
-quipu pack --verify "example-${SHA}.qpack.db"
-quipu unpack "example-${SHA}.qpack.db" --db .bobbin/quipu/quipu.db \
-  --expect-repo "$REPO" --head-sha "$(git rev-parse HEAD)"
+quipu import \
+  https://github.com/scbrown/example/releases/download/v1.0.0/repository.qpack.tar.gz
 ```
 
-`unpack` verifies the content hash and repository identity before writing. It
-materializes a pack hash once; a repeated load is `unchanged`, and `--head-sha`
-identifies the remaining pack-SHA-to-checkout-HEAD range for incremental ingest.
+For a modified graph, `quipu share --since <parent-share> --out <delta-dir>`
+writes a parent-bound SPARQL 1.1 Update delta. Import rejects a wrong parent,
+changed update bytes, unrestricted operations, or a mismatched result digest.
+Bobbin's `.bbpack` index remains a separate binary release artifact.
 
 ## Uninstall
 

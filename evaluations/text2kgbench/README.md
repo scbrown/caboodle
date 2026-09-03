@@ -41,3 +41,49 @@ For fast extraction-quality iteration, pass `--extraction-only`. This still veri
 hash, writes the reconciled predictions and complete extraction report, and enforces the configured
 strict/filtered/recall regression floors; it records `ingress: null` rather than making a store
 conformance claim. The default remains the full fail-closed Camayoc/Quipu run.
+
+## Full ontology-guided evaluation (v3)
+
+The v3 path is separate from the film-specific v2 reconciler. It covers all 29 ontologies in the
+two pinned test corpora (6,076 cases / 13,491 gold triples), consumes ontology JSON as data, and
+has no ontology-name branches. Validate the checked-in byte manifest first:
+
+```bash
+scripts/evaluate-text2kgbench.py inventory \
+  --dataset-root /tmp/Text2KGBench \
+  --manifest evaluations/text2kgbench/full-manifest.json
+```
+
+Replay and score the frozen upstream L0 responses without a model call:
+
+```bash
+scripts/evaluate-text2kgbench.py score \
+  --dataset-root /tmp/Text2KGBench \
+  --manifest evaluations/text2kgbench/full-manifest.json \
+  --responses /tmp/unused --lever L0 --output /tmp/text2kg-l0
+```
+
+This writes all 6,076 case rows, 29 ontology rows, two corpus micro rows, Wikidata selected/unseen
+strata, stage errors, and a report containing every artifact hash. Missing responses remain false
+negatives in the denominator. Re-running against the same bytes is deterministic.
+
+L1 compiles each ontology into a canonical JSON prompt and uses the sole pinned provider adapter
+in `providers/anthropic_messages.py`. Install the Python 3.12 lock, set `ANTHROPIC_API_KEY`, and
+run the committed 145-case panel before any full run:
+
+```bash
+uv pip sync evaluations/text2kgbench/requirements-inference.txt
+scripts/evaluate-text2kgbench.py run \
+  --dataset-root /tmp/Text2KGBench \
+  --manifest evaluations/text2kgbench/full-manifest.json \
+  --responses evaluations/text2kgbench/responses/v3 \
+  --output /tmp/text2kg-v3-smoke --smoke
+```
+
+The adapter refuses absent credentials, SDK drift, custom endpoints and proxies before reading a
+case. Full execution is an operator cost decision and requires `--confirm-cost <amount>`; neither
+CI nor offline scoring calls the provider. Response rows bind the request, prompt, exact model,
+decoding settings, provider request ID, usage, latency, finish reason and response digest.
+
+`reconcilers.json` declares the old film plugin as domain-specific. It is excluded from v3 and
+cannot contribute to either general corpus aggregate.

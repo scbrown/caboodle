@@ -1,0 +1,1407 @@
+{
+  "dataset": {
+    "commit": "50a3d255371b8817cdff70fd88459ac82b339cfe",
+    "repository": "https://github.com/cenguix/Text2KGBench.git"
+  },
+  "enabled_levers": [
+    "L0",
+    "L1"
+  ],
+  "inference": {
+    "decoding": {
+      "max_output_tokens": 512,
+      "samples": 1,
+      "temperature": 0,
+      "timeout_seconds": 60,
+      "top_p": 1
+    },
+    "model": "claude-haiku-4-5-20251001",
+    "prompt_template": "ontology-guided-json-evidence-v1",
+    "prompt_template_sha256": "968620100cfbbdaf40f9448a41cc4f586c20d04cfd4c00667506cdfef45fef58",
+    "provider": "anthropic_messages",
+    "python": "3.12",
+    "sdk": "anthropic==0.120.2"
+  },
+  "ontologies": [
+    {
+      "case_count": 159,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_10_culture_ground_truth.jsonl",
+          "sha256": "ba0431ebf7a22497da2b7227d9426044aeec2c07c8cd567cae9b704edda6dec6"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/10_culture_ontology.json",
+          "sha256": "acfa9bbd6f41103ce7e58d76f82f6588fee3d37b1ffb0aafd69ba40ad6ffd64a"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_10_culture.txt",
+          "sha256": "0f9f457ddec53f3348f4d31e1a3ed0baf10e58b24f49fc4854699c03ffa4f18f"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_10_culture_test.jsonl",
+          "sha256": "25afeea77aa1931220abd3be854fe8b81d03be44c9be1d735441521eb53dd407"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_10_culture_train.jsonl",
+          "sha256": "c49e68dadacf76f3dfb6c67a0b59f05473d3eae36576d9bf7e84ca683e048a08"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_10_culture_unseen_ground_truth.jsonl",
+          "sha256": "2d53756625655e42fb611ede6d56b30a6e9869c337dbf23626b69d658629570b"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/10_culture_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "6b3903c10b81f96e80c4005b9a28930b758a014d0c7c80c8ee826847097ecd5a"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_10_culture_unseen_test.jsonl",
+          "sha256": "917499ea4bb8ac708c6797405a18788d261811dd719dde9ec5d4a92c1bd00686"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_10_culture_llm_responses.jsonl",
+          "sha256": "01186a97a7f33cf542f58eba2fecda97cfe62a7eb2d0505e18b66ec77fa9d378"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_10_culture_validation.jsonl",
+          "sha256": "6fa431a57140959ee110e0e8b056b72e96d5b3a225d999a57e3a48dd33648d54"
+        }
+      },
+      "gold_triple_count": 173,
+      "id": "10_culture",
+      "smoke_ids": [
+        "ont_10_culture_test_156",
+        "ont_10_culture_test_36",
+        "ont_10_culture_test_142",
+        "ont_10_culture_test_1",
+        "ont_10_culture_test_82"
+      ]
+    },
+    {
+      "case_count": 840,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_1_movie_ground_truth.jsonl",
+          "sha256": "601dcee5c77c9de5acbe4da2fb66492e30e8cecf91a6f6d29e416e973b5b5110"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/1_movie_ontology.json",
+          "sha256": "72b7e207438b6bb5fa85401fd967830dc859d4e0d487473e8f6755ddf922beb0"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_1_movie.txt",
+          "sha256": "ae09374acc9b4e3591043519e1b37687562a252fd460cc53927ba4901d3ddb8d"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_1_movie_test.jsonl",
+          "sha256": "76b095691e8f2767588d33d64a89fa473ab2baff880dee4e0e6f78b646c9c828"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_1_movie_train.jsonl",
+          "sha256": "4921f561f20b2282be175b4faada2051adb37465c47a4b17887e89d71636cef2"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_1_movie_unseen_ground_truth.jsonl",
+          "sha256": "94b04752603c6f3aa8ab366041765e627bde7a911fd5af7b8038135a1943cd4f"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/1_movie_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "52a3bae4702712d20c1a8f9013d707a9959619a1a814f366beb88ca1316f12f8"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_1_movie_unseen_test.jsonl",
+          "sha256": "7fb9fad4c5d32638428b008bd9d71c97956272dadfb7355085bf2a028895b426"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_1_movie_llm_responses.jsonl",
+          "sha256": "021aa2cf9831c7f4d2f0251f7c91e9bd94e4b181db3c0f2e979bc1738348e32b"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_1_movie_validation.jsonl",
+          "sha256": "11f5422264f4140ac7d367bae4e0400e9e7e766334b08d2506aff230a0b91016"
+        }
+      },
+      "gold_triple_count": 2250,
+      "id": "1_movie",
+      "smoke_ids": [
+        "ont_1_movie_test_94",
+        "ont_1_movie_test_188",
+        "ont_1_movie_test_387",
+        "ont_1_movie_test_816",
+        "ont_1_movie_test_418"
+      ]
+    },
+    {
+      "case_count": 675,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_2_music_ground_truth.jsonl",
+          "sha256": "60b6f8ca71f1549a0c6c4e6103aa9274006f0413b0578a6fe1603fc810f26761"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/2_music_ontology.json",
+          "sha256": "3c163c979e608c8836c69e4dbc2797aa7f32ab92ee2e8b630962312320f38d0a"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_2_music.txt",
+          "sha256": "5333f6450b2946cdfe4fd10ca0ef9985eb923e3ea900e655fcb2aa934404677f"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_2_music_test.jsonl",
+          "sha256": "35b4fc48788ec4789e06bc4f5c12ef2bc2a27258ff35403ee21236bc5da176ea"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_2_music_train.jsonl",
+          "sha256": "3f3185c2edac5fc736575f9bb31cfffb485eb0365fa542beb64493240d7c0bfa"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_2_music_unseen_ground_truth.jsonl",
+          "sha256": "4b08dce26039001eefdc5a661065420db266e6b20da02cb29ddd940a27bb9317"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/2_music_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "fdd71cafa3ce92bd7323d8b10b158e042972fb2b8201775d4bec69fb541d7ac2"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_2_music_unseen_test.jsonl",
+          "sha256": "8688bf4cdb2243eb5c1bb176c595d58f9a65f74f3035a59bd419a24a9292cbf2"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_2_music_llm_responses.jsonl",
+          "sha256": "f8dde2617d053aab849c73883a032680ef9563cb182602fdcd0f13ab3f140a1b"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_2_music_validation.jsonl",
+          "sha256": "838e69436b8e370dc3cf20c3493f9708065734179471516edcb18424b498c628"
+        }
+      },
+      "gold_triple_count": 1480,
+      "id": "2_music",
+      "smoke_ids": [
+        "ont_2_music_test_558",
+        "ont_2_music_test_47",
+        "ont_2_music_test_445",
+        "ont_2_music_test_430",
+        "ont_2_music_test_172"
+      ]
+    },
+    {
+      "case_count": 487,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_3_sport_ground_truth.jsonl",
+          "sha256": "65389dc13bba8908f581224eb524a399c2a8dfb687578157bdbfde70e0b0b781"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/3_sport_ontology.json",
+          "sha256": "2ed6233554a3750ebab12b29be0692515b64195768f4ff994961519bb386784b"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_3_sport.txt",
+          "sha256": "0ea759947415742d10b2ae081cf6407d8255a378f8d28393cafeb5bfc1bcdc61"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_3_sport_test.jsonl",
+          "sha256": "beca533e08a4bf991e21a27323b8a284b7a228d63e5bbcbaff717ac58f728f95"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_3_sport_train.jsonl",
+          "sha256": "c9ccf32b8d7c008f94272c0851d27b4f3fc6033916af0407bc4ab50245e2968a"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_3_sport_unseen_ground_truth.jsonl",
+          "sha256": "7b4dac4a82cc9a0e0b30a561f7a8f2810026adf54da6d8647ee43cc7d1d1db72"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/3_sport_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "516279d0d9e265e21d1cc770823b9b5cf4e85fcdbec58db215063b1234cdeece"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_3_sport_unseen_test.jsonl",
+          "sha256": "a980072fdbcba62db3beeeff3983f3e10af2a419f3d26d4a5c213d13b95b1d09"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_3_sport_llm_responses.jsonl",
+          "sha256": "a4d1f1d427a6ae79bbe345401792874db6ab1f2734cee775f6cc07820adadf62"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_3_sport_validation.jsonl",
+          "sha256": "391b97909bc9bc54c202ad61fa0cda40817ae2fbce5e4a08bdb030b8e2a13ff7"
+        }
+      },
+      "gold_triple_count": 719,
+      "id": "3_sport",
+      "smoke_ids": [
+        "ont_3_sport_test_425",
+        "ont_3_sport_test_469",
+        "ont_3_sport_test_451",
+        "ont_3_sport_test_30",
+        "ont_3_sport_test_244"
+      ]
+    },
+    {
+      "case_count": 550,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_4_book_ground_truth.jsonl",
+          "sha256": "638b9cda6c975bc72b54cbeefec7cffbb81b7ece6d993e3a37b7a06b85a6bca8"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/4_book_ontology.json",
+          "sha256": "de6a4942a9e607e5dc740b9c9e810e253a65a393c30dc1fbf27ef3c76a723776"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_4_book.txt",
+          "sha256": "3b3bf02360e39cf649df9890e7fd984d477af33f348a70e3f163bcd6f3b77ad5"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_4_book_test.jsonl",
+          "sha256": "aa307398f229d448eff27a7434aedc5c4aca207b49e460909ed651e16bc40289"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_4_book_train.jsonl",
+          "sha256": "9fce5fa546f42ce14f84f0e1ad7010398f00a2548037d99eaa5caa67c22a7bb2"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_4_book_unseen_ground_truth.jsonl",
+          "sha256": "a57b422b69b8def1aee52a5523fb5c29fd4d8ba85d81748ff2c85b3cf79383f1"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/4_book_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "5ef5513ba82f9892343936f25464fc848e2d453f77c0ff4edc950b15083148d5"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_4_book_unseen_test.jsonl",
+          "sha256": "d0193c9b95915920aca288f1f6031e657ae9aaeba47f1170221dda9a46194e7b"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_4_book_llm_responses.jsonl",
+          "sha256": "13a7b1bdf945905735025faaa581afbe47713dea70a0cca3c8e2e4ab5d56f109"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_4_book_validation.jsonl",
+          "sha256": "5f8ae31fc4a2f7d051b91df68eeecd2e2f16550b41231e0820624045ccb0a4af"
+        }
+      },
+      "gold_triple_count": 933,
+      "id": "4_book",
+      "smoke_ids": [
+        "ont_4_book_test_73",
+        "ont_4_book_test_193",
+        "ont_4_book_test_98",
+        "ont_4_book_test_38",
+        "ont_4_book_test_469"
+      ]
+    },
+    {
+      "case_count": 230,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_5_military_ground_truth.jsonl",
+          "sha256": "a7cf4d112a1d93f51b4b7c35d52db86caa638a327733385a404ae9b0335fcc88"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/5_military_ontology.json",
+          "sha256": "fb2bd9fe2ba02a61930645ec49ca209a2759de27c3da500b41576538dcd523e6"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_5_military.txt",
+          "sha256": "73744fccdb2e78c8ee2f6cc9954c86b2c8997814a94f89ad67be51ef1e51837a"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_5_military_test.jsonl",
+          "sha256": "53c0c25e69c991869941540c76758e0e0ad56c08c1ec599201db6e96377840c8"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_5_military_train.jsonl",
+          "sha256": "2b62c5684ad597e88d2517c03ce28cdbc57bf04eba95b1854e782b4ba8835f65"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_5_military_unseen_ground_truth.jsonl",
+          "sha256": "24ae941a9ed09ddfd9c0597e4ecaffe57ceff95c0df3b5f34c8de1b01ef42dbc"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/5_military_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "2b2ac379a28c31741f9dbf0a743fa90d66ae3931bcb8acf9c3b1ab488df0f88b"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_5_military_unseen_test.jsonl",
+          "sha256": "df58ae0ce228b5ee6cbf0731236a6bd6f1577e8d2f4fa7d21742315adc6ea2b8"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_5_military_llm_responses.jsonl",
+          "sha256": "8513f4ef86e038b0d23eb1b3691ee79839bb931d9fcabb129d2019bb35b06d2f"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_5_military_validation.jsonl",
+          "sha256": "9f062344caee60f988ac54b6c298c0f48300300b77770832b015a51119e3973e"
+        }
+      },
+      "gold_triple_count": 225,
+      "id": "5_military",
+      "smoke_ids": [
+        "ont_5_military_test_224",
+        "ont_5_military_test_34",
+        "ont_5_military_test_96",
+        "ont_5_military_test_202",
+        "ont_5_military_test_22"
+      ]
+    },
+    {
+      "case_count": 230,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_6_computer_ground_truth.jsonl",
+          "sha256": "e0d485da0343f9a525fe542459b2f843c6fe04b07a593c072687b4b451ad4ed5"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/6_computer_ontology.json",
+          "sha256": "a968ef5010d33b2cc62f8edd6df627af1c4dda4283a1dac6dc7c69c9ebcd74b3"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_6_computer.txt",
+          "sha256": "d4d8b96ed761889fe6f1d58f58d9d5e9937de51921004c0afebe94ee1a07390e"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_6_computer_test.jsonl",
+          "sha256": "95f6a14aa80668f4ec71968a406995ce728791c274b623c79fa43d18f625027c"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_6_computer_train.jsonl",
+          "sha256": "1719b55234edbc569c1e8c50d61adbbbb8a9abf0552be66a04d5d199e89e691a"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_6_computer_unseen_ground_truth.jsonl",
+          "sha256": "2f08bbb7354c51b3f1926bb13af60ac30a8f4483485f7fc6c7fe3c3cd8702d80"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/6_computer_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "29747ee720ea5cbe08e2450ea538d25761e8e1007b2704dac2667b18bd44c2a2"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_6_computer_unseen_test.jsonl",
+          "sha256": "31019f01022356d15ce30f17c46693e84806ab72700a816b36af656a63667933"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_6_computer_llm_responses.jsonl",
+          "sha256": "fe0304ac0e1f480be3c241f19eabc83574b3b6322ef90a2dca2f1a4a6ccbf0da"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_6_computer_validation.jsonl",
+          "sha256": "77e00e01a1ef5c1e6dcdcb5003291545869dfbe48aa4036cd6946e53617fe53c"
+        }
+      },
+      "gold_triple_count": 440,
+      "id": "6_computer",
+      "smoke_ids": [
+        "ont_6_computer_test_76",
+        "ont_6_computer_test_99",
+        "ont_6_computer_test_171",
+        "ont_6_computer_test_215",
+        "ont_6_computer_test_74"
+      ]
+    },
+    {
+      "case_count": 203,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_7_space_ground_truth.jsonl",
+          "sha256": "4a2b7d3349a3f85dd3419ac3f5c6093edbb1e3f793bc17f9065b6124a4350d06"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/7_space_ontology.json",
+          "sha256": "ca42c79cfae8e12d3cbd09d7a15130ec1766443621363370c6a94785e79b678b"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_7_space.txt",
+          "sha256": "5d640aa8050e7f51b9288a978f5ce54e70dbf3c38043224a27d2ea5dc2d48a54"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_7_space_test.jsonl",
+          "sha256": "1db9a41281d8f5aba0ed6abd64f58df1ced9ce2e34bf2e95b00a85367052f8ec"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_7_space_train.jsonl",
+          "sha256": "56e03897dda2481ad78ccd9aadde0f25c95a43b941cf1bd08866a30ee7c4c939"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_7_space_unseen_ground_truth.jsonl",
+          "sha256": "348db7254b47cefd2e6285ecaa74befa7e5a8428175836a1e886c46084fcdc83"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/7_space_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "442cf4a7f33362a24162bc2c9301694ddc50dc96fb96f77bccb72e763c988880"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_7_space_unseen_test.jsonl",
+          "sha256": "f9350e9f432f12e11250260c748b0b95a36d6d6e50408f3d1670952333988fdb"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_7_space_llm_responses.jsonl",
+          "sha256": "c40a116c80c205abe0dc469cabf7d7e1ae88eaa6c953dd7741948561cb32dec0"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_7_space_validation.jsonl",
+          "sha256": "f37326699d2cf1c9d4c50989f06edfa36d5f469566d37f46e12521ec221c5787"
+        }
+      },
+      "gold_triple_count": 279,
+      "id": "7_space",
+      "smoke_ids": [
+        "ont_7_space_test_116",
+        "ont_7_space_test_96",
+        "ont_7_space_test_94",
+        "ont_7_space_test_10",
+        "ont_7_space_test_88"
+      ]
+    },
+    {
+      "case_count": 214,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_8_politics_ground_truth.jsonl",
+          "sha256": "5e5680138ea8983f2aa80618a71c18b9b7aa52293d156c2abdbdb60b23e43038"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/8_politics_ontology.json",
+          "sha256": "39a2b4020c06cdacabb3b540a8524d9711b86a67041551bc9cd0a4054175f33f"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_8_politics.txt",
+          "sha256": "bba642ef54a487bdb78b6a8d7e95986f989d94fd3af6160d8022defb93c5fc90"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_8_politics_test.jsonl",
+          "sha256": "6a7ec19bff69433b1e6d9a4e79cedd0167c714bc5f891be99aea8164bdfe063e"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_8_politics_train.jsonl",
+          "sha256": "fa67cdf1d0cea32a40f95c6a9a3fafa419b461386f534980c9635bf29ac6101e"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_8_politics_unseen_ground_truth.jsonl",
+          "sha256": "83ef8196d184f8d6326b9d389b815a6f398f33f6b9a98c56fa7176354ba6d91c"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/8_politics_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "3232c74d92ddbd517bfd926548e33be3c3a9cadda96975a3c22582f42a792754"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_8_politics_unseen_test.jsonl",
+          "sha256": "3b5fc46dc330507b13a780819ae316177775aed4deb062d31e66c0b4ee484821"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_8_politics_llm_responses.jsonl",
+          "sha256": "e7bd4c9d823ed20e30632cca82b9aff35238aad4417ba892469d439924c01a50"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_8_politics_validation.jsonl",
+          "sha256": "0d7924418bf7c08afb6e9982376cce181e7cffa718446c2b1f783ccde8bf8e4d"
+        }
+      },
+      "gold_triple_count": 202,
+      "id": "8_politics",
+      "smoke_ids": [
+        "ont_8_politics_test_123",
+        "ont_8_politics_test_51",
+        "ont_8_politics_test_107",
+        "ont_8_politics_test_10",
+        "ont_8_politics_test_38"
+      ]
+    },
+    {
+      "case_count": 474,
+      "corpus": "wikidata_tekgen",
+      "files": {
+        "gold": {
+          "path": "data/wikidata_tekgen/ground_truth/ont_9_nature_ground_truth.jsonl",
+          "sha256": "76c45ddafb2d5b52086063a4b92bd923c23755851a6f09a56f3f1e0fbe388c1a"
+        },
+        "ontology": {
+          "path": "data/wikidata_tekgen/ontologies/9_nature_ontology.json",
+          "sha256": "50a360c2930c6d29ac3837845c6c5c4f953b34307d1a8395f78dd0f93efcc834"
+        },
+        "selected_ids": {
+          "path": "data/wikidata_tekgen/manually_verified_sentences/selected_ont_9_nature.txt",
+          "sha256": "4ca6ba071baa507d7a98d9023bf24071f971ae248f3123ab3d77feadba7e5213"
+        },
+        "test": {
+          "path": "data/wikidata_tekgen/test/ont_9_nature_test.jsonl",
+          "sha256": "a0986c281196e0339aad94fc38da3dd8215075c1b4903b13e2535be7ba38f4b5"
+        },
+        "train": {
+          "path": "data/wikidata_tekgen/train/ont_9_nature_train.jsonl",
+          "sha256": "32433d9de36fe5ba8814ced5eae82203f116c79f628713d8c96ff27b68382799"
+        },
+        "unseen_gold": {
+          "path": "data/wikidata_tekgen/unseen_sentences/ground_truth/ont_9_nature_unseen_ground_truth.jsonl",
+          "sha256": "dabb2a68ad02bc1d1797198a9c1ceb38158e01e83b8e4419d8a5700afc4f024b"
+        },
+        "unseen_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/unseen/llm_responses/9_nature_unseen_Vicuna13B_responses.jsonl",
+          "sha256": "6b56c7751bdbe621c8071589c9d6ce8412d8ecd16b5fbdae828ee96a50d653f4"
+        },
+        "unseen_test": {
+          "path": "data/wikidata_tekgen/unseen_sentences/test/ont_9_nature_unseen_test.jsonl",
+          "sha256": "c93420322f30fff30e80abad0a4a7c0fd2966558b0dc8937dd3516b982ab9197"
+        },
+        "upstream_response": {
+          "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_9_nature_llm_responses.jsonl",
+          "sha256": "952f09636c17eac583c814008e69853246d34c72f62e9576d39c4bc4c5a8ff91"
+        },
+        "validation": {
+          "path": "data/wikidata_tekgen/validation/ont_9_nature_validation.jsonl",
+          "sha256": "2c5e3724b66be004c60767c12bc0fa0f2769e1f771a9dec5f6ac8ea120de4ad5"
+        }
+      },
+      "gold_triple_count": 531,
+      "id": "9_nature",
+      "smoke_ids": [
+        "ont_9_nature_test_222",
+        "ont_9_nature_test_318",
+        "ont_9_nature_test_387",
+        "ont_9_nature_test_407",
+        "ont_9_nature_test_322"
+      ]
+    },
+    {
+      "case_count": 36,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_10_comicscharacter_ground_truth.jsonl",
+          "sha256": "7ba46cd7dd8b94f39f2ba68c54164a4dbdb1380025824499b938a294fe901a9f"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/10_comicscharacter_ontology.json",
+          "sha256": "097fcf946ad614300d2947feb72ab10d1b9be419d877a1f19078c5397957502c"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_10_comicscharacter_test.jsonl",
+          "sha256": "f11c01ca06b927f4dd579ac509180ffbcab5d834bb1caa525f66b4b62af016e6"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_10_comicscharacter_train.jsonl",
+          "sha256": "35afafb7ab5b491f897d956587f20380331fcc7bcefcd062665b1ff198fcd49c"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/10_comicscharacter_Vicuna13B_responses.jsonl",
+          "sha256": "183091205090db1829a24c5ba942d90bf69d6c79b72bafc1a54165e0bd6e33d0"
+        }
+      },
+      "gold_triple_count": 107,
+      "id": "10_comicscharacter",
+      "smoke_ids": [
+        "ont_10_comicscharacter_test_4",
+        "ont_10_comicscharacter_test_11",
+        "ont_10_comicscharacter_test_20",
+        "ont_10_comicscharacter_test_26",
+        "ont_10_comicscharacter_test_36"
+      ]
+    },
+    {
+      "case_count": 92,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_11_meanoftransportation_ground_truth.jsonl",
+          "sha256": "94575fa76a202e542647e85b950ff127cd2f4d903d13a556bab384caabba7fdc"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/11_meanoftransportation_ontology.json",
+          "sha256": "1feab9c323cb6f0fad534c2ab59da5f6be2a7f035851956c4d8c22eaa0914c08"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_11_meanoftransportation_test.jsonl",
+          "sha256": "2fd86330d695c4cdc67bd7b383790352db961481e1735b4302eb9edc0cfba6e7"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_11_meanoftransportation_train.jsonl",
+          "sha256": "7eb28644616f66d5e4a08a99ee6174fdde9e08973b4a4cb7550af23f5dc5123e"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/11_meanoftransportation_Vicuna13B_responses.jsonl",
+          "sha256": "6f8cf01eb6189bc3aa89d35fee4725041abbd7bb35423664a95db874e7843ecc"
+        }
+      },
+      "gold_triple_count": 276,
+      "id": "11_meanoftransportation",
+      "smoke_ids": [
+        "ont_11_meanoftransportation_test_58",
+        "ont_11_meanoftransportation_test_69",
+        "ont_11_meanoftransportation_test_77",
+        "ont_11_meanoftransportation_test_55",
+        "ont_11_meanoftransportation_test_91"
+      ]
+    },
+    {
+      "case_count": 19,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_12_monument_ground_truth.jsonl",
+          "sha256": "eb96e875d2feddc0fa12050308c62f716f20dc9bf30e560f24a4b127d0ee734e"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/12_monument_ontology.json",
+          "sha256": "7e77eef056d01c684c958a913e75296018abc4825b6b49b83dc1af7bc364bd66"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_12_monument_test.jsonl",
+          "sha256": "0aaf450ecc86833f487ad6e0de0cda9ff955284e1eae444c4f29a52aca04d399"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_12_monument_train.jsonl",
+          "sha256": "5a48d0b7abc1ea18a81836a9dfd0bf60fa9b1c09db10c5a6217ba5b687d6f2e2"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/12_monument_Vicuna13B_responses.jsonl",
+          "sha256": "f21c8471c488627be0fceaf3c02655acbf79c448fde13650bf196c60884ee6ae"
+        }
+      },
+      "gold_triple_count": 55,
+      "id": "12_monument",
+      "smoke_ids": [
+        "ont_12_monument_test_15",
+        "ont_12_monument_test_19",
+        "ont_12_monument_test_6",
+        "ont_12_monument_test_5",
+        "ont_12_monument_test_7"
+      ]
+    },
+    {
+      "case_count": 153,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_13_food_ground_truth.jsonl",
+          "sha256": "98972b604e0a7fe8e19411d3cc11154e8720701100b2e11cbaa2ee6c0548f2b2"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/13_food_ontology.json",
+          "sha256": "dff235ab32f1847fa4eebee68ef920829ba12b3247614e45a0c4200297d5a737"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_13_food_test.jsonl",
+          "sha256": "6bc29ca1c7b64f8f2895c498b3d9b53ee9f3f66d2f3c00929108652b147f2fbc"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_13_food_train.jsonl",
+          "sha256": "31e183d452f5b30368e3b0914d1148c8ba34e548e4712c330a31acd4d75914f2"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/13_food_Vicuna13B_responses.jsonl",
+          "sha256": "ec77a186f168d02f4187cba1f037119ff3660c981c3ea97266c7b3fda8912c07"
+        }
+      },
+      "gold_triple_count": 532,
+      "id": "13_food",
+      "smoke_ids": [
+        "ont_13_food_test_119",
+        "ont_13_food_test_111",
+        "ont_13_food_test_27",
+        "ont_13_food_test_2",
+        "ont_13_food_test_62"
+      ]
+    },
+    {
+      "case_count": 127,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_14_writtenwork_ground_truth.jsonl",
+          "sha256": "2dcb8ce06b8d59ffc96542a7211a1063ee039e478b9914f3870bcdc9863e5fb3"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/14_writtenwork_ontology.json",
+          "sha256": "7efbf857a2624d3e843125135792ff0b6ba731f99ffb1ba84ce5e07a17f3b01f"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_14_writtenwork_test.jsonl",
+          "sha256": "34a7afcc0114d325f2792803b75097d5b7c6d17b38a818abe3b9f36c0bae7742"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_14_writtenwork_train.jsonl",
+          "sha256": "0b0b8f51dbcc0796966b3cd2e04760caffa430282ad5b330eda7320b4372db19"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/14_writtenwork_Vicuna13B_responses.jsonl",
+          "sha256": "b83fb859bee7e0756189a2f41d8be9a891e08894332b284e43b04b84587cc859"
+        }
+      },
+      "gold_triple_count": 381,
+      "id": "14_writtenwork",
+      "smoke_ids": [
+        "ont_14_writtenwork_test_62",
+        "ont_14_writtenwork_test_35",
+        "ont_14_writtenwork_test_100",
+        "ont_14_writtenwork_test_113",
+        "ont_14_writtenwork_test_27"
+      ]
+    },
+    {
+      "case_count": 110,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_15_sportsteam_ground_truth.jsonl",
+          "sha256": "0278f009f0d1fd3e8298d0ec82dbac70d44d68a89c1820c7f1f6dfc02d8a4765"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/15_sportsteam_ontology.json",
+          "sha256": "64b50ec030270f3511e9778b36d37f0e94e35979985cb2f30cdfaf254dc3efdd"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_15_sportsteam_test.jsonl",
+          "sha256": "b28270c7cd8d830c8e50e83b9b0b525264fb11f3305805230e0ad2e9edf9d510"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_15_sportsteam_train.jsonl",
+          "sha256": "90a35cf5d565aafc1d53b91cfb2dd164ebe1b756351a1b88b27ebc17abeb01f6"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/15_sportsteam_Vicuna13B_responses.jsonl",
+          "sha256": "d76bb8d6e5f310f32e933ca76407bf5bfd4203ebfb5d4d023d1eaeeaedf5bed2"
+        }
+      },
+      "gold_triple_count": 401,
+      "id": "15_sportsteam",
+      "smoke_ids": [
+        "ont_15_sportsteam_test_5",
+        "ont_15_sportsteam_test_32",
+        "ont_15_sportsteam_test_91",
+        "ont_15_sportsteam_test_50",
+        "ont_15_sportsteam_test_98"
+      ]
+    },
+    {
+      "case_count": 217,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_16_city_ground_truth.jsonl",
+          "sha256": "18557fda7bed95f413cedc29daa130098566ebbb18e40803f8a471a1233d8131"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/16_city_ontology.json",
+          "sha256": "994c8206a33aeaadb2f9b35220911e7a5e9a6b535e4d7ed6e56e88b943a5c7c2"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_16_city_test.jsonl",
+          "sha256": "2d4a69ed1885714f00aa8a9888091e15e0a4b2db445e73b9dee091d6fc34b51e"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_16_city_train.jsonl",
+          "sha256": "12d6259b49bdf9ef4d358df01d72008902ec0357c0efdc54a44e0ad2aa9f69c5"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/16_city_Vicuna13B_responses.jsonl",
+          "sha256": "7ace387e9df5d61b6a37f822fcf4f07e61cc042026539e2668c776268b7e0b1c"
+        }
+      },
+      "gold_triple_count": 651,
+      "id": "16_city",
+      "smoke_ids": [
+        "ont_16_city_test_83",
+        "ont_16_city_test_197",
+        "ont_16_city_test_85",
+        "ont_16_city_test_123",
+        "ont_16_city_test_112"
+      ]
+    },
+    {
+      "case_count": 84,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_17_artist_ground_truth.jsonl",
+          "sha256": "810055bca7a97f1b7fce1c0c80666971543144b57096ad83a2591128545d83b6"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/17_artist_ontology.json",
+          "sha256": "f3f077a8be23901976b6110f2707a36d59505c5c3d36f31c02dd299f775b85f3"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_17_artist_test.jsonl",
+          "sha256": "150508d756ded671286c63047196611ef1afe4bbd7923ea57bc7a5662b46330d"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_17_artist_train.jsonl",
+          "sha256": "4a27e0742ffccc80aeabd8f1a25043a37a6622663fe81477db83c4754c9bd3e1"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/17_artist_Vicuna13B_responses.jsonl",
+          "sha256": "5417be9a63f94843aae4393d3fbc69d0a84c7b6ada3a4495b6d0b8392fcaa811"
+        }
+      },
+      "gold_triple_count": 252,
+      "id": "17_artist",
+      "smoke_ids": [
+        "ont_17_artist_test_38",
+        "ont_17_artist_test_15",
+        "ont_17_artist_test_47",
+        "ont_17_artist_test_22",
+        "ont_17_artist_test_16"
+      ]
+    },
+    {
+      "case_count": 149,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_18_scientist_ground_truth.jsonl",
+          "sha256": "8cd6328aef8f8fd63d17c0e08b6024061687d04bd247c9e58c9d1ecdf8437d42"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/18_scientist_ontology.json",
+          "sha256": "d5e90422164815c00e019cdc33d1dae0157952a86f541273336c5ae6b63fab76"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_18_scientist_test.jsonl",
+          "sha256": "3c8244f1ad6fd360dd61325374a605e3a7d9f36810e9af1b2b090e19677875c7"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_18_scientist_train.jsonl",
+          "sha256": "55bfafc66382c81df5562d30639420eb473a6a599c21deab870c0bcc2da23f6c"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/18_scientist_Vicuna13B_responses.jsonl",
+          "sha256": "2285f1eef5bbd01616cab5b1eacb6436f7eee952097f7a1789ff5bf2ff064636"
+        }
+      },
+      "gold_triple_count": 411,
+      "id": "18_scientist",
+      "smoke_ids": [
+        "ont_18_scientist_test_131",
+        "ont_18_scientist_test_92",
+        "ont_18_scientist_test_74",
+        "ont_18_scientist_test_88",
+        "ont_18_scientist_test_63"
+      ]
+    },
+    {
+      "case_count": 127,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_19_film_ground_truth.jsonl",
+          "sha256": "febb81f0c00b410e68791d47fa43bac112cdad1a6ba683faa07edfd6cc7ae860"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/19_film_ontology.json",
+          "sha256": "b04882ae6e0e0a9d2950f602008f0e228ed3a99138544c63f12b50b2405fbb15"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_19_film_test.jsonl",
+          "sha256": "1360197974c89cf8c52c9ec8225b4d35293a6a5e69a201043d3e724ded1e7ecc"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_19_film_train.jsonl",
+          "sha256": "0694680d78a57fbac3a6a4e1d7a4624893919baa86c08bc915e1b106ed3e2fa6"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/19_film_Vicuna13B_responses.jsonl",
+          "sha256": "a8af8c10f693ecaf25e4b41656c1774d45d5f1c4f66a3fe02c904669f851302c"
+        }
+      },
+      "gold_triple_count": 378,
+      "id": "19_film",
+      "smoke_ids": [
+        "ont_19_film_test_123",
+        "ont_19_film_test_117",
+        "ont_19_film_test_82",
+        "ont_19_film_test_6",
+        "ont_19_film_test_61"
+      ]
+    },
+    {
+      "case_count": 71,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_1_university_ground_truth.jsonl",
+          "sha256": "cb1a714cb87a1eb27f418aae32fb74e34f20033daffcbee3c6da6e8beb0d73d4"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/1_university_ontology.json",
+          "sha256": "a649f90d45c06e97299ff353df40d93901f33a35b97805db8e59caff5acf7cc3"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_1_university_test.jsonl",
+          "sha256": "2c417372ffe77ff2df810b1984caad8fcfb53bb7129d3a8410b2d637cb9564c1"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_1_university_train.jsonl",
+          "sha256": "b1f00f1547a0e25e4d93c8a1ab7cb3193c3e3b7f9d93e338f1afe3ef3c356aa0"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/1_university_Vicuna13B_responses.jsonl",
+          "sha256": "2543465afe06b78087a78f72f187fa73b3a215feaefdcd3d1c0c26e69c2d630c"
+        }
+      },
+      "gold_triple_count": 283,
+      "id": "1_university",
+      "smoke_ids": [
+        "ont_1_university_test_26",
+        "ont_1_university_test_17",
+        "ont_1_university_test_60",
+        "ont_1_university_test_1",
+        "ont_1_university_test_21"
+      ]
+    },
+    {
+      "case_count": 209,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_2_musicalwork_ground_truth.jsonl",
+          "sha256": "a06c620ec9452d05e404e49e78677c6ad1c28158d5c804ad544b2581258847df"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/2_musicalwork_ontology.json",
+          "sha256": "4eb33559cbb9d7475b2927304ccebc990d4c30aa210cb8c96570249e10272aa0"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_2_musicalwork_test.jsonl",
+          "sha256": "ed982640fd15b2d6bff55e2f184e1262a80e9c129d49987beda206e660db73f5"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_2_musicalwork_train.jsonl",
+          "sha256": "cd727c54fbc02d7434569ea2be22361320fe65241ff996f82d53368b05093d97"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/2_musicalwork_Vicuna13B_responses.jsonl",
+          "sha256": "8bb44224fa01b78da51e389b8da69e2f4e85fb5cf07e4d6f0fddc1ef252aad0a"
+        }
+      },
+      "gold_triple_count": 604,
+      "id": "2_musicalwork",
+      "smoke_ids": [
+        "ont_2_musicalwork_test_193",
+        "ont_2_musicalwork_test_181",
+        "ont_2_musicalwork_test_205",
+        "ont_2_musicalwork_test_97",
+        "ont_2_musicalwork_test_36"
+      ]
+    },
+    {
+      "case_count": 79,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_3_airport_ground_truth.jsonl",
+          "sha256": "82e9e31cc2a30d257e66e4cd6cb8b81811b39ab3aa5e666e0284e48ffa3bca4f"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/3_airport_ontology.json",
+          "sha256": "35654056574b20982b807cb575be05bd42ff810a8baae15c8e564bcfd19e80fd"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_3_airport_test.jsonl",
+          "sha256": "57256a97d41cf2424cdc502bc0133bbbfb2161910f93dd5c721086bbfb527256"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_3_airport_train.jsonl",
+          "sha256": "5e1220135cb1a3f59a5be3d584da195cef55ef46eefcd14039d8d59477d37a1b"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/3_airport_Vicuna13B_responses.jsonl",
+          "sha256": "2deadce00d731541932c0e8c9286a0f639753d869f003144381611aa2c309c13"
+        }
+      },
+      "gold_triple_count": 237,
+      "id": "3_airport",
+      "smoke_ids": [
+        "ont_3_airport_test_56",
+        "ont_3_airport_test_49",
+        "ont_3_airport_test_20",
+        "ont_3_airport_test_78",
+        "ont_3_airport_test_37"
+      ]
+    },
+    {
+      "case_count": 103,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_4_building_ground_truth.jsonl",
+          "sha256": "eed69b372e89c2646bfaa17c05c707ba676c9d9d44a7e3cc161af2fdaac9304a"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/4_building_ontology.json",
+          "sha256": "55b7a2f3c97b34c40763fb4589317be4287527e6ff7c20235e801babd5b23162"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_4_building_test.jsonl",
+          "sha256": "b13202987514c50ea136cc5467bf613f77880e85e023ab7e9446c844285fa6ab"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_4_building_train.jsonl",
+          "sha256": "8855d8e79b0f75665ac24b874c2d2e822807fe3dfa899b1782382d572871d41d"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/4_building_Vicuna13B_responses.jsonl",
+          "sha256": "90e3568fd73841e47e8d9fe12364e492f38937d240353e9f1a54fce00cef8795"
+        }
+      },
+      "gold_triple_count": 309,
+      "id": "4_building",
+      "smoke_ids": [
+        "ont_4_building_test_51",
+        "ont_4_building_test_76",
+        "ont_4_building_test_12",
+        "ont_4_building_test_30",
+        "ont_4_building_test_23"
+      ]
+    },
+    {
+      "case_count": 107,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_5_athlete_ground_truth.jsonl",
+          "sha256": "674a64828f5c390f40a35d152d04ced5ebc6c180d8ea7094c4ca4b87c5d3e01d"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/5_athlete_ontology.json",
+          "sha256": "c0c656ee6f5f79aa837eae94523da0b0060b471ae801be8c7c56802cac2fe93c"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_5_athlete_test.jsonl",
+          "sha256": "436c9ee8c4afb081f1e929e0d9d85659417429d939b9e87c77df3b2f4854e75b"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_5_athlete_train.jsonl",
+          "sha256": "b66228f02e97150412418393f82f03ff0f02c843691eb82313611472c4a718bb"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/5_athlete_Vicuna13B_responses.jsonl",
+          "sha256": "e594833b8252b75033e6e44b65d82b0e3f3a9d613bd94e15bb410738d7c0335d"
+        }
+      },
+      "gold_triple_count": 299,
+      "id": "5_athlete",
+      "smoke_ids": [
+        "ont_5_athlete_test_16",
+        "ont_5_athlete_test_66",
+        "ont_5_athlete_test_91",
+        "ont_5_athlete_test_9",
+        "ont_5_athlete_test_20"
+      ]
+    },
+    {
+      "case_count": 135,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_6_politician_ground_truth.jsonl",
+          "sha256": "2890c9a1f718f31e395e473bc0735dd8928421020d43c34a51d72d4b7dccaab3"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/6_politician_ontology.json",
+          "sha256": "f8bd226ad4070104766700ca4fca3bb77bec369fe7fd4f1bae1a0b8ea0a78e36"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_6_politician_test.jsonl",
+          "sha256": "fb2775b49bde85d0d8de65664ff4041885c433d5fcfdb2ba6d044c72b77a96d3"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_6_politician_train.jsonl",
+          "sha256": "247f17f56523b66941cb9ee81270a80ef0e55d951f467a4002d99945688d2bd7"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/6_politician_Vicuna13B_responses.jsonl",
+          "sha256": "de7f5c41835e16c251ef39aa56a131b25c7ebbfedf294c2b72b96dfa3a3998bf"
+        }
+      },
+      "gold_triple_count": 424,
+      "id": "6_politician",
+      "smoke_ids": [
+        "ont_6_politician_test_135",
+        "ont_6_politician_test_16",
+        "ont_6_politician_test_103",
+        "ont_6_politician_test_100",
+        "ont_6_politician_test_13"
+      ]
+    },
+    {
+      "case_count": 56,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_7_company_ground_truth.jsonl",
+          "sha256": "1d011a57b2fa923db21c90dc72f73adb7c8d836d29109dfcb7871d189dbe073b"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/7_company_ontology.json",
+          "sha256": "1a4e15da3b16defb77ade36aced807b981ae07fd79b7045e612cec6ba821623f"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_7_company_test.jsonl",
+          "sha256": "70f5d898f6721d50642c43f8bde314a3f8da8edf8a5227a68ffca44859817215"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_7_company_train.jsonl",
+          "sha256": "b390bf3cfadc664eef913eefe59427baf0ce44eade7015cb8e5bc0bd350c73f8"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/7_company_Vicuna13B_responses.jsonl",
+          "sha256": "b0736d11f97b5a74dbf8c1a4fcdb1ac420dabbc9ccb70b326a97c1a055461dd2"
+        }
+      },
+      "gold_triple_count": 157,
+      "id": "7_company",
+      "smoke_ids": [
+        "ont_7_company_test_28",
+        "ont_7_company_test_47",
+        "ont_7_company_test_38",
+        "ont_7_company_test_8",
+        "ont_7_company_test_18"
+      ]
+    },
+    {
+      "case_count": 72,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_8_celestialbody_ground_truth.jsonl",
+          "sha256": "b1060b69c3640355cc5b22779fdb222620bf21fa89081283baa5daa172b2dc45"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/8_celestialbody_ontology.json",
+          "sha256": "fa27e85caf3eaf7c5dadbb6ce18a004b55c4d47bf225a0f43e26a484c90a57c9"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_8_celestialbody_test.jsonl",
+          "sha256": "849aed7711c2674a7c1d11cef5b67f342223f869be645d8c04fd06a154f7fdd8"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_8_celestialbody_train.jsonl",
+          "sha256": "dd5c3d4b1e20fc27b091844284218d97d86c4580fbdf17155ebe3a61f4ecc344"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/8_celestialbody_Vicuna13B_responses.jsonl",
+          "sha256": "9950b192224102c4931b74e3681a1dc8dafa4196c9c458b7f0eacc563d6be56e"
+        }
+      },
+      "gold_triple_count": 223,
+      "id": "8_celestialbody",
+      "smoke_ids": [
+        "ont_8_celestialbody_test_64",
+        "ont_8_celestialbody_test_17",
+        "ont_8_celestialbody_test_13",
+        "ont_8_celestialbody_test_66",
+        "ont_8_celestialbody_test_42"
+      ]
+    },
+    {
+      "case_count": 68,
+      "corpus": "dbpedia_webnlg",
+      "files": {
+        "gold": {
+          "path": "data/dbpedia_webnlg/ground_truth/ont_9_astronaut_ground_truth.jsonl",
+          "sha256": "80c9e60ca7d843a4531144df491f4f76943fa47a77e78e5faf18bbe7377aa369"
+        },
+        "ontology": {
+          "path": "data/dbpedia_webnlg/ontologies/9_astronaut_ontology.json",
+          "sha256": "23dd4dc21d94184317bdd36567a5261f0afbeee17d88b988c192aa9b7e428197"
+        },
+        "test": {
+          "path": "data/dbpedia_webnlg/test/ont_9_astronaut_test.jsonl",
+          "sha256": "981701710b6248b981308031ba5cc822588b012a1612c854e0e81c1d5d69874d"
+        },
+        "train": {
+          "path": "data/dbpedia_webnlg/train/ont_9_astronaut_train.jsonl",
+          "sha256": "0de32e3ed8d0e18a09005dcf422a2e95feab6f93e73b7304e9943d8dcbb40720"
+        },
+        "upstream_response": {
+          "path": "data/dbpedia_webnlg/baselines/Vicuna-13B/llm_responses/9_astronaut_Vicuna13B_responses.jsonl",
+          "sha256": "3d75d5128f9c9131fb70f174fd7f9e1c591663c3d03c2446e367ad875b99c489"
+        }
+      },
+      "gold_triple_count": 279,
+      "id": "9_astronaut",
+      "smoke_ids": [
+        "ont_9_astronaut_test_13",
+        "ont_9_astronaut_test_56",
+        "ont_9_astronaut_test_46",
+        "ont_9_astronaut_test_61",
+        "ont_9_astronaut_test_18"
+      ]
+    }
+  ],
+  "pipeline": "caboodle-text2kg-v3-ontology-guided",
+  "reconciler_registry_sha256": "d77cab379ccbbcad261d854397ccccad01b7556b28bfa54ef62f24af2a58dd0d",
+  "schema_version": 1,
+  "scorer": {
+    "normalization": "lowercase_remove_whitespace_and_underscores",
+    "source_sha256": "533222a643693770f15776a33860693f65100e6e0d3731cde62fc7c5e85ae397",
+    "version": "3"
+  },
+  "smoke_panel": {
+    "count": 145,
+    "ids": [
+      "ont_10_comicscharacter_test_11",
+      "ont_10_comicscharacter_test_20",
+      "ont_10_comicscharacter_test_26",
+      "ont_10_comicscharacter_test_36",
+      "ont_10_comicscharacter_test_4",
+      "ont_10_culture_test_1",
+      "ont_10_culture_test_142",
+      "ont_10_culture_test_156",
+      "ont_10_culture_test_36",
+      "ont_10_culture_test_82",
+      "ont_11_meanoftransportation_test_55",
+      "ont_11_meanoftransportation_test_58",
+      "ont_11_meanoftransportation_test_69",
+      "ont_11_meanoftransportation_test_77",
+      "ont_11_meanoftransportation_test_91",
+      "ont_12_monument_test_15",
+      "ont_12_monument_test_19",
+      "ont_12_monument_test_5",
+      "ont_12_monument_test_6",
+      "ont_12_monument_test_7",
+      "ont_13_food_test_111",
+      "ont_13_food_test_119",
+      "ont_13_food_test_2",
+      "ont_13_food_test_27",
+      "ont_13_food_test_62",
+      "ont_14_writtenwork_test_100",
+      "ont_14_writtenwork_test_113",
+      "ont_14_writtenwork_test_27",
+      "ont_14_writtenwork_test_35",
+      "ont_14_writtenwork_test_62",
+      "ont_15_sportsteam_test_32",
+      "ont_15_sportsteam_test_5",
+      "ont_15_sportsteam_test_50",
+      "ont_15_sportsteam_test_91",
+      "ont_15_sportsteam_test_98",
+      "ont_16_city_test_112",
+      "ont_16_city_test_123",
+      "ont_16_city_test_197",
+      "ont_16_city_test_83",
+      "ont_16_city_test_85",
+      "ont_17_artist_test_15",
+      "ont_17_artist_test_16",
+      "ont_17_artist_test_22",
+      "ont_17_artist_test_38",
+      "ont_17_artist_test_47",
+      "ont_18_scientist_test_131",
+      "ont_18_scientist_test_63",
+      "ont_18_scientist_test_74",
+      "ont_18_scientist_test_88",
+      "ont_18_scientist_test_92",
+      "ont_19_film_test_117",
+      "ont_19_film_test_123",
+      "ont_19_film_test_6",
+      "ont_19_film_test_61",
+      "ont_19_film_test_82",
+      "ont_1_movie_test_188",
+      "ont_1_movie_test_387",
+      "ont_1_movie_test_418",
+      "ont_1_movie_test_816",
+      "ont_1_movie_test_94",
+      "ont_1_university_test_1",
+      "ont_1_university_test_17",
+      "ont_1_university_test_21",
+      "ont_1_university_test_26",
+      "ont_1_university_test_60",
+      "ont_2_music_test_172",
+      "ont_2_music_test_430",
+      "ont_2_music_test_445",
+      "ont_2_music_test_47",
+      "ont_2_music_test_558",
+      "ont_2_musicalwork_test_181",
+      "ont_2_musicalwork_test_193",
+      "ont_2_musicalwork_test_205",
+      "ont_2_musicalwork_test_36",
+      "ont_2_musicalwork_test_97",
+      "ont_3_airport_test_20",
+      "ont_3_airport_test_37",
+      "ont_3_airport_test_49",
+      "ont_3_airport_test_56",
+      "ont_3_airport_test_78",
+      "ont_3_sport_test_244",
+      "ont_3_sport_test_30",
+      "ont_3_sport_test_425",
+      "ont_3_sport_test_451",
+      "ont_3_sport_test_469",
+      "ont_4_book_test_193",
+      "ont_4_book_test_38",
+      "ont_4_book_test_469",
+      "ont_4_book_test_73",
+      "ont_4_book_test_98",
+      "ont_4_building_test_12",
+      "ont_4_building_test_23",
+      "ont_4_building_test_30",
+      "ont_4_building_test_51",
+      "ont_4_building_test_76",
+      "ont_5_athlete_test_16",
+      "ont_5_athlete_test_20",
+      "ont_5_athlete_test_66",
+      "ont_5_athlete_test_9",
+      "ont_5_athlete_test_91",
+      "ont_5_military_test_202",
+      "ont_5_military_test_22",
+      "ont_5_military_test_224",
+      "ont_5_military_test_34",
+      "ont_5_military_test_96",
+      "ont_6_computer_test_171",
+      "ont_6_computer_test_215",
+      "ont_6_computer_test_74",
+      "ont_6_computer_test_76",
+      "ont_6_computer_test_99",
+      "ont_6_politician_test_100",
+      "ont_6_politician_test_103",
+      "ont_6_politician_test_13",
+      "ont_6_politician_test_135",
+      "ont_6_politician_test_16",
+      "ont_7_company_test_18",
+      "ont_7_company_test_28",
+      "ont_7_company_test_38",
+      "ont_7_company_test_47",
+      "ont_7_company_test_8",
+      "ont_7_space_test_10",
+      "ont_7_space_test_116",
+      "ont_7_space_test_88",
+      "ont_7_space_test_94",
+      "ont_7_space_test_96",
+      "ont_8_celestialbody_test_13",
+      "ont_8_celestialbody_test_17",
+      "ont_8_celestialbody_test_42",
+      "ont_8_celestialbody_test_64",
+      "ont_8_celestialbody_test_66",
+      "ont_8_politics_test_10",
+      "ont_8_politics_test_107",
+      "ont_8_politics_test_123",
+      "ont_8_politics_test_38",
+      "ont_8_politics_test_51",
+      "ont_9_astronaut_test_13",
+      "ont_9_astronaut_test_18",
+      "ont_9_astronaut_test_46",
+      "ont_9_astronaut_test_56",
+      "ont_9_astronaut_test_61",
+      "ont_9_nature_test_222",
+      "ont_9_nature_test_318",
+      "ont_9_nature_test_322",
+      "ont_9_nature_test_387",
+      "ont_9_nature_test_407"
+    ],
+    "seed": "aegis-tydvlg.4-l1-smoke-v1",
+    "sha256": "5410f2a83f23a51fac8f158ed71980b946340c689bb6181e1e027b42181d4c74"
+  },
+  "totals": {
+    "cases": 6076,
+    "gold_triples": 13491,
+    "ontologies": 29
+  }
+}

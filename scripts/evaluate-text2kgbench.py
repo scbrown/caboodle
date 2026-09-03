@@ -15,6 +15,9 @@ import urllib.request
 from pathlib import Path
 
 from text2kg_grounded import canonical_relation, reconcile
+from text2kg_general import (PIPELINE, canonical_json, compile_ontology, request_hash,
+                             score_suite, sha256_bytes, smoke_ids, validate_manifest,
+                             validate_reconcilers)
 
 
 def digest(path: Path) -> str:
@@ -65,7 +68,7 @@ def graph_readback(port: int) -> dict:
         return json.load(response)
 
 
-def main() -> int:
+def legacy_main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset-root", required=True, type=Path)
     parser.add_argument("--camayoc-root", required=True, type=Path)
@@ -75,7 +78,7 @@ def main() -> int:
     parser.add_argument("--port", type=int, default=39173)
     parser.add_argument("--extraction-only", action="store_true",
                         help="score extraction without starting Camayoc/Quipu ingress")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     root = Path(__file__).resolve().parents[1]
     cfg = json.loads((root / "evaluations/text2kgbench/config.json").read_text())
@@ -210,6 +213,118 @@ def main() -> int:
         print("UNDECLARED NON-GOALS: " + ", ".join(unexplained))
         return 3
     return 0
+
+
+def load_manifest(path: Path) -> dict:
+    return json.loads(path.read_text())
+
+
+def write_json(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+
+
+def general_main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Full-suite ontology-guided Text2KGBench evaluation")
+    sub = parser.add_subparsers(dest="command", required=True)
+    for name in ("inventory", "score"):
+        command = sub.add_parser(name)
+        command.add_argument("--dataset-root", required=True, type=Path)
+        command.add_argument("--manifest", required=True, type=Path)
+        if name == "score":
+            command.add_argument("--responses", required=True, type=Path)
+            command.add_argument("--output", required=True, type=Path)
+            command.add_argument("--lever", choices=("L0", "L1"), default="L0")
+    command = sub.add_parser("run")
+    command.add_argument("--dataset-root", required=True, type=Path)
+    command.add_argument("--manifest", required=True, type=Path)
+    command.add_argument("--responses", required=True, type=Path)
+    command.add_argument("--output", required=True, type=Path)
+    command.add_argument("--smoke", action="store_true")
+    command.add_argument("--confirm-cost", type=float)
+    args = parser.parse_args(argv)
+    provider = None
+    if args.command == "run":
+        from importlib.util import module_from_spec, spec_from_file_location
+        provider_path = Path(__file__).resolve().parents[1] / "evaluations/text2kgbench/providers/anthropic_messages.py"
+        spec = spec_from_file_location("anthropic_messages", provider_path)
+        assert spec and spec.loader
+        provider = module_from_spec(spec); spec.loader.exec_module(provider)
+        provider.preflight()
+    manifest = load_manifest(args.manifest)
+    actual = run(["git", "-C", str(args.dataset_root), "rev-parse", "HEAD"]).stdout.strip()
+    if actual != manifest["dataset"]["commit"]:
+        raise SystemExit(f"dataset commit mismatch: {actual}")
+    inventory = validate_manifest(args.dataset_root, manifest)
+    registry_path = Path(__file__).resolve().parents[1] / "evaluations/text2kgbench/reconcilers.json"
+    registry = json.loads(registry_path.read_text())
+    if digest(registry_path) != manifest["reconciler_registry_sha256"]:
+        raise SystemExit("reconciler registry hash mismatch")
+    validate_reconcilers(registry, {(item["corpus"], item["id"]) for item in manifest["ontologies"]})
+    if args.command == "inventory":
+        print(json.dumps(inventory, indent=2, sort_keys=True))
+        return 0
+    if args.command == "score":
+        result = score_suite(args.dataset_root, manifest, args.responses, args.lever)
+        args.output.mkdir(parents=True, exist_ok=True)
+        write_json(args.output / "cases.json", result["cases"])
+        write_json(args.output / "errors.json", result["stages"])
+        write_json(args.output / "ontology-summary.json", result["ontologies"])
+        write_json(args.output / "corpus-summary.json", result["corpora"])
+        write_json(args.output / "strata-summary.json", result["strata"])
+        artifacts = {path.name: digest(path) for path in sorted(args.output.glob("*.json"))}
+        report = {"schema_version": 3, "pipeline": PIPELINE, "scope": inventory,
+                  "scorer": manifest["scorer"], "artifacts": artifacts}
+        write_json(args.output / "report.json", report)
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0
+
+    if not args.smoke and args.confirm_cost is None:
+        raise SystemExit("full L1 run requires --confirm-cost <amount> after smoke projection")
+    assert provider is not None
+    selected = set(manifest["smoke_panel"]["ids"]) if args.smoke else None
+    requests_path = args.output / "requests.jsonl"
+    responses_path = args.output / "responses.jsonl"
+    args.output.mkdir(parents=True, exist_ok=True)
+    for entry in sorted(manifest["ontologies"], key=lambda item: (item["corpus"], item["id"])):
+        ontology = json.loads((args.dataset_root / entry["files"]["ontology"]["path"]).read_text())
+        rows = jsonl(args.dataset_root / entry["files"]["test"]["path"])
+        destination = args.responses / entry["corpus"] / f"{entry['id']}.jsonl"
+        existing = {row["id"]: row for row in jsonl(destination)} if destination.exists() else {}
+        output_rows = list(existing.values())
+        for row in rows:
+            if selected is not None and row["id"] not in selected:
+                continue
+            request = compile_ontology(ontology, row["sent"])
+            prompt = canonical_json(request)
+            decoding = manifest["inference"]["decoding"]
+            expected_hash = request_hash(request, manifest["inference"]["model"], decoding)
+            if row["id"] in existing:
+                if existing[row["id"]]["request_hash"] != expected_hash:
+                    raise SystemExit(f"refusing to overwrite changed request: {row['id']}")
+                continue
+            request_row = {"id": row["id"], "corpus": entry["corpus"], "ontology": entry["id"],
+                           "request_hash": expected_hash, "prompt_sha256": sha256_bytes(prompt.encode())}
+            with requests_path.open("a") as handle:
+                handle.write(canonical_json(request_row) + "\n")
+            started = time.monotonic()
+            response = provider.create_message({"prompt": prompt})
+            response_row = {**request_row, **response, "latency_seconds": time.monotonic() - started,
+                            "decoding": decoding,
+                            "response_sha256": sha256_bytes(response["raw_response"].encode())}
+            output_rows.append(response_row)
+            with responses_path.open("a") as handle:
+                handle.write(canonical_json(response_row) + "\n")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text("".join(canonical_json(item) + "\n" for item in sorted(output_rows, key=lambda x: x["id"])))
+    return 0
+
+
+def main() -> int:
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] in {"inventory", "run", "score"}:
+        return general_main(sys.argv[1:])
+    return legacy_main()
 
 
 if __name__ == "__main__":

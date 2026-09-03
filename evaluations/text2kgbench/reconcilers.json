@@ -1,0 +1,15 @@
+{
+  "reconcilers": [
+    {
+      "id": "movie-grounded-v1",
+      "version": "1",
+      "implementation_sha256": "3e47961ac9cb7b511566ce66ab0b58de79e16f28e0fe0111c958acb9985b1662",
+      "scope": {"corpora": ["wikidata_tekgen"], "ontologies": ["1_movie"]},
+      "pipeline": "caboodle-text2kg-v2-grounded",
+      "mode": "domain_specific",
+      "input": ["sentence", "model_predictions", "ontology"],
+      "forbidden": ["gold", "test_siblings"],
+      "claim": "film-only deterministic grounded recovery"
+    }
+  ]
+}

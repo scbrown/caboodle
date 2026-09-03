@@ -20,8 +20,28 @@
     "note": "Model parameters are not published by the dataset; reproducibility comes from replaying the hash-pinned response artifact."
   },
   "scorer": {
-    "version": "caboodle-text2kg-v1",
+    "version": "caboodle-text2kg-v2-grounded",
     "normalization": "lowercase_remove_whitespace_and_underscores",
-    "deduplicate": true
+    "deduplicate": true,
+    "reconciliation": "sentence-grounded ontology filter plus deterministic role recovery",
+    "regression_floor": {
+      "strict_micro_f1": 0.172973,
+      "benchmark_filtered_micro_f1": 0.351648,
+      "recall": 0.275862
+    },
+    "declared_non_goals": [
+      {
+        "ids": ["ont_1_movie_test_3", "ont_1_movie_test_9", "ont_1_movie_test_20"],
+        "reason": "The gold film identity is absent from the isolated test sentence; guessing from demonstration context would be ungrounded."
+      },
+      {
+        "ids": ["ont_1_movie_test_1", "ont_1_movie_test_4", "ont_1_movie_test_5", "ont_1_movie_test_10", "ont_1_movie_test_11", "ont_1_movie_test_17", "ont_1_movie_test_18", "ont_1_movie_test_23", "ont_1_movie_test_25"],
+        "reason": "The gold publication date is more specific than the date stated in the sentence; the reconciler does not invent missing day/month values."
+      },
+      {
+        "ids": ["ont_1_movie_test_2", "ont_1_movie_test_6", "ont_1_movie_test_12", "ont_1_movie_test_14", "ont_1_movie_test_15", "ont_1_movie_test_22"],
+        "reason": "The remaining gold value requires entity linking, document context, or a relation not entailed by the sentence wording; deterministic reconciliation stays sentence-grounded."
+      }
+    ]
   }
 }

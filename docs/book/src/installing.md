@@ -114,7 +114,7 @@ a fresh in-memory store without a local download step:
 
 ```bash
 quipu import \
-  https://github.com/scbrown/example/releases/download/v1.0.0/repository.qpack.tar.gz
+  https://github.com/scbrown/quipu/releases/download/quipu-ai-v0.3.29/quipu-quipu-ai-v0.3.29-repository.qpack.tar.gz
 ```
 
 For a modified graph, `quipu share --since <parent-share> --out <delta-dir>`

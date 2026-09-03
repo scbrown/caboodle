@@ -49,9 +49,10 @@ mkdir -p "$HOME/.local/bin"
 # transient release outage must not turn the five-minute setup lane into an
 # unbounded 10–12 GB Rust build.
 install_quipu_release() {
-  local version=0.3.27 target=x86_64-unknown-linux-gnu
-  local archive="quipu-v${version}-${target}.tar.gz"
-  local base="https://github.com/scbrown/quipu/releases/download/v${version}"
+  local version=0.3.29 target=x86_64-unknown-linux-gnu
+  local tag="quipu-ai-v${version}"
+  local archive="quipu-${tag}-${target}.tar.gz"
+  local base="https://github.com/scbrown/quipu/releases/download/${tag}"
   local tmp status
   [ "$(uname -s)-$(uname -m)" = "Linux-x86_64" ] || return 1
   tmp=$(mktemp -d) || return 1
@@ -59,8 +60,8 @@ install_quipu_release() {
     curl -fsSL "$base/$archive.sha256" -o "$tmp/$archive.sha256" &&
     (cd "$tmp" && sha256sum -c "$archive.sha256") >/dev/null 2>&1 &&
     tar -xzf "$tmp/$archive" -C "$tmp" &&
-    install -m 0755 "$tmp/quipu-v${version}-${target}/quipu" "$HOME/.local/bin/quipu" &&
-    install -m 0755 "$tmp/quipu-v${version}-${target}/quipu-server" "$HOME/.local/bin/quipu-server"
+    install -m 0755 "$tmp/quipu-${tag}-${target}/quipu" "$HOME/.local/bin/quipu" &&
+    install -m 0755 "$tmp/quipu-${tag}-${target}/quipu-server" "$HOME/.local/bin/quipu-server"
   status=$?
   rm -rf "$tmp"
   return "$status"

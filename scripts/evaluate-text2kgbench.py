@@ -14,6 +14,8 @@ import time
 import urllib.request
 from pathlib import Path
 
+from text2kg_grounded import canonical_relation, reconcile
+
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -71,6 +73,8 @@ def main() -> int:
     parser.add_argument("--quipu-server", default="quipu-server")
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--port", type=int, default=39173)
+    parser.add_argument("--extraction-only", action="store_true",
+                        help="score extraction without starting Camayoc/Quipu ingress")
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parents[1]
@@ -89,9 +93,10 @@ def main() -> int:
     gold_rows = jsonl(paths["gold"])[:count]
     predictions = {row["id"]: row for row in jsonl(paths["predictions"])}
     ontology = json.loads(paths["ontology"].read_text())
-    ontology_relations = {item["label"].replace(" ", "_") for item in ontology["relations"]}
+    ontology_relations = {canonical_relation(item["label"]) for item in ontology["relations"]}
     all_gold, strict_predictions, filtered_predictions = set(), set(), set()
-    ingress_rows, cases, errors = [], [], {"missing_output": 0, "malformed_triple": 0,
+    ingress_rows, cases, remaining_false_negatives = [], [], []
+    errors = {"missing_output": 0, "malformed_triple": 0,
         "duplicate_prediction": 0, "relation_outside_ontology": 0,
         "relation_not_in_case_gold": 0, "false_positive_after_filter": 0, "false_negative": 0}
 
@@ -103,6 +108,7 @@ def main() -> int:
         if raw is None:
             errors["missing_output"] += 1
             raw = []
+        raw = reconcile(gold_row["sent"], raw)
         valid = []
         for index, triple in enumerate(raw):
             if not isinstance(triple, list) or len(triple) != 3:
@@ -117,10 +123,16 @@ def main() -> int:
         case_relations = {triple[1].replace(" ", "_") for triple in
                           [(t["sub"], t["rel"], t["obj"]) for t in gold_row["triples"]]}
         filtered = {triple for triple in strict if triple[1] in {norm(("", r, ""))[1] for r in case_relations}}
-        errors["relation_outside_ontology"] += sum(1 for triple in valid if triple[1] not in ontology_relations)
+        errors["relation_outside_ontology"] += sum(
+            1 for triple in valid if canonical_relation(triple[1]) not in ontology_relations
+        )
         errors["relation_not_in_case_gold"] += len(strict - filtered)
         errors["false_positive_after_filter"] += len(filtered - gold)
         errors["false_negative"] += len(gold - filtered)
+        remaining_false_negatives.extend(
+            {"id": case_id, "subject": triple[0], "relation": triple[1], "object": triple[2]}
+            for triple in sorted(gold - filtered)
+        )
         strict_predictions |= {(case_id, *triple) for triple in strict}
         filtered_predictions |= {(case_id, *triple) for triple in filtered}
         cases.append({"id": case_id, "strict": score(gold, strict), "benchmark_filtered": score(gold, filtered)})
@@ -128,30 +140,35 @@ def main() -> int:
     args.output.mkdir(parents=True, exist_ok=True)
     source = args.output / "predictions.json"
     source.write_text(json.dumps(ingress_rows, indent=2, sort_keys=True) + "\n")
-    mapping = root / "evaluations/text2kgbench/mapping.ttl"
-    rml = args.camayoc_root / "scripts/rml_executor.py"
-    rml_cmd = [args.camayoc_python, str(rml), "execute",
-        "https://example.invalid/text2kgbench/prediction-map", "--mapping-file", str(mapping),
-        "--source-file", str(source), "--allowed-root", str(args.output)]
-    materialized = json.loads(run(rml_cmd + ["--dry-run"]).stdout)
+    ingress = None
+    if not args.extraction_only:
+        mapping = root / "evaluations/text2kgbench/mapping.ttl"
+        rml = args.camayoc_root / "scripts/rml_executor.py"
+        rml_cmd = [args.camayoc_python, str(rml), "execute",
+            "https://example.invalid/text2kgbench/prediction-map", "--mapping-file", str(mapping),
+            "--source-file", str(source), "--allowed-root", str(args.output)]
+        materialized = json.loads(run(rml_cmd + ["--dry-run"]).stdout)
 
-    with tempfile.TemporaryDirectory(prefix="text2kg-quipu-") as temp:
-        db = Path(temp) / "store.db"
-        server = subprocess.Popen([args.quipu_server, "--db", str(db), "--bind", f"127.0.0.1:{args.port}"],
-                                  cwd=temp, stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.PIPE, text=True)
-        try:
-            wait_health(args.port)
-            plane_env = {**os.environ, "QUIPU_SERVER": f"http://127.0.0.1:{args.port}",
-                         "CAMAYOC_PLANE_NS": "https://camayoc.local/plane/"}
-            run([args.camayoc_python, str(args.camayoc_root / "scripts/planes.py"),
-                 "ensure", "--timestamp", "2026-09-03T00:00:00Z"], env=plane_env)
-            committed = json.loads(run(rml_cmd + ["--server", f"http://127.0.0.1:{args.port}",
-                                                   "--actor", "text2kgbench-eval"]).stdout)
-            readback = graph_readback(args.port)
-        finally:
-            server.terminate()
-            server.wait(timeout=5)
+        with tempfile.TemporaryDirectory(prefix="text2kg-quipu-") as temp:
+            db = Path(temp) / "store.db"
+            server = subprocess.Popen([args.quipu_server, "--db", str(db), "--bind", f"127.0.0.1:{args.port}"],
+                                      cwd=temp, stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.PIPE, text=True)
+            try:
+                wait_health(args.port)
+                plane_env = {**os.environ, "QUIPU_SERVER": f"http://127.0.0.1:{args.port}",
+                             "CAMAYOC_PLANE_NS": "https://camayoc.local/plane/"}
+                run([args.camayoc_python, str(args.camayoc_root / "scripts/planes.py"),
+                     "ensure", "--timestamp", "2026-09-03T00:00:00Z"], env=plane_env)
+                committed = json.loads(run(rml_cmd + ["--server", f"http://127.0.0.1:{args.port}",
+                                                       "--actor", "text2kgbench-eval"]).stdout)
+                readback = graph_readback(args.port)
+            finally:
+                server.terminate()
+                server.wait(timeout=5)
+        ingress = {"input_triples": len(ingress_rows), "materialized_quads": materialized["output_count"],
+                   "mapping_hash": materialized["mapping_hash"], "source_hash": materialized["source_hash"],
+                   "write": committed["write"], "graph_readback": readback}
 
     report = {"schema_version": 1,
         "evaluation_scope": {
@@ -165,13 +182,33 @@ def main() -> int:
                        "benchmark_filtered_micro": score(all_gold, filtered_predictions),
                        "per_case": cases},
         "error_decomposition": errors,
-        "ingress": {"input_triples": len(ingress_rows), "materialized_quads": materialized["output_count"],
-                    "mapping_hash": materialized["mapping_hash"], "source_hash": materialized["source_hash"],
-                    "write": committed["write"], "graph_readback": readback}}
+        "remaining_false_negatives": remaining_false_negatives,
+        "declared_non_goals": cfg["scorer"]["declared_non_goals"],
+        "ingress": ingress}
     args.output.joinpath("report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"report": str(args.output / "report.json"), "strict": report["extraction"]["strict_micro"],
                       "filtered": report["extraction"]["benchmark_filtered_micro"],
                       "errors": errors, "ingress": report["ingress"]}, indent=2, sort_keys=True))
+    floors = cfg["scorer"]["regression_floor"]
+    observed = report["extraction"]
+    regressions = []
+    for label, actual, floor in (
+        ("strict_micro_f1", observed["strict_micro"]["f1"], floors["strict_micro_f1"]),
+        ("benchmark_filtered_micro_f1", observed["benchmark_filtered_micro"]["f1"],
+         floors["benchmark_filtered_micro_f1"]),
+        ("recall", observed["strict_micro"]["recall"], floors["recall"]),
+    ):
+        if actual < floor:
+            regressions.append(f"{label} {actual:.6f} < {floor:.6f}")
+    if regressions:
+        print("REGRESSION: " + "; ".join(regressions))
+        return 2
+    declared_ids = {case_id for item in cfg["scorer"]["declared_non_goals"]
+                    for case_id in item["ids"]}
+    unexplained = sorted({item["id"] for item in remaining_false_negatives} - declared_ids)
+    if unexplained:
+        print("UNDECLARED NON-GOALS: " + ", ".join(unexplained))
+        return 3
     return 0
 
 

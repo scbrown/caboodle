@@ -36,3 +36,8 @@ per-stage error decomposition, RML materialization counts, Quipu's write verdict
 read-back metadata. `temperature` and `seed` are explicitly null because upstream did not publish
 them; claiming otherwise would manufacture provenance. Replay of the response bytes is the frozen
 inference configuration.
+
+For fast extraction-quality iteration, pass `--extraction-only`. This still verifies every dataset
+hash, writes the reconciled predictions and complete extraction report, and enforces the configured
+strict/filtered/recall regression floors; it records `ingress: null` rather than making a store
+conformance claim. The default remains the full fail-closed Camayoc/Quipu run.

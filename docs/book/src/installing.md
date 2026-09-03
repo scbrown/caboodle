@@ -95,6 +95,38 @@ review surface; `scripts/build-stack-packs.sh` rebuilds the artifacts from
 them (run by hand when the sources change — packs stamp their creation time,
 so a rebuild without a source change is hash churn, not content).
 
+### Shipping a pack from a repository
+
+Each repository can publish its own graph beside its release binaries. Build
+the graph in a named layer, then record the checkout and producer versions in
+the pack manifest:
+
+```bash
+REPO=scbrown/example
+SHA=$(git rev-parse HEAD)
+GRAPH=https://example.org/knowledge/repository/example
+quipu pack "$GRAPH" --db .bobbin/quipu/quipu.db \
+  --out "example-${SHA}.qpack.db" \
+  --repo "$REPO" --repo-sha "$SHA" \
+  --model-id all-MiniLM-L6-v2 --model-version 1
+quipu pack --verify "example-${SHA}.qpack.db"
+```
+
+Commit small packs when they are useful offline; publish packs larger than
+10 MiB as checksummed release assets instead of adding them to normal Git
+history. A clone downloads the pack to a temporary path, verifies it, and only
+then loads it:
+
+```bash
+quipu pack --verify "example-${SHA}.qpack.db"
+quipu unpack "example-${SHA}.qpack.db" --db .bobbin/quipu/quipu.db \
+  --expect-repo "$REPO" --head-sha "$(git rev-parse HEAD)"
+```
+
+`unpack` verifies the content hash and repository identity before writing. It
+materializes a pack hash once; a repeated load is `unchanged`, and `--head-sha`
+identifies the remaining pack-SHA-to-checkout-HEAD range for incremental ingest.
+
 ## Uninstall
 
 Remove only the Caboodle binary and optional local Caboodle state. Installed

@@ -1,0 +1,645 @@
+{
+  "cases": 25,
+  "dataset": {
+    "commit": "50a3d255371b8817cdff70fd88459ac82b339cfe",
+    "files": {
+      "gold": {
+        "path": "data/wikidata_tekgen/ground_truth/ont_1_movie_ground_truth.jsonl",
+        "sha256": "601dcee5c77c9de5acbe4da2fb66492e30e8cecf91a6f6d29e416e973b5b5110"
+      },
+      "ontology": {
+        "path": "data/wikidata_tekgen/ontologies/1_movie_ontology.json",
+        "sha256": "72b7e207438b6bb5fa85401fd967830dc859d4e0d487473e8f6755ddf922beb0"
+      },
+      "predictions": {
+        "path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_1_movie_llm_responses.jsonl",
+        "sha256": "021aa2cf9831c7f4d2f0251f7c91e9bd94e4b181db3c0f2e979bc1738348e32b"
+      },
+      "prompt": {
+        "path": "data/wikidata_tekgen/baselines/prompts/ont_1_movie_prompts.jsonl",
+        "sha256": "6abf7cc90ba2649e3a34f6b74483a81bfec797cb2f2de30593a5f9ef4ee6219c"
+      }
+    },
+    "ontology": "1_movie",
+    "repository": "https://github.com/cenguix/Text2KGBench.git",
+    "selection": {
+      "count": 25,
+      "method": "first_n_in_gold_file_order"
+    },
+    "suite": "wikidata_tekgen"
+  },
+  "error_decomposition": {
+    "duplicate_prediction": 0,
+    "false_negative": 42,
+    "false_positive_after_filter": 17,
+    "malformed_triple": 0,
+    "missing_output": 0,
+    "relation_not_in_case_gold": 94,
+    "relation_outside_ontology": 34
+  },
+  "evaluation_scope": {
+    "claim": "separate boundary measurements; upstream artifact is not graph-extract output",
+    "extraction": "hash-pinned upstream text-to-triples replay",
+    "ingress": "Camayoc governed RML write to disposable Quipu"
+  },
+  "extraction": {
+    "benchmark_filtered_micro": {
+      "correct": 16,
+      "f1": 0.3516483516483517,
+      "gold": 58,
+      "precision": 0.48484848484848486,
+      "predicted": 33,
+      "recall": 0.27586206896551724
+    },
+    "per_case": [
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 0.6666666666666666,
+          "gold": 2,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.5
+        },
+        "id": "ont_1_movie_test_1",
+        "strict": {
+          "correct": 1,
+          "f1": 0.6666666666666666,
+          "gold": 2,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.5
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 2,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_2",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 11,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 3,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_3",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 3,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 5,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_4",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 5,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_5",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_6",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 2,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 0.5,
+          "gold": 2,
+          "precision": 0.5,
+          "predicted": 2,
+          "recall": 0.5
+        },
+        "id": "ont_1_movie_test_7",
+        "strict": {
+          "correct": 1,
+          "f1": 0.16666666666666669,
+          "gold": 2,
+          "precision": 0.1,
+          "predicted": 10,
+          "recall": 0.5
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_8",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 2,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_9",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 7,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 0.6666666666666666,
+          "gold": 2,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.5
+        },
+        "id": "ont_1_movie_test_10",
+        "strict": {
+          "correct": 1,
+          "f1": 0.16666666666666669,
+          "gold": 2,
+          "precision": 0.1,
+          "predicted": 10,
+          "recall": 0.5
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 0.4,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.25
+        },
+        "id": "ont_1_movie_test_11",
+        "strict": {
+          "correct": 1,
+          "f1": 0.4,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.25
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_12",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 0.4,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.25
+        },
+        "id": "ont_1_movie_test_13",
+        "strict": {
+          "correct": 1,
+          "f1": 0.4,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 0.25
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_14",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 4,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 2,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_15",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 11,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 4,
+          "f1": 1.0,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 4,
+          "recall": 1.0
+        },
+        "id": "ont_1_movie_test_16",
+        "strict": {
+          "correct": 4,
+          "f1": 1.0,
+          "gold": 4,
+          "precision": 1.0,
+          "predicted": 4,
+          "recall": 1.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 3,
+          "f1": 0.6666666666666666,
+          "gold": 6,
+          "precision": 1.0,
+          "predicted": 3,
+          "recall": 0.5
+        },
+        "id": "ont_1_movie_test_17",
+        "strict": {
+          "correct": 3,
+          "f1": 0.42857142857142855,
+          "gold": 6,
+          "precision": 0.375,
+          "predicted": 8,
+          "recall": 0.5
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 2,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_18",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 3,
+          "precision": 0.0,
+          "predicted": 3,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 1.0,
+          "gold": 1,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 1.0
+        },
+        "id": "ont_1_movie_test_19",
+        "strict": {
+          "correct": 1,
+          "f1": 0.5,
+          "gold": 1,
+          "precision": 0.3333333333333333,
+          "predicted": 3,
+          "recall": 1.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_20",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 3,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 2,
+          "f1": 0.6666666666666666,
+          "gold": 3,
+          "precision": 0.6666666666666666,
+          "predicted": 3,
+          "recall": 0.6666666666666666
+        },
+        "id": "ont_1_movie_test_21",
+        "strict": {
+          "correct": 2,
+          "f1": 0.3333333333333333,
+          "gold": 3,
+          "precision": 0.2222222222222222,
+          "predicted": 9,
+          "recall": 0.6666666666666666
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_22",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 1,
+          "precision": 0.0,
+          "predicted": 9,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 0,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_23",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 16,
+          "recall": 0.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 1,
+          "f1": 1.0,
+          "gold": 1,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 1.0
+        },
+        "id": "ont_1_movie_test_24",
+        "strict": {
+          "correct": 1,
+          "f1": 1.0,
+          "gold": 1,
+          "precision": 1.0,
+          "predicted": 1,
+          "recall": 1.0
+        }
+      },
+      {
+        "benchmark_filtered": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 1,
+          "recall": 0.0
+        },
+        "id": "ont_1_movie_test_25",
+        "strict": {
+          "correct": 0,
+          "f1": 0.0,
+          "gold": 2,
+          "precision": 0.0,
+          "predicted": 9,
+          "recall": 0.0
+        }
+      }
+    ],
+    "strict_micro": {
+      "correct": 16,
+      "f1": 0.17297297297297298,
+      "gold": 58,
+      "precision": 0.12598425196850394,
+      "predicted": 127,
+      "recall": 0.27586206896551724
+    }
+  },
+  "inference": {
+    "mode": "frozen_upstream_replay",
+    "model": "Vicuna-13B",
+    "note": "Model parameters are not published by the dataset; reproducibility comes from replaying the hash-pinned response artifact.",
+    "seed": null,
+    "temperature": null
+  },
+  "ingress": {
+    "graph_readback": {
+      "count": 4,
+      "graphs": [
+        {
+          "class": "committed",
+          "g": 0,
+          "iri": "urn:quipu:graph:root",
+          "labels": {
+            "durability": null,
+            "freshness": null,
+            "kind": null,
+            "policy": null,
+            "trust_chain": null,
+            "trust_rank": null
+          },
+          "lifecycle": null,
+          "source": null
+        },
+        {
+          "class": "committed",
+          "g": 2,
+          "iri": "https://camayoc.local/plane/crew/records",
+          "labels": {
+            "durability": null,
+            "freshness": null,
+            "kind": "knowledge",
+            "policy": null,
+            "trust_chain": "https://camayoc.local/plane/chain/provenance",
+            "trust_rank": 20
+          },
+          "lifecycle": null,
+          "source": null
+        },
+        {
+          "class": "committed",
+          "g": 9,
+          "iri": "https://camayoc.local/plane/crew/declared",
+          "labels": {
+            "durability": null,
+            "freshness": null,
+            "kind": "knowledge",
+            "policy": null,
+            "trust_chain": "https://camayoc.local/plane/chain/provenance",
+            "trust_rank": 30
+          },
+          "lifecycle": null,
+          "source": null
+        },
+        {
+          "class": "committed",
+          "g": 11,
+          "iri": "https://camayoc.local/plane/crew/inferred",
+          "labels": {
+            "durability": null,
+            "freshness": null,
+            "kind": "knowledge",
+            "policy": null,
+            "trust_chain": "https://camayoc.local/plane/chain/provenance",
+            "trust_rank": 0
+          },
+          "lifecycle": null,
+          "materialization": {
+            "mapping": "https://example.invalid/text2kgbench/prediction-map",
+            "mapping_hash": "sha256:353b13489c39e7bec41f2638a3c4af23890174b8df4dce548f6e1e7b1c951123",
+            "source": "https://example.invalid/text2kgbench/frozen-predictions",
+            "timestamp": "2026-09-03T04:43:32Z",
+            "tx": 4,
+            "verified_hash": "sha256:4bb7609af6a56ca456134a033d9c97302d383b4e4e929ce0e72bb4e19fce0ea9"
+          },
+          "source": null
+        }
+      ]
+    },
+    "input_triples": 127,
+    "mapping_hash": "sha256:353b13489c39e7bec41f2638a3c4af23890174b8df4dce548f6e1e7b1c951123",
+    "materialized_quads": 635,
+    "source_hash": "sha256:4bb7609af6a56ca456134a033d9c97302d383b4e4e929ce0e72bb4e19fce0ea9",
+    "write": {
+      "conforms": true,
+      "count": 635,
+      "replaced": false,
+      "snapshot": null,
+      "tx_id": 4
+    }
+  },
+  "observed_hashes": {
+    "gold": "601dcee5c77c9de5acbe4da2fb66492e30e8cecf91a6f6d29e416e973b5b5110",
+    "ontology": "72b7e207438b6bb5fa85401fd967830dc859d4e0d487473e8f6755ddf922beb0",
+    "predictions": "021aa2cf9831c7f4d2f0251f7c91e9bd94e4b181db3c0f2e979bc1738348e32b",
+    "prompt": "6abf7cc90ba2649e3a34f6b74483a81bfec797cb2f2de30593a5f9ef4ee6219c"
+  },
+  "schema_version": 1,
+  "scorer": {
+    "deduplicate": true,
+    "normalization": "lowercase_remove_whitespace_and_underscores",
+    "version": "caboodle-text2kg-v1"
+  }
+}

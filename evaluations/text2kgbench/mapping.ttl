@@ -1,0 +1,36 @@
+@prefix ex: <https://example.invalid/text2kgbench/> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix aegis: <http://aegis.gastown.local/ontology/> .
+
+ex:prediction-map a rr:TriplesMap ;
+    rml:logicalSource ex:source ;
+    rr:subjectMap ex:subject ;
+    rr:predicateObjectMap ex:case, ex:subject-value, ex:relation-value, ex:object-value ;
+    rr:graph <https://camayoc.local/plane/crew/inferred> .
+
+ex:source a rml:LogicalSource ;
+    rml:source ex:frozen-predictions ;
+    rml:referenceFormulation ql:JSONPath ;
+    rml:iterator "$[*]" .
+
+ex:subject a rr:SubjectMap ;
+    rr:template "https://example.invalid/text2kgbench/prediction/{row_id}" ;
+    rr:class ex:Prediction ;
+    rr:termType rr:IRI .
+
+ex:case a rr:PredicateObjectMap ; rr:predicate ex:caseId ; rr:objectMap ex:case-object .
+ex:subject-value a rr:PredicateObjectMap ; rr:predicate ex:subject ; rr:objectMap ex:subject-object .
+ex:relation-value a rr:PredicateObjectMap ; rr:predicate ex:relation ; rr:objectMap ex:relation-object .
+ex:object-value a rr:PredicateObjectMap ; rr:predicate ex:object ; rr:objectMap ex:object-object .
+
+ex:case-object rml:reference "case_id" ; rr:termType rr:Literal .
+ex:subject-object rml:reference "subject" ; rr:termType rr:Literal .
+ex:relation-object rml:reference "relation" ; rr:termType rr:Literal .
+ex:object-object rml:reference "object" ; rr:termType rr:Literal .
+
+ex:frozen-predictions aegis:source_uri "file:predictions.json" ;
+    aegis:access_via "file" ;
+    aegis:freshness "snapshot(text2kgbench-50a3d255)" ;
+    aegis:verified_by "sha256:checked-by-harness" .

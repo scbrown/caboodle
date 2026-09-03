@@ -1,0 +1,27 @@
+{
+  "dataset": {
+    "repository": "https://github.com/cenguix/Text2KGBench.git",
+    "commit": "50a3d255371b8817cdff70fd88459ac82b339cfe",
+    "suite": "wikidata_tekgen",
+    "ontology": "1_movie",
+    "selection": {"method": "first_n_in_gold_file_order", "count": 25},
+    "files": {
+      "gold": {"path": "data/wikidata_tekgen/ground_truth/ont_1_movie_ground_truth.jsonl", "sha256": "601dcee5c77c9de5acbe4da2fb66492e30e8cecf91a6f6d29e416e973b5b5110"},
+      "ontology": {"path": "data/wikidata_tekgen/ontologies/1_movie_ontology.json", "sha256": "72b7e207438b6bb5fa85401fd967830dc859d4e0d487473e8f6755ddf922beb0"},
+      "prompt": {"path": "data/wikidata_tekgen/baselines/prompts/ont_1_movie_prompts.jsonl", "sha256": "6abf7cc90ba2649e3a34f6b74483a81bfec797cb2f2de30593a5f9ef4ee6219c"},
+      "predictions": {"path": "data/wikidata_tekgen/baselines/Vicuna-13B/llm_responses/ont_1_movie_llm_responses.jsonl", "sha256": "021aa2cf9831c7f4d2f0251f7c91e9bd94e4b181db3c0f2e979bc1738348e32b"}
+    }
+  },
+  "inference": {
+    "mode": "frozen_upstream_replay",
+    "model": "Vicuna-13B",
+    "temperature": null,
+    "seed": null,
+    "note": "Model parameters are not published by the dataset; reproducibility comes from replaying the hash-pinned response artifact."
+  },
+  "scorer": {
+    "version": "caboodle-text2kg-v1",
+    "normalization": "lowercase_remove_whitespace_and_underscores",
+    "deduplicate": true
+  }
+}

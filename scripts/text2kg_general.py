@@ -91,6 +91,77 @@ def smoke_ids(case_ids: Iterable[str], count: int = 5) -> list[str]:
     return ranked[:count]
 
 
+def stratified_ids(groups, total: int) -> list[str]:
+    """Select `total` case ids spread across groups, proportional to group size.
+
+    `groups` is a sequence of `(group_id, case_ids)`. The result is deterministic
+    and order-independent: within a group the ids are chosen by the same seeded
+    ranking `smoke_ids` uses, and groups are ranked the same way, so the same
+    `(groups, total)` always yields the same set however the input is ordered.
+
+    WHY THIS EXISTS (aegis-mgw4x1). The runner's `--max-cases` takes a contiguous
+    PREFIX, which is reproducible and re-runnable and is the right shape for "run
+    a bounded block twice and compare". It is the wrong shape for estimating
+    anything about the corpus: a 1,000-case prefix of Text2KGBench covered 10 of
+    29 ontologies and ONE corpus, at 1,388 billed input tokens per case against
+    the stratified panel's 3,117 — a 2.2x difference. Scaling either to the full
+    universe is unsound, and the two projections agreeing ($27.86 vs $25.89) was
+    two biased estimators coinciding rather than corroboration.
+
+    EVERY NON-EMPTY GROUP GETS AT LEAST ONE CASE. That floor is the point of
+    stratifying rather than sampling uniformly: without it a small ontology can
+    round to zero and vanish from a result that claims to cover the corpus, which
+    is the prefix's failure in a subtler form.
+    """
+    ranked_groups = sorted(
+        ((gid, list(ids)) for gid, ids in groups if ids),
+        key=lambda item: (hashlib.sha256(
+            f"{SMOKE_SEED}\0{item[0]}".encode()).hexdigest(), item[0]),
+    )
+    if not ranked_groups or total <= 0:
+        return []
+
+    sizes = {gid: len(ids) for gid, ids in ranked_groups}
+    available = sum(sizes.values())
+    if total >= available:
+        return sorted(cid for _, ids in ranked_groups for cid in ids)
+
+    # Floor of one per group, for as many groups as the budget allows.
+    if total <= len(ranked_groups):
+        chosen = ranked_groups[:total]
+        return sorted(smoke_ids(ids, 1)[0] for _, ids in chosen)
+
+    allocation = {gid: 1 for gid, _ in ranked_groups}
+    remaining = total - len(ranked_groups)
+
+    # Largest-remainder over the proportional share of what is left, so the
+    # totals add up exactly rather than drifting with rounding.
+    surplus = {gid: sizes[gid] - 1 for gid, _ in ranked_groups}
+    pool = sum(surplus.values())
+    if pool:
+        exact = {gid: remaining * surplus[gid] / pool for gid in surplus}
+        for gid in surplus:
+            allocation[gid] += min(int(exact[gid]), surplus[gid])
+        short = total - sum(allocation.values())
+        # Deterministic tiebreak: largest fractional part, then the seeded order.
+        order = sorted(
+            surplus,
+            key=lambda gid: (-(exact[gid] - int(exact[gid])),
+                             [g for g, _ in ranked_groups].index(gid)),
+        )
+        for gid in order:
+            if short <= 0:
+                break
+            if allocation[gid] < sizes[gid]:
+                allocation[gid] += 1
+                short -= 1
+
+    selected = []
+    for gid, ids in ranked_groups:
+        selected.extend(smoke_ids(ids, allocation[gid]))
+    return sorted(selected)
+
+
 def validate_candidate(candidate: object, sentence: str, ontology: dict) -> tuple[str, dict | None]:
     if not isinstance(candidate, dict) or any(k not in candidate for k in
                                                ("subject", "relation", "object", "evidence_span")):

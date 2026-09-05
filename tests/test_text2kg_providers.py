@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -202,3 +203,57 @@ def test_profile_env_pins_reach_the_child_environment():
     assert profile["env"]["MAX_THINKING_TOKENS"] == "0"
     assert profile["decoding"]["thinking_budget_tokens"] == 0
     assert module._environment()["MAX_THINKING_TOKENS"] == "0"
+
+
+def test_claudecode_is_scrubbed_from_the_child_environment(monkeypatch):
+    """CLAUDECODE has no underscore after CLAUDE, so the prefix tuple misses it.
+
+    It IS set in an agent session, and leaking it tells the child `claude` that
+    it is running inside Claude Code — the nondeterminism the scrub exists to
+    remove. Every other CLAUDE_CODE_* variable was already caught; this one
+    slipped through on a naming inconsistency (aegis-xid7v6, wu).
+    """
+    adapter = load_adapter("claude_code")
+    monkeypatch.setenv("CLAUDECODE", "1")
+    monkeypatch.setenv("CLAUDE_CODE_ENTRYPOINT", "cli")
+    monkeypatch.setenv("PATH", os.environ.get("PATH", ""))
+
+    env = adapter._environment()
+
+    assert "CLAUDECODE" not in env, "CLAUDECODE leaked into the child environment"
+    # Control: the scrub is running at all, and does not simply drop everything.
+    assert "PATH" in env, "control: the scrub removed PATH, so it is not selective"
+    assert env["CLAUDE_CODE_ENTRYPOINT"] == "text2kgbench-eval"
+
+
+def test_the_cli_version_is_probed_once_not_once_per_case(monkeypatch):
+    """`create_message` calls `preflight` per case; the subprocess must not follow.
+
+    The driver already calls preflight once up front, so an un-memoized probe
+    shelled `claude --version` about 1,000 extra times in a 1,000-case run —
+    wall-clock spent inside the very window the run exists to measure.
+    """
+    adapter = load_adapter("claude_code")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.delenv("ANTHROPIC_BASE_URL", raising=False)
+    adapter._CLI_VERSION_CACHE.clear()
+
+    calls = []
+
+    class _Completed:
+        stdout = adapter.CLI_PIN + " (Claude Code)"
+
+    def _fake_run(argv, **kwargs):
+        calls.append(argv)
+        return _Completed()
+
+    monkeypatch.setattr(adapter.subprocess, "run", _fake_run)
+    monkeypatch.setattr(adapter, "_binary", lambda: "/usr/bin/claude")
+
+    first = adapter.preflight()
+    for _ in range(24):
+        adapter.preflight()
+
+    assert first == adapter.CLI_PIN
+    assert len(calls) == 1, f"expected one --version probe across 25 preflights, got {len(calls)}"

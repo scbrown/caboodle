@@ -40,7 +40,13 @@ ENV_PINS: dict[str, str] = {}
 # Session/bridge variables that would leak the CALLING agent's context into the
 # extraction subprocess. Cleared so a case's prompt is the whole input.
 _SCRUBBED_PREFIXES = ("CLAUDE_CODE_", "ANTHROPIC_")
-_SCRUBBED_NAMES = ("CLAUDE_PID", "CLAUDE_EFFORT", "CLAUDE_CONFIG_DIR")
+_SCRUBBED_NAMES = ("CLAUDE_PID", "CLAUDE_EFFORT", "CLAUDE_CONFIG_DIR",
+                   # CLAUDECODE has no underscore after CLAUDE, so the
+                   # "CLAUDE_CODE_" prefix does not match it. It IS set in
+                   # an agent session, and leaking it tells the child it is
+                   # running inside Claude Code — exactly the nondeterminism
+                   # the scrub exists to remove.
+                   "CLAUDECODE")
 
 # Every flag here removes a source of nondeterminism or of fleet blast radius.
 _BASE_ARGS = (
@@ -86,10 +92,36 @@ def preflight() -> str:
             )
     if os.environ.get("ANTHROPIC_BASE_URL") or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY"):
         raise RuntimeError("custom Anthropic endpoints and proxies are forbidden")
+    return _verified_cli_version()
+
+
+_CLI_VERSION_CACHE: dict[str, str] = {}
+
+
+def _verified_cli_version() -> str:
+    """The pinned CLI version, probed once per process.
+
+    `create_message` calls `preflight` on EVERY case and the driver already
+    calls it once up front, so this shelled `claude --version` about 1,000
+    extra times in a 1,000-case run — pure wall-clock inside the very window
+    the run exists to measure.
+
+    Only the SUBPROCESS is cached. The environment checks above stay per-call:
+    they are free, and they are the ones that catch a variable appearing
+    mid-run. The binary's version cannot change under a running process in a
+    way this probe would catch anyway.
+
+    Keyed by CLI_PIN so `configure()` switching profiles re-probes rather than
+    returning a version verified against a different pin.
+    """
+    cached = _CLI_VERSION_CACHE.get(CLI_PIN)
+    if cached is not None:
+        return cached
     installed = subprocess.run([_binary(), "--version"], text=True, capture_output=True,
                                timeout=30).stdout.strip().split()[0]
     if installed != CLI_PIN:
         raise RuntimeError(f"claude CLI mismatch: {installed} != {CLI_PIN}")
+    _CLI_VERSION_CACHE[CLI_PIN] = installed
     return installed
 
 

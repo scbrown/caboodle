@@ -1,0 +1,9 @@
+{
+  "code_sha": "9c242482ec35d827d4237efd9741f453dbd3762a",
+  "dataset_sha": "50a3d255371b8817cdff70fd88459ac82b339cfe",
+  "provider": "claude_code",
+  "sample": 1000,
+  "full_run_authorized": false,
+  "selection_sha256": "ba75babdd2dca9b675c1208543c132895c2aeb32f920dc17130b8d69da9db0ee",
+  "manifest_sha256": "fc966665a2e53a9fb16fbdff33cdaa5d365206269fef242ae207b86d9694fd4d"
+}

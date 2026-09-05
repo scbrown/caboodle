@@ -22,6 +22,20 @@ jobs:
       - name: Validate documented release installer and metadata
         run: scripts/test-release-install.sh
 
+  evaluation-tests:
+    # The Text2KGBench harness is Python and its guards (provider drift, gold
+    # leakage, manifest universe, billing-path preflight) had no CI step at all,
+    # so they only ever ran when someone remembered to. A guard that does not run
+    # is not a guard.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pytest
+      - run: python -m pytest tests -q
+
   clean-machine-install:
     runs-on: ubuntu-latest
     timeout-minutes: 45

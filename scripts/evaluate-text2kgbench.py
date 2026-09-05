@@ -279,6 +279,13 @@ def general_main(argv: list[str]) -> int:
     command.add_argument("--responses", required=True, type=Path)
     command.add_argument("--output", required=True, type=Path)
     command.add_argument("--smoke", action="store_true")
+    command.add_argument("--max-cases", type=int, metavar="N",
+                         help="stop after the first N cases in the manifest's deterministic "
+                              "order (sorted by corpus, then ontology id, then row order). A "
+                              "CONTIGUOUS PREFIX, not a sample: the same N always selects the "
+                              "same cases, so a block is re-runnable and comparable. Counts "
+                              "cases SELECTED, not cases newly inferred, so a resumed run "
+                              "covers the same block rather than extending past it.")
     command.add_argument("--confirm-cost", type=float)
     command.add_argument("--provider", help="provider id from evaluations/text2kgbench/providers.json "
                                             "(default: the manifest's inference.provider)")
@@ -322,7 +329,13 @@ def general_main(argv: list[str]) -> int:
     requests_path = args.output / "requests.jsonl"
     responses_path = args.output / "responses.jsonl"
     args.output.mkdir(parents=True, exist_ok=True)
+    # Cases considered so far, for --max-cases. Counted after the smoke filter and
+    # BEFORE the already-done check, so the block is a fixed prefix of the case
+    # order rather than "N more than last time" (aegis-xid7v6).
+    considered = 0
     for entry in sorted(manifest["ontologies"], key=lambda item: (item["corpus"], item["id"])):
+        if args.max_cases is not None and considered >= args.max_cases:
+            break
         ontology = json.loads((args.dataset_root / entry["files"]["ontology"]["path"]).read_text())
         rows = jsonl(args.dataset_root / entry["files"]["test"]["path"])
         destination = args.responses / entry["corpus"] / f"{entry['id']}.jsonl"
@@ -331,6 +344,9 @@ def general_main(argv: list[str]) -> int:
         for row in rows:
             if selected is not None and row["id"] not in selected:
                 continue
+            if args.max_cases is not None and considered >= args.max_cases:
+                break
+            considered += 1
             request = compile_ontology(ontology, row["sent"])
             prompt = canonical_json(request)
             decoding = profile["decoding"]

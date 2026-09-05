@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "default": "anthropic_messages",
+  "note": "Provider selection is configuration. `run --provider <id>` picks a row; nothing in scripts/ names a provider module.",
+  "providers": {
+    "anthropic_messages": {
+      "module": "providers/anthropic_messages.py",
+      "model": "claude-haiku-4-5-20251001",
+      "runtime": "anthropic-python-sdk",
+      "runtime_pin": "0.120.2",
+      "billing": "anthropic-api-key",
+      "reproducible_by": "anyone with an Anthropic API key",
+      "decoding": {
+        "max_output_tokens": 512,
+        "samples": 1,
+        "temperature": 0,
+        "timeout_seconds": 60,
+        "top_p": 1
+      }
+    },
+    "claude_code": {
+      "module": "providers/claude_code.py",
+      "model": "claude-haiku-4-5-20251001",
+      "runtime": "claude-code-cli",
+      "runtime_pin": "2.1.261",
+      "billing": "claude-subscription-oauth",
+      "reproducible_by": "anyone with a Claude subscription and this CLI build",
+      "decoding": {
+        "max_output_tokens": null,
+        "samples": 1,
+        "temperature": null,
+        "thinking_budget_tokens": 0,
+        "timeout_seconds": 120,
+        "top_p": null
+      },
+      "decoding_note": "The CLI exposes no temperature/top_p/max_tokens controls; nulls record that these were NOT pinned rather than claiming a setting the run did not make. The thinking budget IS controllable and is pinned to 0 via env: measured 2026-09-05, the default budget spent up to 7,223 thinking tokens on a single triple extraction (46-61s/case), against 0 thinking / 145 output tokens / 1.7s for the identical extraction with the budget off.",
+      "env": {
+        "MAX_THINKING_TOKENS": "0"
+      }
+    }
+  }
+}

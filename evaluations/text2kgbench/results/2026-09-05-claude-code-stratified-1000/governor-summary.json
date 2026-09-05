@@ -1,0 +1,178 @@
+{
+  "source": "Direct OAuth sampler, successful reads only",
+  "pre_control": {
+    "first": {
+      "t": 1788628312.0000777,
+      "iso": "2026-09-05T17:11:51Z",
+      "five_hour": 15.0,
+      "seven_day": 47.0,
+      "limits": [
+        {
+          "kind": "session",
+          "group": "session",
+          "percent": 15,
+          "severity": "normal",
+          "resets_at": "2026-09-05T21:09:59.934842+00:00",
+          "scope": null,
+          "is_active": false
+        },
+        {
+          "kind": "weekly_all",
+          "group": "weekly",
+          "percent": 47,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.934863+00:00",
+          "scope": null,
+          "is_active": true
+        },
+        {
+          "kind": "weekly_scoped",
+          "group": "weekly",
+          "percent": 27,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.935085+00:00",
+          "scope": {
+            "model": {
+              "id": null,
+              "display_name": "Fable"
+            },
+            "surface": null
+          },
+          "is_active": false
+        }
+      ]
+    },
+    "last": {
+      "t": 1788628552.9730966,
+      "iso": "2026-09-05T17:15:52Z",
+      "five_hour": 15.0,
+      "seven_day": 48.0,
+      "limits": [
+        {
+          "kind": "session",
+          "group": "session",
+          "percent": 15,
+          "severity": "normal",
+          "resets_at": "2026-09-05T21:09:59.906590+00:00",
+          "scope": null,
+          "is_active": false
+        },
+        {
+          "kind": "weekly_all",
+          "group": "weekly",
+          "percent": 48,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.906609+00:00",
+          "scope": null,
+          "is_active": true
+        },
+        {
+          "kind": "weekly_scoped",
+          "group": "weekly",
+          "percent": 27,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.906821+00:00",
+          "scope": {
+            "model": {
+              "id": null,
+              "display_name": "Fable"
+            },
+            "surface": null
+          },
+          "is_active": false
+        }
+      ]
+    },
+    "observed_seconds": 240.9730188846588
+  },
+  "post_control": {
+    "first": {
+      "t": 1788631856.7852907,
+      "iso": "2026-09-05T18:10:56Z",
+      "five_hour": 26.0,
+      "seven_day": 50.0,
+      "limits": [
+        {
+          "kind": "session",
+          "group": "session",
+          "percent": 26,
+          "severity": "normal",
+          "resets_at": "2026-09-05T21:09:59.719649+00:00",
+          "scope": null,
+          "is_active": false
+        },
+        {
+          "kind": "weekly_all",
+          "group": "weekly",
+          "percent": 50,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.719673+00:00",
+          "scope": null,
+          "is_active": true
+        },
+        {
+          "kind": "weekly_scoped",
+          "group": "weekly",
+          "percent": 28,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.719940+00:00",
+          "scope": {
+            "model": {
+              "id": null,
+              "display_name": "Fable"
+            },
+            "surface": null
+          },
+          "is_active": false
+        }
+      ]
+    },
+    "last": {
+      "t": 1788632097.6194437,
+      "iso": "2026-09-05T18:14:57Z",
+      "five_hour": 27.0,
+      "seven_day": 50.0,
+      "limits": [
+        {
+          "kind": "session",
+          "group": "session",
+          "percent": 27,
+          "severity": "normal",
+          "resets_at": "2026-09-05T21:09:59.557075+00:00",
+          "scope": null,
+          "is_active": false
+        },
+        {
+          "kind": "weekly_all",
+          "group": "weekly",
+          "percent": 50,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.557094+00:00",
+          "scope": null,
+          "is_active": true
+        },
+        {
+          "kind": "weekly_scoped",
+          "group": "weekly",
+          "percent": 28,
+          "severity": "normal",
+          "resets_at": "2026-09-08T22:59:59.557358+00:00",
+          "scope": {
+            "model": {
+              "id": null,
+              "display_name": "Fable"
+            },
+            "surface": null
+          },
+          "is_active": false
+        }
+      ]
+    },
+    "observed_seconds": 240.83415293693542
+  },
+  "displayed_start_to_first_post_delta": {
+    "five_hour": 11.0,
+    "seven_day": 2.0
+  },
+  "interpretation": "Displayed shared-account delta; includes fleet traffic, boundary timing and quantization. Not exact extraction-only usage. Direct in-run gap and subsequent post-control HTTP429 disclosed separately."
+}

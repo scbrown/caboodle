@@ -1,0 +1,1093 @@
+{
+  "source": "Prometheus instant queries at explicit Unix timestamps; existing single-account Claude usage exporter; two-minute grid",
+  "rows": [
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628311",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628311",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628311",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628311",
+      "value": 1788628202
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628311",
+      "window": "five_hour",
+      "value": 14
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628311",
+      "window": "seven_day",
+      "value": 47
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628431",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628431",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628431",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628431",
+      "value": 1788628202
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628431",
+      "window": "five_hour",
+      "value": 14
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628431",
+      "window": "seven_day",
+      "value": 47
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628551",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628551",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628551",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628551",
+      "value": 1788628501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628551",
+      "window": "five_hour",
+      "value": 15
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628551",
+      "window": "seven_day",
+      "value": 47
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628671",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628671",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628671",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628671",
+      "value": 1788628501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628671",
+      "window": "five_hour",
+      "value": 15
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628671",
+      "window": "seven_day",
+      "value": 47
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628791",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628791",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628791",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628791",
+      "value": 1788628501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628791",
+      "window": "five_hour",
+      "value": 15
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628791",
+      "window": "seven_day",
+      "value": 47
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788628911",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788628911",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788628911",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788628911",
+      "value": 1788628802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628911",
+      "window": "five_hour",
+      "value": 16
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788628911",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629031",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629031",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629031",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629031",
+      "value": 1788628802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629031",
+      "window": "five_hour",
+      "value": 16
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629031",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629151",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629151",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629151",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629151",
+      "value": 1788629101
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629151",
+      "window": "five_hour",
+      "value": 17
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629151",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629271",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629271",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629271",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629271",
+      "value": 1788629101
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629271",
+      "window": "five_hour",
+      "value": 17
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629271",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629391",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629391",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629391",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629391",
+      "value": 1788629101
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629391",
+      "window": "five_hour",
+      "value": 17
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629391",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629511",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629511",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629511",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629511",
+      "value": 1788629401
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629511",
+      "window": "five_hour",
+      "value": 18
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629511",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629631",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629631",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629631",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629631",
+      "value": 1788629401
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629631",
+      "window": "five_hour",
+      "value": 18
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629631",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629751",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629751",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629751",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629751",
+      "value": 1788629702
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629751",
+      "window": "five_hour",
+      "value": 19
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629751",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629871",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629871",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629871",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629871",
+      "value": 1788629702
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629871",
+      "window": "five_hour",
+      "value": 19
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629871",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788629991",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788629991",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788629991",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788629991",
+      "value": 1788629702
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629991",
+      "window": "five_hour",
+      "value": 19
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788629991",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630111",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630111",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630111",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630111",
+      "value": 1788630001
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630111",
+      "window": "five_hour",
+      "value": 20
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630111",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630231",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630231",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630231",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630231",
+      "value": 1788630001
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630231",
+      "window": "five_hour",
+      "value": 20
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630231",
+      "window": "seven_day",
+      "value": 48
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630351",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630351",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630351",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630351",
+      "value": 1788630302
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630351",
+      "window": "five_hour",
+      "value": 21
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630351",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630471",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630471",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630471",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630471",
+      "value": 1788630302
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630471",
+      "window": "five_hour",
+      "value": 21
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630471",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630591",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630591",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630591",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630591",
+      "value": 1788630302
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630591",
+      "window": "five_hour",
+      "value": 21
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630591",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630711",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630711",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630711",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630711",
+      "value": 1788630601
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630711",
+      "window": "five_hour",
+      "value": 22
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630711",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630831",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630831",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630831",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630831",
+      "value": 1788630601
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630831",
+      "window": "five_hour",
+      "value": 22
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630831",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788630951",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788630951",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788630951",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788630951",
+      "value": 1788630901
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630951",
+      "window": "five_hour",
+      "value": 23
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788630951",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631071",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631071",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631071",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631071",
+      "value": 1788630901
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631071",
+      "window": "five_hour",
+      "value": 23
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631071",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631191",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631191",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631191",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631191",
+      "value": 1788630901
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631191",
+      "window": "five_hour",
+      "value": 23
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631191",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631311",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631311",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631311",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631311",
+      "value": 1788631202
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631311",
+      "window": "five_hour",
+      "value": 24
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631311",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631431",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631431",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631431",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631431",
+      "value": 1788631202
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631431",
+      "window": "five_hour",
+      "value": 24
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631431",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631551",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631551",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631551",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631551",
+      "value": 1788631501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631551",
+      "window": "five_hour",
+      "value": 25
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631551",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631671",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631671",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631671",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631671",
+      "value": 1788631501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631671",
+      "window": "five_hour",
+      "value": 25
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631671",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631791",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631791",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631791",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631791",
+      "value": 1788631501
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631791",
+      "window": "five_hour",
+      "value": 25
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631791",
+      "window": "seven_day",
+      "value": 49
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788631911",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788631911",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788631911",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788631911",
+      "value": 1788631802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631911",
+      "window": "five_hour",
+      "value": 26
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788631911",
+      "window": "seven_day",
+      "value": 50
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788632031",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788632031",
+      "value": 200
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788632031",
+      "value": 1
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788632031",
+      "value": 1788631802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632031",
+      "window": "five_hour",
+      "value": 26
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632031",
+      "window": "seven_day",
+      "value": 50
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788632151",
+      "value": 299
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788632151",
+      "value": 429
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788632151",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788632151",
+      "value": 1788631802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632151",
+      "window": "five_hour",
+      "value": 26
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632151",
+      "window": "seven_day",
+      "value": 50
+    },
+    {
+      "__name__": "claude_usage_cache_age_seconds",
+      "sample_time": "1788632188",
+      "value": 299
+    },
+    {
+      "__name__": "claude_usage_probe_http_status",
+      "sample_time": "1788632188",
+      "value": 429
+    },
+    {
+      "__name__": "claude_usage_probe_success",
+      "sample_time": "1788632188",
+      "value": 0
+    },
+    {
+      "__name__": "claude_usage_probe_timestamp_seconds",
+      "sample_time": "1788632188",
+      "value": 1788631802
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632188",
+      "window": "five_hour",
+      "value": 26
+    },
+    {
+      "__name__": "claude_usage_utilization_pct",
+      "sample_time": "1788632188",
+      "window": "seven_day",
+      "value": 50
+    }
+  ]
+}

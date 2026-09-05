@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from text2kg_general import (SMOKE_SEED, compile_ontology, parse_response, score_suite,
+from text2kg_general import (SMOKE_SEED, compile_ontology, parse_response, score_suite, stratified_ids,
                              smoke_ids, validate_candidate, validate_manifest,
                              validate_reconcilers)
 
@@ -125,3 +125,79 @@ def test_adapter_fails_before_import_without_key(monkeypatch):
     spec.loader.exec_module(module)
     with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
         module.create_message({"prompt": "never sent"})
+
+
+# ── stratified selection (aegis-mgw4x1) ──────────────────────────────────────
+#
+# These exist because `--max-cases` shipped without a unit test: `run` validates
+# the 29-ontology universe and the dataset's git commit, so testing selection
+# through the CLI needs a whole fixture dataset (aegis-687e2d). Extracting the
+# selector into a pure function is what makes it testable with a plain dict.
+
+def _groups(**sizes):
+    return [(gid, [f"{gid}_case_{i}" for i in range(n)]) for gid, n in sizes.items()]
+
+
+def test_stratified_covers_every_ontology_even_when_small():
+    """The floor is the point: a small ontology must not round to zero.
+
+    A prefix of the corpus covered 10 of 29 ontologies; that is the failure this
+    replaces, and a proportional sample without a floor reproduces it quietly.
+    """
+    groups = _groups(big=1000, medium=100, tiny=3)
+    picked = stratified_ids(groups, 50)
+    assert len(picked) == 50
+    covered = {cid.rsplit("_case_", 1)[0] for cid in picked}
+    assert covered == {"big", "medium", "tiny"}, f"an ontology vanished: {covered}"
+
+
+def test_stratified_is_proportional_to_group_size():
+    groups = _groups(big=900, small=100)
+    picked = stratified_ids(groups, 100)
+    counts = {}
+    for cid in picked:
+        counts[cid.rsplit("_case_", 1)[0]] = counts.get(cid.rsplit("_case_", 1)[0], 0) + 1
+    assert sum(counts.values()) == 100
+    # 90/10 split, allowing the floor and largest-remainder rounding a little room
+    assert 85 <= counts["big"] <= 92, counts
+    assert 8 <= counts["small"] <= 15, counts
+
+
+def test_stratified_is_deterministic_and_order_independent():
+    """Same (groups, total) -> same ids, however the input is ordered.
+
+    Reproducibility is not traded away for representativeness: a stratified block
+    must be re-runnable and comparable exactly as a prefix block is.
+    """
+    groups = _groups(a=50, b=30, c=20)
+    first = stratified_ids(groups, 25)
+    assert first == stratified_ids(list(reversed(groups)), 25)
+    assert first == stratified_ids(groups, 25)
+
+
+def test_stratified_totals_are_exact():
+    groups = _groups(a=17, b=23, c=41, d=7)
+    for total in (4, 5, 10, 33, 60, 87):
+        picked = stratified_ids(groups, total)
+        assert len(picked) == total, f"total {total} produced {len(picked)}"
+        assert len(set(picked)) == len(picked), "duplicate case ids"
+
+
+def test_stratified_returns_everything_when_the_budget_exceeds_the_corpus():
+    groups = _groups(a=3, b=2)
+    assert len(stratified_ids(groups, 99)) == 5
+
+
+def test_stratified_below_group_count_still_spreads():
+    """Fewer cases than groups: pick distinct groups, never several from one."""
+    groups = _groups(a=10, b=10, c=10, d=10)
+    picked = stratified_ids(groups, 2)
+    assert len(picked) == 2
+    assert len({cid.rsplit("_case_", 1)[0] for cid in picked}) == 2
+
+
+def test_stratified_ignores_empty_groups():
+    groups = _groups(a=5) + [("empty", [])]
+    picked = stratified_ids(groups, 3)
+    assert len(picked) == 3
+    assert all(cid.startswith("a_") for cid in picked)

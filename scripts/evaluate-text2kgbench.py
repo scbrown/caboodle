@@ -16,7 +16,7 @@ from pathlib import Path
 
 from text2kg_grounded import canonical_relation, reconcile
 from text2kg_general import (PIPELINE, canonical_json, compile_ontology, request_hash,
-                             score_suite, sha256_bytes, smoke_ids, validate_manifest,
+                             score_suite, sha256_bytes, smoke_ids, stratified_ids, validate_manifest,
                              validate_reconcilers)
 
 
@@ -279,6 +279,20 @@ def general_main(argv: list[str]) -> int:
     command.add_argument("--responses", required=True, type=Path)
     command.add_argument("--output", required=True, type=Path)
     command.add_argument("--smoke", action="store_true")
+    command.add_argument("--sample", type=int, metavar="N",
+                         help="run N cases STRATIFIED across every ontology, proportional to "
+                              "ontology size with a floor of one each, chosen by the manifest's "
+                              "existing seed. Deterministic: the same N always selects the same "
+                              "cases. Use this to estimate anything about the CORPUS -- a "
+                              "--max-cases prefix covers only the ontologies it reaches (measured: "
+                              "10 of 29, one corpus, 2.2x off the stratified per-case cost).")
+    command.add_argument("--max-cases", type=int, metavar="N",
+                         help="stop after the first N cases in the manifest's deterministic "
+                              "order (sorted by corpus, then ontology id, then row order). A "
+                              "CONTIGUOUS PREFIX, not a sample: the same N always selects the "
+                              "same cases, so a block is re-runnable and comparable. Counts "
+                              "cases SELECTED, not cases newly inferred, so a resumed run "
+                              "covers the same block rather than extending past it.")
     command.add_argument("--confirm-cost", type=float)
     command.add_argument("--provider", help="provider id from evaluations/text2kgbench/providers.json "
                                             "(default: the manifest's inference.provider)")
@@ -318,11 +332,35 @@ def general_main(argv: list[str]) -> int:
     if not args.smoke and args.confirm_cost is None:
         raise SystemExit("full L1 run requires --confirm-cost <amount> after smoke projection")
     assert provider is not None
+    # The three selectors answer different questions and must not silently
+    # compose: --smoke is the pinned panel, --max-cases a reproducible prefix,
+    # --sample a representative spread. Refusing is better than picking one.
+    chosen = [n for n, v in (("--smoke", args.smoke), ("--max-cases", args.max_cases),
+                             ("--sample", args.sample)) if v]
+    if len(chosen) > 1:
+        raise SystemExit(f"choose one selector, not {' and '.join(chosen)}: they answer "
+                         "different questions (pinned panel / prefix / stratified spread)")
+
     selected = set(manifest["smoke_panel"]["ids"]) if args.smoke else None
+    if args.sample:
+        groups = [
+            (entry["id"], [row["id"] for row in
+                           jsonl(args.dataset_root / entry["files"]["test"]["path"])])
+            for entry in sorted(manifest["ontologies"], key=lambda i: (i["corpus"], i["id"]))
+        ]
+        selected = set(stratified_ids(groups, args.sample))
+        print(f"stratified: {len(selected)} cases across "
+              f"{len({g for g, ids in groups if ids})} ontologies")
     requests_path = args.output / "requests.jsonl"
     responses_path = args.output / "responses.jsonl"
     args.output.mkdir(parents=True, exist_ok=True)
+    # Cases considered so far, for --max-cases. Counted after the smoke filter and
+    # BEFORE the already-done check, so the block is a fixed prefix of the case
+    # order rather than "N more than last time" (aegis-xid7v6).
+    considered = 0
     for entry in sorted(manifest["ontologies"], key=lambda item: (item["corpus"], item["id"])):
+        if args.max_cases is not None and considered >= args.max_cases:
+            break
         ontology = json.loads((args.dataset_root / entry["files"]["ontology"]["path"]).read_text())
         rows = jsonl(args.dataset_root / entry["files"]["test"]["path"])
         destination = args.responses / entry["corpus"] / f"{entry['id']}.jsonl"
@@ -331,6 +369,9 @@ def general_main(argv: list[str]) -> int:
         for row in rows:
             if selected is not None and row["id"] not in selected:
                 continue
+            if args.max_cases is not None and considered >= args.max_cases:
+                break
+            considered += 1
             request = compile_ontology(ontology, row["sent"])
             prompt = canonical_json(request)
             decoding = profile["decoding"]

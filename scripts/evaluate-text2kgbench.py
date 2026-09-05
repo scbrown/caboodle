@@ -219,6 +219,44 @@ def load_manifest(path: Path) -> dict:
     return json.loads(path.read_text())
 
 
+def load_provider(manifest: dict, requested: str | None):
+    """Resolve a provider id to (module, profile) through providers.json.
+
+    Selection is configuration. Nothing here names a module path, so adding an
+    inference back end is a registry edit plus a file that satisfies the
+    preflight/create_message contract -- never an edit to this driver.
+
+    The two drift guards matter more than the indirection: a provider module that
+    disagrees with the registry about its own model, and a default provider that
+    disagrees with the manifest, both silently change what `request_hash` binds.
+    That is exactly the kind of divergence a response ledger cannot show you later.
+    """
+    from importlib.util import module_from_spec, spec_from_file_location
+    root = Path(__file__).resolve().parents[1] / "evaluations/text2kgbench"
+    registry = json.loads((root / "providers.json").read_text())
+    provider_id = requested or manifest["inference"]["provider"]
+    if provider_id not in registry["providers"]:
+        raise SystemExit(f"unknown provider {provider_id!r}; "
+                         f"registered: {sorted(registry['providers'])}")
+    profile = {"id": provider_id, **registry["providers"][provider_id]}
+    if provider_id == manifest["inference"]["provider"]:
+        for field in ("model", "decoding"):
+            if profile[field] != manifest["inference"][field]:
+                raise SystemExit(f"provider registry {field} differs from the manifest's "
+                                 f"pinned inference {field} for {provider_id}")
+    path = root / profile["module"]
+    spec = spec_from_file_location(f"text2kg_provider_{provider_id}", path)
+    assert spec and spec.loader
+    module = module_from_spec(spec); spec.loader.exec_module(module)
+    if hasattr(module, "configure"):
+        module.configure(profile)
+    declared = getattr(module, "MODEL", None)
+    if declared is not None and declared != profile["model"]:
+        raise SystemExit(f"provider {provider_id} module pins model {declared!r}, "
+                         f"registry says {profile['model']!r}")
+    return module, profile
+
+
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
@@ -242,16 +280,14 @@ def general_main(argv: list[str]) -> int:
     command.add_argument("--output", required=True, type=Path)
     command.add_argument("--smoke", action="store_true")
     command.add_argument("--confirm-cost", type=float)
+    command.add_argument("--provider", help="provider id from evaluations/text2kgbench/providers.json "
+                                            "(default: the manifest's inference.provider)")
     args = parser.parse_args(argv)
-    provider = None
-    if args.command == "run":
-        from importlib.util import module_from_spec, spec_from_file_location
-        provider_path = Path(__file__).resolve().parents[1] / "evaluations/text2kgbench/providers/anthropic_messages.py"
-        spec = spec_from_file_location("anthropic_messages", provider_path)
-        assert spec and spec.loader
-        provider = module_from_spec(spec); spec.loader.exec_module(provider)
-        provider.preflight()
     manifest = load_manifest(args.manifest)
+    provider = profile = None
+    if args.command == "run":
+        provider, profile = load_provider(manifest, args.provider)
+        provider.preflight()
     actual = run(["git", "-C", str(args.dataset_root), "rev-parse", "HEAD"]).stdout.strip()
     if actual != manifest["dataset"]["commit"]:
         raise SystemExit(f"dataset commit mismatch: {actual}")
@@ -297,8 +333,8 @@ def general_main(argv: list[str]) -> int:
                 continue
             request = compile_ontology(ontology, row["sent"])
             prompt = canonical_json(request)
-            decoding = manifest["inference"]["decoding"]
-            expected_hash = request_hash(request, manifest["inference"]["model"], decoding)
+            decoding = profile["decoding"]
+            expected_hash = request_hash(request, profile["model"], decoding)
             if row["id"] in existing:
                 if existing[row["id"]]["request_hash"] != expected_hash:
                     raise SystemExit(f"refusing to overwrite changed request: {row['id']}")
@@ -308,9 +344,10 @@ def general_main(argv: list[str]) -> int:
             with requests_path.open("a") as handle:
                 handle.write(canonical_json(request_row) + "\n")
             started = time.monotonic()
-            response = provider.create_message({"prompt": prompt})
+            response = provider.create_message({"prompt": prompt, "model": profile["model"],
+                                                "decoding": decoding})
             response_row = {**request_row, **response, "latency_seconds": time.monotonic() - started,
-                            "decoding": decoding,
+                            "decoding": decoding, "provider": profile["id"],
                             "response_sha256": sha256_bytes(response["raw_response"].encode())}
             output_rows.append(response_row)
             with responses_path.open("a") as handle:

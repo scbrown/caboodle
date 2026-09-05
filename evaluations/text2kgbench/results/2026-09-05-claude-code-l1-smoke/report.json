@@ -1,0 +1,36 @@
+{
+  "artifacts": {
+    "cases.json": "a3c1419dbe12709f9ba89b1a5f030b7726f473ccce2ecb346967952ffe7334a6",
+    "corpus-summary.json": "6cfcd0420daacc9de492cee92d4f3a796e48999614d29e521c2d971c664e5949",
+    "errors.json": "9bce1547d678edf48864926bf3154ab3fb78a9c00d26fcef6a417ad6fa5069f1",
+    "ontology-summary.json": "c39b51c3336b683a03099e3993b19af3f0aa49ff242ff1881eccdba69384f393",
+    "strata-summary.json": "4d2476a292284ba35caaadc0c2db652b65da009bdeb3ad440ad617c69df90643"
+  },
+  "pipeline": "caboodle-text2kg-v3-ontology-guided",
+  "schema_version": 3,
+  "scope": {
+    "corpora": {
+      "dbpedia_webnlg": {
+        "cases": 2014,
+        "gold": 6259,
+        "ontologies": 19
+      },
+      "wikidata_tekgen": {
+        "cases": 4062,
+        "gold": 7232,
+        "ontologies": 10
+      }
+    },
+    "pipeline": "caboodle-text2kg-v3-ontology-guided",
+    "totals": {
+      "cases": 6076,
+      "gold_triples": 13491,
+      "ontologies": 29
+    }
+  },
+  "scorer": {
+    "normalization": "lowercase_remove_whitespace_and_underscores",
+    "source_sha256": "533222a643693770f15776a33860693f65100e6e0d3731cde62fc7c5e85ae397",
+    "version": "3"
+  }
+}

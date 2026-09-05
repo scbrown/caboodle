@@ -1,0 +1,98 @@
+{
+  "billed_input_tokens": 451930,
+  "billed_output_tokens": 33182,
+  "cases": 145,
+  "finish_reasons": [
+    "end_turn"
+  ],
+  "governor": {
+    "five_hour": {
+      "after": null,
+      "before": {
+        "from": 25.0,
+        "minutes": 7.02,
+        "points": 2.0,
+        "to": 27.0
+      },
+      "during": {
+        "from": 28.0,
+        "minutes": 6.02,
+        "points": 2.0,
+        "to": 30.0
+      }
+    },
+    "note": "The endpoint quantizes to whole percentage points and the rest of the fleet burns the same budget concurrently, so a during-segment delta is an UPPER BOUND on this run's share, not its cost. before/after are the fleet-only control segments.",
+    "run_end": "2026-09-05T02:56:49Z",
+    "run_start": "2026-09-05T02:49:53Z",
+    "samples": {
+      "after": 1,
+      "before": 8,
+      "during": 7
+    },
+    "seven_day": {
+      "after": null,
+      "before": {
+        "from": 13.0,
+        "minutes": 7.02,
+        "points": 0.0,
+        "to": 13.0
+      },
+      "during": {
+        "from": 13.0,
+        "minutes": 6.02,
+        "points": 0.0,
+        "to": 13.0
+      }
+    }
+  },
+  "latency_max": 4.46,
+  "latency_p50": 2.75,
+  "latency_p95": 4.07,
+  "list_cost_usd": 0.61784,
+  "models_reported": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "projection_full_run": {
+    "billed_input_tokens": 18937425,
+    "billed_output_tokens": 1390440,
+    "cases": 6076,
+    "list_cost_usd": 25.89,
+    "scale_factor": 41.903,
+    "serial_wall_hours": 4.83
+  },
+  "refusals": 0,
+  "scored_request_input_tokens": 176542,
+  "scored_request_output_tokens": 31036,
+  "sdk_versions": [
+    "claude-code==2.1.261"
+  ],
+  "smoke_cases_scored": 145,
+  "smoke_relation_filtered_micro": {
+    "f1": 0.412979,
+    "fn": 247,
+    "fp": 151,
+    "precision": 0.4811,
+    "recall": 0.361757,
+    "tp": 140
+  },
+  "smoke_strict_micro": {
+    "f1": 0.368906,
+    "fn": 247,
+    "fp": 232,
+    "precision": 0.376344,
+    "recall": 0.361757,
+    "tp": 140
+  },
+  "stages": {
+    "accepted": 372,
+    "evidence_not_grounded": 5,
+    "generated": 402,
+    "malformed_output": 20,
+    "object_not_grounded": 20,
+    "relation_outside_ontology": 2,
+    "subject_not_grounded": 3,
+    "syntax_repaired": 125
+  },
+  "thinking_tokens": 0,
+  "wall_seconds_serial": 415.3
+}

@@ -1,0 +1,582 @@
+[
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "10_comicscharacter",
+    "relation_filtered": {
+      "f1": 0.03333333333333333,
+      "fn": 105,
+      "fp": 11,
+      "precision": 0.15384615384615385,
+      "recall": 0.018691588785046728,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.03333333333333333,
+      "fn": 105,
+      "fp": 11,
+      "precision": 0.15384615384615385,
+      "recall": 0.018691588785046728,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "11_meanoftransportation",
+    "relation_filtered": {
+      "f1": 0.03508771929824562,
+      "fn": 271,
+      "fp": 4,
+      "precision": 0.5555555555555556,
+      "recall": 0.018115942028985508,
+      "tp": 5
+    },
+    "strict": {
+      "f1": 0.034482758620689655,
+      "fn": 271,
+      "fp": 9,
+      "precision": 0.35714285714285715,
+      "recall": 0.018115942028985508,
+      "tp": 5
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "12_monument",
+    "relation_filtered": {
+      "f1": 0.08571428571428572,
+      "fn": 52,
+      "fp": 12,
+      "precision": 0.2,
+      "recall": 0.05454545454545454,
+      "tp": 3
+    },
+    "strict": {
+      "f1": 0.08450704225352113,
+      "fn": 52,
+      "fp": 13,
+      "precision": 0.1875,
+      "recall": 0.05454545454545454,
+      "tp": 3
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "13_food",
+    "relation_filtered": {
+      "f1": 0.039927404718693285,
+      "fn": 521,
+      "fp": 8,
+      "precision": 0.5789473684210527,
+      "recall": 0.020676691729323307,
+      "tp": 11
+    },
+    "strict": {
+      "f1": 0.03985507246376811,
+      "fn": 521,
+      "fp": 9,
+      "precision": 0.55,
+      "recall": 0.020676691729323307,
+      "tp": 11
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "14_writtenwork",
+    "relation_filtered": {
+      "f1": 0.020460358056265983,
+      "fn": 377,
+      "fp": 6,
+      "precision": 0.4,
+      "recall": 0.010498687664041995,
+      "tp": 4
+    },
+    "strict": {
+      "f1": 0.02040816326530612,
+      "fn": 377,
+      "fp": 7,
+      "precision": 0.36363636363636365,
+      "recall": 0.010498687664041995,
+      "tp": 4
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "15_sportsteam",
+    "relation_filtered": {
+      "f1": 0.03381642512077294,
+      "fn": 394,
+      "fp": 6,
+      "precision": 0.5384615384615384,
+      "recall": 0.017456359102244388,
+      "tp": 7
+    },
+    "strict": {
+      "f1": 0.03373493975903614,
+      "fn": 394,
+      "fp": 7,
+      "precision": 0.5,
+      "recall": 0.017456359102244388,
+      "tp": 7
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "16_city",
+    "relation_filtered": {
+      "f1": 0.006015037593984962,
+      "fn": 649,
+      "fp": 12,
+      "precision": 0.14285714285714285,
+      "recall": 0.0030721966205837174,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.005970149253731343,
+      "fn": 649,
+      "fp": 17,
+      "precision": 0.10526315789473684,
+      "recall": 0.0030721966205837174,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "17_artist",
+    "relation_filtered": {
+      "f1": 0.007662835249042145,
+      "fn": 251,
+      "fp": 8,
+      "precision": 0.1111111111111111,
+      "recall": 0.003968253968253968,
+      "tp": 1
+    },
+    "strict": {
+      "f1": 0.0076045627376425855,
+      "fn": 251,
+      "fp": 10,
+      "precision": 0.09090909090909091,
+      "recall": 0.003968253968253968,
+      "tp": 1
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "18_scientist",
+    "relation_filtered": {
+      "f1": 0.02857142857142857,
+      "fn": 405,
+      "fp": 3,
+      "precision": 0.6666666666666666,
+      "recall": 0.014598540145985401,
+      "tp": 6
+    },
+    "strict": {
+      "f1": 0.02843601895734597,
+      "fn": 405,
+      "fp": 5,
+      "precision": 0.5454545454545454,
+      "recall": 0.014598540145985401,
+      "tp": 6
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "19_film",
+    "relation_filtered": {
+      "f1": 0.010309278350515464,
+      "fn": 376,
+      "fp": 8,
+      "precision": 0.2,
+      "recall": 0.005291005291005291,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.010230179028132991,
+      "fn": 376,
+      "fp": 11,
+      "precision": 0.15384615384615385,
+      "recall": 0.005291005291005291,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "1_university",
+    "relation_filtered": {
+      "f1": 0.06779661016949153,
+      "fn": 273,
+      "fp": 2,
+      "precision": 0.8333333333333334,
+      "recall": 0.0353356890459364,
+      "tp": 10
+    },
+    "strict": {
+      "f1": 0.06666666666666667,
+      "fn": 273,
+      "fp": 7,
+      "precision": 0.5882352941176471,
+      "recall": 0.0353356890459364,
+      "tp": 10
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "2_musicalwork",
+    "relation_filtered": {
+      "f1": 0.0032520325203252032,
+      "fn": 603,
+      "fp": 10,
+      "precision": 0.09090909090909091,
+      "recall": 0.0016556291390728477,
+      "tp": 1
+    },
+    "strict": {
+      "f1": 0.003205128205128205,
+      "fn": 603,
+      "fp": 19,
+      "precision": 0.05,
+      "recall": 0.0016556291390728477,
+      "tp": 1
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "3_airport",
+    "relation_filtered": {
+      "f1": 0.06451612903225806,
+      "fn": 229,
+      "fp": 3,
+      "precision": 0.7272727272727273,
+      "recall": 0.03375527426160337,
+      "tp": 8
+    },
+    "strict": {
+      "f1": 0.06451612903225806,
+      "fn": 229,
+      "fp": 3,
+      "precision": 0.7272727272727273,
+      "recall": 0.03375527426160337,
+      "tp": 8
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "4_building",
+    "relation_filtered": {
+      "f1": 0.043750000000000004,
+      "fn": 302,
+      "fp": 4,
+      "precision": 0.6363636363636364,
+      "recall": 0.022653721682847898,
+      "tp": 7
+    },
+    "strict": {
+      "f1": 0.04361370716510904,
+      "fn": 302,
+      "fp": 5,
+      "precision": 0.5833333333333334,
+      "recall": 0.022653721682847898,
+      "tp": 7
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "5_athlete",
+    "relation_filtered": {
+      "f1": 0.05806451612903226,
+      "fn": 290,
+      "fp": 2,
+      "precision": 0.8181818181818182,
+      "recall": 0.030100334448160536,
+      "tp": 9
+    },
+    "strict": {
+      "f1": 0.05714285714285714,
+      "fn": 290,
+      "fp": 7,
+      "precision": 0.5625,
+      "recall": 0.030100334448160536,
+      "tp": 9
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "6_politician",
+    "relation_filtered": {
+      "f1": 0.022831050228310504,
+      "fn": 419,
+      "fp": 9,
+      "precision": 0.35714285714285715,
+      "recall": 0.01179245283018868,
+      "tp": 5
+    },
+    "strict": {
+      "f1": 0.022831050228310504,
+      "fn": 419,
+      "fp": 9,
+      "precision": 0.35714285714285715,
+      "recall": 0.01179245283018868,
+      "tp": 5
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "7_company",
+    "relation_filtered": {
+      "f1": 0.08333333333333333,
+      "fn": 150,
+      "fp": 4,
+      "precision": 0.6363636363636364,
+      "recall": 0.044585987261146494,
+      "tp": 7
+    },
+    "strict": {
+      "f1": 0.08187134502923976,
+      "fn": 150,
+      "fp": 7,
+      "precision": 0.5,
+      "recall": 0.044585987261146494,
+      "tp": 7
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "8_celestialbody",
+    "relation_filtered": {
+      "f1": 0.0909090909090909,
+      "fn": 212,
+      "fp": 8,
+      "precision": 0.5789473684210527,
+      "recall": 0.04932735426008968,
+      "tp": 11
+    },
+    "strict": {
+      "f1": 0.0909090909090909,
+      "fn": 212,
+      "fp": 8,
+      "precision": 0.5789473684210527,
+      "recall": 0.04932735426008968,
+      "tp": 11
+    }
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "ontology": "9_astronaut",
+    "relation_filtered": {
+      "f1": 0.08108108108108109,
+      "fn": 267,
+      "fp": 5,
+      "precision": 0.7058823529411765,
+      "recall": 0.043010752688172046,
+      "tp": 12
+    },
+    "strict": {
+      "f1": 0.08108108108108109,
+      "fn": 267,
+      "fp": 5,
+      "precision": 0.7058823529411765,
+      "recall": 0.043010752688172046,
+      "tp": 12
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "10_culture",
+    "relation_filtered": {
+      "f1": 0.022727272727272724,
+      "fn": 171,
+      "fp": 1,
+      "precision": 0.6666666666666666,
+      "recall": 0.011560693641618497,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.022346368715083796,
+      "fn": 171,
+      "fp": 4,
+      "precision": 0.3333333333333333,
+      "recall": 0.011560693641618497,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "1_movie",
+    "relation_filtered": {
+      "f1": 0.005314437555358725,
+      "fn": 2234,
+      "fp": 12,
+      "precision": 0.3333333333333333,
+      "recall": 0.0026785714285714286,
+      "tp": 6
+    },
+    "strict": {
+      "f1": 0.005307386112339673,
+      "fn": 2234,
+      "fp": 15,
+      "precision": 0.2857142857142857,
+      "recall": 0.0026785714285714286,
+      "tp": 6
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "2_music",
+    "relation_filtered": {
+      "f1": 0.0013504388926401081,
+      "fn": 1478,
+      "fp": 1,
+      "precision": 0.5,
+      "recall": 0.000676132521974307,
+      "tp": 1
+    },
+    "strict": {
+      "f1": 0.0013468013468013467,
+      "fn": 1478,
+      "fp": 5,
+      "precision": 0.16666666666666666,
+      "recall": 0.000676132521974307,
+      "tp": 1
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "3_sport",
+    "relation_filtered": {
+      "f1": 0.005673758865248227,
+      "fn": 699,
+      "fp": 2,
+      "precision": 0.5,
+      "recall": 0.0028530670470756064,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.0056179775280898875,
+      "fn": 699,
+      "fp": 9,
+      "precision": 0.18181818181818182,
+      "recall": 0.0028530670470756064,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "4_book",
+    "relation_filtered": {
+      "f1": 0.006389776357827477,
+      "fn": 930,
+      "fp": 3,
+      "precision": 0.5,
+      "recall": 0.003215434083601286,
+      "tp": 3
+    },
+    "strict": {
+      "f1": 0.006329113924050633,
+      "fn": 930,
+      "fp": 12,
+      "precision": 0.2,
+      "recall": 0.003215434083601286,
+      "tp": 3
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "5_military",
+    "relation_filtered": {
+      "f1": 0.0603448275862069,
+      "fn": 218,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.03111111111111111,
+      "tp": 7
+    },
+    "strict": {
+      "f1": 0.060085836909871244,
+      "fn": 218,
+      "fp": 1,
+      "precision": 0.875,
+      "recall": 0.03111111111111111,
+      "tp": 7
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "6_computer",
+    "relation_filtered": {
+      "f1": 0.008988764044943821,
+      "fn": 438,
+      "fp": 3,
+      "precision": 0.4,
+      "recall": 0.004545454545454545,
+      "tp": 2
+    },
+    "strict": {
+      "f1": 0.00892857142857143,
+      "fn": 438,
+      "fp": 6,
+      "precision": 0.25,
+      "recall": 0.004545454545454545,
+      "tp": 2
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "7_space",
+    "relation_filtered": {
+      "f1": 0.021276595744680854,
+      "fn": 276,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.010752688172043012,
+      "tp": 3
+    },
+    "strict": {
+      "f1": 0.021201413427561835,
+      "fn": 276,
+      "fp": 1,
+      "precision": 0.75,
+      "recall": 0.010752688172043012,
+      "tp": 3
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "8_politics",
+    "relation_filtered": {
+      "f1": 0.010204081632653062,
+      "fn": 193,
+      "fp": 1,
+      "precision": 0.5,
+      "recall": 0.005154639175257732,
+      "tp": 1
+    },
+    "strict": {
+      "f1": 0.01,
+      "fn": 193,
+      "fp": 5,
+      "precision": 0.16666666666666666,
+      "recall": 0.005154639175257732,
+      "tp": 1
+    }
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "ontology": "9_nature",
+    "relation_filtered": {
+      "f1": 0.0,
+      "fn": 531,
+      "fp": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "tp": 0
+    },
+    "strict": {
+      "f1": 0.0,
+      "fn": 531,
+      "fp": 5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "tp": 0
+    }
+  }
+]

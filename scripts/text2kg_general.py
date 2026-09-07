@@ -91,6 +91,52 @@ def smoke_ids(case_ids: Iterable[str], count: int = 5) -> list[str]:
     return ranked[:count]
 
 
+def prefix_take(case_ids, remaining: int | None,
+                selected: set[str] | None = None) -> list[str]:
+    """The ids ONE group contributes to a `--max-cases` prefix, given `remaining`.
+
+    `--max-cases` is a contiguous prefix of the run order: ontologies sorted by
+    `(corpus, id)`, rows in file order. This is the per-group step of that walk,
+    so the runner keeps its outer break and never opens an ontology past the
+    budget — precomputing the whole prefix would read all 29 test files to run 5
+    cases, which is the cost `--max-cases` exists to avoid.
+
+    `remaining` is None for "no budget" (take everything this group offers). A
+    `remaining` of 0 or less returns nothing: the runner subtracts what earlier
+    ontologies consumed, so a later group can legitimately be handed 0. There is
+    deliberately NO early-return fast path for that — the loop's own budget check
+    already covers it, and a mutation proved the fast path was unreachable. Dead
+    code in a guard reads as coverage it is not providing.
+
+    WHY THIS EXISTS (aegis-687e2d). `--max-cases` shipped with no test, because
+    reaching it through the CLI means standing up the 29-ontology universe and a
+    dataset at a pinned git commit — `validate_manifest` checks both. The
+    selection rule is arithmetic over ids and needs none of that, so it is
+    extracted here where a plain list can exercise it. The runner CALLS this
+    function rather than keeping a parallel copy: a helper the production path
+    does not use is a test of nothing.
+
+    TWO ORDERING PROPERTIES THAT ARE THE WHOLE CONTRACT, both easy to break
+    without noticing:
+
+      - the budget is counted AFTER the `selected` filter, so `--max-cases` with
+        `--smoke` means "the first N of the PANEL", not "the first N rows, some
+        of which the panel drops";
+      - it is counted BEFORE the caller's already-done check, so re-running the
+        same `--max-cases N` re-considers the same N cases rather than advancing
+        N further into the corpus (aegis-xid7v6). A prefix that moves is not a
+        prefix, and comparing two runs of it compares different work.
+    """
+    taken: list[str] = []
+    for case_id in case_ids:
+        if selected is not None and case_id not in selected:
+            continue
+        if remaining is not None and len(taken) >= remaining:
+            break
+        taken.append(case_id)
+    return taken
+
+
 def stratified_ids(groups, total: int) -> list[str]:
     """Select `total` case ids spread across groups, proportional to group size.
 

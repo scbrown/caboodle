@@ -15,7 +15,7 @@ import urllib.request
 from pathlib import Path
 
 from text2kg_grounded import canonical_relation, reconcile
-from text2kg_general import (PIPELINE, canonical_json, compile_ontology, request_hash,
+from text2kg_general import (PIPELINE, canonical_json, compile_ontology, prefix_take, request_hash,
                              score_suite, sha256_bytes, smoke_ids, stratified_ids, validate_manifest,
                              validate_reconcilers)
 
@@ -366,12 +366,17 @@ def general_main(argv: list[str]) -> int:
         destination = args.responses / entry["corpus"] / f"{entry['id']}.jsonl"
         existing = {row["id"]: row for row in jsonl(destination)} if destination.exists() else {}
         output_rows = list(existing.values())
+        # The prefix rule lives in `prefix_take`, which is unit-tested against a
+        # plain list (aegis-687e2d). It is CALLED here rather than restated: the
+        # ordering properties it documents are only true of the run if the run
+        # uses it. The outer break above still means an ontology past the budget
+        # is never opened.
+        remaining = None if args.max_cases is None else args.max_cases - considered
+        take = set(prefix_take([row["id"] for row in rows], remaining, selected))
+        considered += len(take)
         for row in rows:
-            if selected is not None and row["id"] not in selected:
+            if row["id"] not in take:
                 continue
-            if args.max_cases is not None and considered >= args.max_cases:
-                break
-            considered += 1
             request = compile_ontology(ontology, row["sent"])
             prompt = canonical_json(request)
             decoding = profile["decoding"]

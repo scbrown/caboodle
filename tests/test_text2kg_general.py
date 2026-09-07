@@ -11,7 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from text2kg_general import (SMOKE_SEED, compile_ontology, parse_response, score_suite, stratified_ids,
+from text2kg_general import (SMOKE_SEED, compile_ontology, parse_response, prefix_take, score_suite, stratified_ids,
                              smoke_ids, validate_candidate, validate_manifest,
                              validate_reconcilers)
 
@@ -201,3 +201,71 @@ def test_stratified_ignores_empty_groups():
     picked = stratified_ids(groups, 3)
     assert len(picked) == 3
     assert all(cid.startswith("a_") for cid in picked)
+
+
+# ── --max-cases, the contiguous prefix (aegis-687e2d) ────────────────────────
+#
+# `--max-cases` shipped with no test at all. Reaching it through the CLI means
+# standing up the 29-ontology universe and a dataset at a pinned git commit —
+# `validate_manifest` checks both — so the flag went unexercised for the same
+# reason stratified selection did: the rule was buried in the runner's loop.
+# `prefix_take` is that rule, and the runner calls it, so these tests exercise
+# the production path rather than a copy of it.
+
+
+def test_prefix_take_is_a_contiguous_prefix_in_order():
+    assert prefix_take(["a", "b", "c", "d"], 2) == ["a", "b"]
+
+
+def test_no_budget_takes_everything():
+    """`remaining=None` is "no --max-cases", not "take nothing"."""
+    assert prefix_take(["a", "b", "c"], None) == ["a", "b", "c"]
+
+
+def test_a_budget_larger_than_the_group_takes_what_exists():
+    assert prefix_take(["a", "b"], 99) == ["a", "b"]
+
+
+def test_an_exhausted_budget_takes_nothing():
+    """The runner subtracts what earlier ontologies consumed, so a later group
+    can be handed 0 or less; it must not wrap around into taking everything."""
+    assert prefix_take(["a", "b"], 0) == []
+    assert prefix_take(["a", "b"], -3) == []
+
+
+def test_the_budget_counts_AFTER_the_selected_filter():
+    """`--max-cases 2` with `--smoke` means the first two of the PANEL.
+
+    Counting before the filter would silently return fewer than asked for — the
+    caller gets 2 minus however many of the first rows the panel happens to
+    exclude, which reads as a short run rather than as a bug.
+    """
+    ids = ["skip1", "keep1", "skip2", "keep2", "keep3"]
+    panel = {"keep1", "keep2", "keep3"}
+    assert prefix_take(ids, 2, panel) == ["keep1", "keep2"]
+
+
+def test_selection_does_not_reorder():
+    """The filter preserves run order; it does not sort or dedupe the panel."""
+    ids = ["c", "a", "b"]
+    assert prefix_take(ids, 3, {"a", "b", "c"}) == ["c", "a", "b"]
+
+
+def test_the_prefix_is_STABLE_across_reruns_not_advancing():
+    """aegis-xid7v6: the block is a fixed prefix, not "N more than last time".
+
+    This is the property that makes two runs of `--max-cases N` comparable. The
+    runner counts BEFORE its already-done check for exactly this reason, so the
+    same call must yield the same ids however often it is made.
+    """
+    ids = [f"case_{i}" for i in range(20)]
+    first = prefix_take(ids, 5)
+    assert first == prefix_take(ids, 5)
+    assert first == ["case_0", "case_1", "case_2", "case_3", "case_4"]
+
+
+def test_an_empty_group_contributes_nothing_without_consuming_budget():
+    """A group whose rows are all filtered out must not eat the budget, or a
+    later ontology silently loses cases it was entitled to."""
+    assert prefix_take([], 5) == []
+    assert prefix_take(["x", "y"], 5, {"nothing"}) == []

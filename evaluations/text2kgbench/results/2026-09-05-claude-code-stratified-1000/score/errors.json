@@ -1,0 +1,7904 @@
+[
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_4",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_7",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_10",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_10_comicscharacter_test_11",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_20",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_26",
+    "object_not_grounded": 1,
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_10_comicscharacter_test_36",
+    "ontology": "10_comicscharacter",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_3",
+    "object_not_grounded": 1,
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_20",
+    "object_not_grounded": 1,
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_22",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_26",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_28",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_33",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_11_meanoftransportation_test_34",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_11_meanoftransportation_test_46",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_55",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_56",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_11_meanoftransportation_test_58",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_65",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_69",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_76",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_11_meanoftransportation_test_77",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_11_meanoftransportation_test_91",
+    "ontology": "11_meanoftransportation",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_12_monument_test_5",
+    "ontology": "12_monument",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_12_monument_test_6",
+    "ontology": "12_monument",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_12_monument_test_15",
+    "ontology": "12_monument",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_12_monument_test_19",
+    "ontology": "12_monument",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_13_food_test_2",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_13_food_test_3",
+    "object_not_grounded": 1,
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_13_food_test_4",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_10",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_27",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_33",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 8,
+    "corpus": "dbpedia_webnlg",
+    "generated": 8,
+    "id": "ont_13_food_test_50",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_52",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_55",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_60",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_62",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_76",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_13_food_test_92",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_13_food_test_101",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_13_food_test_102",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_13_food_test_111",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_13_food_test_114",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_13_food_test_118",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_119",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 5,
+    "generated": 11,
+    "id": "ont_13_food_test_123",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_13_food_test_126",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_13_food_test_132",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_138",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_145",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_13_food_test_147",
+    "ontology": "13_food",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_1",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_3",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_14_writtenwork_test_12",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_17",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_19",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_14_writtenwork_test_27",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_28",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_14_writtenwork_test_34",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_14_writtenwork_test_35",
+    "malformed_output": 1,
+    "ontology": "14_writtenwork"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_45",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_14_writtenwork_test_54",
+    "malformed_output": 1,
+    "ontology": "14_writtenwork"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_59",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_61",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_62",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_74",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_14_writtenwork_test_82",
+    "malformed_output": 1,
+    "ontology": "14_writtenwork"
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_14_writtenwork_test_90",
+    "malformed_output": 1,
+    "ontology": "14_writtenwork"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_100",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_113",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_115",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_14_writtenwork_test_126",
+    "ontology": "14_writtenwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_5",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_24",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_32",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_38",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_42",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_50",
+    "object_not_grounded": 1,
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_54",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_15_sportsteam_test_55",
+    "malformed_output": 1,
+    "ontology": "15_sportsteam"
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_15_sportsteam_test_62",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_15_sportsteam_test_68",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_15_sportsteam_test_69",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_15_sportsteam_test_74",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_15_sportsteam_test_79",
+    "object_not_grounded": 1,
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_15_sportsteam_test_80",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_15_sportsteam_test_90",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_15_sportsteam_test_91",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_92",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_15_sportsteam_test_98",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_15_sportsteam_test_110",
+    "ontology": "15_sportsteam",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_16_city_test_6",
+    "malformed_output": 1,
+    "ontology": "16_city"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_8",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_9",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_12",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_17",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_23",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_16_city_test_30",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_34",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_16_city_test_53",
+    "malformed_output": 1,
+    "ontology": "16_city"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_58",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_75",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_83",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_85",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_16_city_test_91",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_97",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_101",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_106",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_107",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_112",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_113",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_115",
+    "object_not_grounded": 2,
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_16_city_test_123",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_129",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_132",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_134",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_142",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_145",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_152",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_157",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_158",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_169",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_173",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_181",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_16_city_test_186",
+    "malformed_output": 1,
+    "ontology": "16_city"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_16_city_test_187",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_16_city_test_197",
+    "ontology": "16_city",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_4",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_8",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_15",
+    "object_not_grounded": 1,
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_16",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_19",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_17_artist_test_22",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_33",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_17_artist_test_34",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_38",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_17_artist_test_39",
+    "malformed_output": 1,
+    "ontology": "17_artist"
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_17_artist_test_47",
+    "malformed_output": 1,
+    "ontology": "17_artist"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_17_artist_test_63",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_17_artist_test_67",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_17_artist_test_68",
+    "ontology": "17_artist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_1",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_18_scientist_test_7",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_23",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_18_scientist_test_28",
+    "object_not_grounded": 1,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_18_scientist_test_29",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_32",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_18_scientist_test_50",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_52",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_18_scientist_test_63",
+    "object_not_grounded": 2,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_18_scientist_test_66",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_18_scientist_test_73",
+    "object_not_grounded": 1,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_18_scientist_test_74",
+    "object_not_grounded": 1,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_83",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_88",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_18_scientist_test_92",
+    "object_not_grounded": 1,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_93",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_18_scientist_test_94",
+    "malformed_output": 1,
+    "ontology": "18_scientist"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_18_scientist_test_115",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_18_scientist_test_119",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_18_scientist_test_123",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_18_scientist_test_124",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 2,
+    "generated": 4,
+    "id": "ont_18_scientist_test_127",
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_18_scientist_test_131",
+    "object_not_grounded": 2,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_18_scientist_test_135",
+    "object_not_grounded": 2,
+    "ontology": "18_scientist",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_18_scientist_test_136",
+    "malformed_output": 1,
+    "ontology": "18_scientist"
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_19_film_test_6",
+    "object_not_grounded": 1,
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_19_film_test_16",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_19_film_test_20",
+    "object_not_grounded": 1,
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_19_film_test_28",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_54",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 8,
+    "id": "ont_19_film_test_59",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_61",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_66",
+    "object_not_grounded": 1,
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_19_film_test_69",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_74",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_19_film_test_81",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_19_film_test_82",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_91",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_19_film_test_92",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_19_film_test_95",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_19_film_test_96",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_19_film_test_99",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_19_film_test_102",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 5,
+    "id": "ont_19_film_test_117",
+    "ontology": "19_film",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_19_film_test_118",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_19_film_test_123",
+    "ontology": "19_film",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_1_university_test_1",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_1_university_test_11",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_1_university_test_17",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_1_university_test_20",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_1_university_test_21",
+    "malformed_output": 1,
+    "ontology": "1_university"
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_1_university_test_26",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_1_university_test_27",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_1_university_test_38",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 8,
+    "corpus": "dbpedia_webnlg",
+    "generated": 8,
+    "id": "ont_1_university_test_57",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_1_university_test_60",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_1_university_test_66",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_1_university_test_68",
+    "ontology": "1_university",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_2_musicalwork_test_2",
+    "object_not_grounded": 1,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_2_musicalwork_test_14",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_2_musicalwork_test_19",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_21",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_2_musicalwork_test_36",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_43",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_2_musicalwork_test_44",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_46",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_2_musicalwork_test_48",
+    "object_not_grounded": 1,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_2_musicalwork_test_52",
+    "object_not_grounded": 1,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_53",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_61",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_73",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_95",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_2_musicalwork_test_97",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_107",
+    "object_not_grounded": 1,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_110",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_2_musicalwork_test_113",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_127",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_130",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_134",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_140",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_143",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_2_musicalwork_test_144",
+    "object_not_grounded": 1,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_2_musicalwork_test_149",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_2_musicalwork_test_157",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 2,
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_166",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_170",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_2_musicalwork_test_181",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 2,
+    "generated": 6,
+    "id": "ont_2_musicalwork_test_183",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_2_musicalwork_test_193",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 5,
+    "id": "ont_2_musicalwork_test_194",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_2_musicalwork_test_205",
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_2_musicalwork_test_208",
+    "object_not_grounded": 2,
+    "ontology": "2_musicalwork",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_3_airport_test_6",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_7",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_8",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_20",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_3_airport_test_37",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_3_airport_test_49",
+    "malformed_output": 1,
+    "ontology": "3_airport"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_55",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_56",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_3_airport_test_60",
+    "malformed_output": 1,
+    "ontology": "3_airport"
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_3_airport_test_71",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_73",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_3_airport_test_75",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_3_airport_test_78",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_3_airport_test_79",
+    "ontology": "3_airport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_5",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_12",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_23",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_30",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_4_building_test_36",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_37",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_4_building_test_46",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_51",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_57",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_60",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 5,
+    "id": "ont_4_building_test_61",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_76",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_4_building_test_80",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_86",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_4_building_test_87",
+    "malformed_output": 1,
+    "ontology": "4_building"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_92",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_4_building_test_95",
+    "ontology": "4_building",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_7",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_9",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_12",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_16",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_5_athlete_test_20",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_5_athlete_test_39",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_42",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_5_athlete_test_43",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_59",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_66",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_67",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_5_athlete_test_76",
+    "object_not_grounded": 1,
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_5_athlete_test_78",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_5_athlete_test_79",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 2,
+    "id": "ont_5_athlete_test_87",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_90",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_5_athlete_test_91",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_5_athlete_test_104",
+    "ontology": "5_athlete",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_6_politician_test_2",
+    "malformed_output": 1,
+    "ontology": "6_politician"
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_6_politician_test_5",
+    "malformed_output": 1,
+    "ontology": "6_politician"
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_6_politician_test_13",
+    "malformed_output": 1,
+    "ontology": "6_politician"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_15",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_16",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_6_politician_test_19",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_23",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_6_politician_test_25",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_26",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_34",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_56",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_58",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_6_politician_test_59",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_6_politician_test_63",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_65",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_70",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_6_politician_test_86",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_6_politician_test_94",
+    "malformed_output": 1,
+    "ontology": "6_politician"
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_6_politician_test_100",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_103",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_6_politician_test_111",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_130",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_6_politician_test_135",
+    "ontology": "6_politician",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_2",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_8",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_14",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_18",
+    "object_not_grounded": 2,
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_7_company_test_28",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "dbpedia_webnlg",
+    "generated": 1,
+    "id": "ont_7_company_test_37",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_38",
+    "object_not_grounded": 1,
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_7_company_test_44",
+    "object_not_grounded": 1,
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_7_company_test_46",
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_7_company_test_47",
+    "object_not_grounded": 1,
+    "ontology": "7_company",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_5",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_10",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_12",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_13",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_17",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_19",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_20",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_32",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_8_celestialbody_test_39",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_8_celestialbody_test_42",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_8_celestialbody_test_64",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_8_celestialbody_test_66",
+    "ontology": "8_celestialbody",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_9_astronaut_test_3",
+    "object_not_grounded": 1,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_9_astronaut_test_7",
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_9_astronaut_test_12",
+    "malformed_output": 1,
+    "ontology": "9_astronaut"
+  },
+  {
+    "corpus": "dbpedia_webnlg",
+    "id": "ont_9_astronaut_test_13",
+    "malformed_output": 1,
+    "ontology": "9_astronaut"
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_9_astronaut_test_18",
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 3,
+    "id": "ont_9_astronaut_test_42",
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_9_astronaut_test_46",
+    "object_not_grounded": 1,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "dbpedia_webnlg",
+    "generated": 6,
+    "id": "ont_9_astronaut_test_47",
+    "object_not_grounded": 2,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_9_astronaut_test_52",
+    "object_not_grounded": 1,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "dbpedia_webnlg",
+    "generated": 4,
+    "id": "ont_9_astronaut_test_56",
+    "object_not_grounded": 1,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "dbpedia_webnlg",
+    "generated": 5,
+    "id": "ont_9_astronaut_test_61",
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "dbpedia_webnlg",
+    "generated": 7,
+    "id": "ont_9_astronaut_test_64",
+    "object_not_grounded": 1,
+    "ontology": "9_astronaut",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_1",
+    "object_not_grounded": 1,
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_14",
+    "object_not_grounded": 1,
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_10_culture_test_27",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_28",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_30",
+    "object_not_grounded": 1,
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_31",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 3,
+    "id": "ont_10_culture_test_33",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_36",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_44",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_50",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_67",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_10_culture_test_78",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_82",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_10_culture_test_89",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_10_culture_test_100",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_103",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_104",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_105",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_110",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_113",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_134",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_10_culture_test_139",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_142",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_10_culture_test_143",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_10_culture_test_155",
+    "malformed_output": 1,
+    "ontology": "10_culture"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_10_culture_test_156",
+    "ontology": "10_culture",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_13",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_26",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_28",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_34",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_37",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_42",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_49",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_68",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 3,
+    "generated": 5,
+    "id": "ont_1_movie_test_70",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_73",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_90",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_94",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_95",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_98",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_112",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_117",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_124",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_125",
+    "ontology": "1_movie",
+    "subject_not_grounded": 4,
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_129",
+    "ontology": "1_movie",
+    "subject_not_grounded": 5,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_132",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_135",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_143",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_146",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 3,
+    "generated": 10,
+    "id": "ont_1_movie_test_152",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_153",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_161",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_167",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_168",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_172",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 9,
+    "corpus": "wikidata_tekgen",
+    "generated": 10,
+    "id": "ont_1_movie_test_175",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_178",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_184",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_188",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_1_movie_test_191",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_208",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_220",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_230",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_249",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_250",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_251",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_254",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_259",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_268",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_278",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 8,
+    "id": "ont_1_movie_test_284",
+    "ontology": "1_movie",
+    "subject_not_grounded": 8,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_297",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_1_movie_test_300",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_304",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_313",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_315",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_1_movie_test_318",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_321",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_352",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_355",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_362",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_369",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_371",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_383",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_384",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_387",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_389",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_394",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_1_movie_test_400",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_403",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_416",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_418",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_423",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_427",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_448",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_464",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_465",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_474",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_480",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_493",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_509",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_512",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_513",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_526",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_1_movie_test_541",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_545",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_548",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_556",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_566",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_568",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_1_movie_test_571",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_583",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_586",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 2,
+    "id": "ont_1_movie_test_588",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_590",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_1_movie_test_593",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_596",
+    "object_not_grounded": 5,
+    "ontology": "1_movie",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_598",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_618",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_629",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_643",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 8,
+    "corpus": "wikidata_tekgen",
+    "generated": 12,
+    "id": "ont_1_movie_test_656",
+    "object_not_grounded": 4,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_660",
+    "ontology": "1_movie",
+    "subject_not_grounded": 3,
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_663",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_665",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_1_movie_test_673",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_683",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_689",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_690",
+    "ontology": "1_movie",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_692",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_1_movie_test_693",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_1_movie_test_698",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_705",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_709",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_713",
+    "ontology": "1_movie",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_723",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_1_movie_test_729",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_737",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_740",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_745",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_753",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_754",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_757",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_758",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_763",
+    "ontology": "1_movie",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_764",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_766",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_775",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_776",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_777",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_783",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_786",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_1_movie_test_789",
+    "object_not_grounded": 2,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_1_movie_test_790",
+    "malformed_output": 1,
+    "ontology": "1_movie"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_794",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_1_movie_test_795",
+    "object_not_grounded": 1,
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_1_movie_test_796",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_800",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_1_movie_test_802",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 3,
+    "generated": 6,
+    "id": "ont_1_movie_test_811",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_1_movie_test_816",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 5,
+    "generated": 8,
+    "id": "ont_1_movie_test_832",
+    "ontology": "1_movie",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_11",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_27",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_30",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_2_music_test_39",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_40",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_41",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_42",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_47",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_2_music_test_59",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_69",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_73",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_82",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_87",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_93",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_94",
+    "object_not_grounded": 2,
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_103",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_109",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_119",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_124",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 8,
+    "corpus": "wikidata_tekgen",
+    "generated": 8,
+    "id": "ont_2_music_test_125",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_2_music_test_130",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_131",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_2_music_test_147",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_149",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_155",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_159",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_167",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_168",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_172",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_176",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_186",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_194",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_198",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_205",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_220",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_222",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_223",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_225",
+    "object_not_grounded": 1,
+    "ontology": "2_music",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_228",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_230",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_232",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_235",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_238",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_263",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_265",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_282",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_287",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_289",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_292",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_302",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_315",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_318",
+    "object_not_grounded": 1,
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_323",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_332",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_340",
+    "ontology": "2_music",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_341",
+    "ontology": "2_music",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_354",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_362",
+    "object_not_grounded": 1,
+    "ontology": "2_music",
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_372",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_373",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_389",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_390",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_398",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_401",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_409",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_412",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_415",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 1,
+    "id": "ont_2_music_test_417",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_430",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_432",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_438",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_439",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_443",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_445",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_446",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_451",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_469",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_473",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_479",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_482",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_2_music_test_484",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_488",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_492",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_501",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_505",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_512",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_519",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_2_music_test_523",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_537",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_541",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_545",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_551",
+    "object_not_grounded": 2,
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_552",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_554",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_555",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_2_music_test_557",
+    "object_not_grounded": 1,
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_2_music_test_558",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_580",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_581",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_582",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_599",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_607",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_610",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_2_music_test_618",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_2_music_test_635",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_2_music_test_642",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_2_music_test_646",
+    "malformed_output": 1,
+    "ontology": "2_music"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_654",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_2_music_test_657",
+    "ontology": "2_music",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_2",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_4",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_13",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_20",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_25",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_29",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_30",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_32",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_35",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_44",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "subject_not_grounded": 2,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_48",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_50",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_54",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_55",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_56",
+    "ontology": "3_sport",
+    "subject_not_grounded": 3,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_61",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_62",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_64",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_69",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_75",
+    "object_not_grounded": 3,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_80",
+    "ontology": "3_sport",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_85",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_88",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_97",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_104",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_3_sport_test_108",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_109",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_3_sport_test_115",
+    "object_not_grounded": 2,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 16,
+    "generated": 17,
+    "id": "ont_3_sport_test_123",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_127",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_139",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 8,
+    "corpus": "wikidata_tekgen",
+    "generated": 8,
+    "id": "ont_3_sport_test_144",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_150",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_173",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_179",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_187",
+    "object_not_grounded": 2,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 4,
+    "id": "ont_3_sport_test_192",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_202",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_206",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_208",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_3_sport_test_211",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_214",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_218",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_220",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_229",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_244",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_249",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_3_sport_test_263",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_267",
+    "ontology": "3_sport",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_3_sport_test_284",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_3_sport_test_293",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_294",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_299",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_307",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_320",
+    "object_not_grounded": 2,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_324",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_3_sport_test_328",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_329",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_333",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_336",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_343",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_3_sport_test_361",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_374",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_380",
+    "object_not_grounded": 2,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_381",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_3_sport_test_392",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_394",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_404",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_3_sport_test_406",
+    "malformed_output": 1,
+    "ontology": "3_sport"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_418",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_3_sport_test_420",
+    "object_not_grounded": 2,
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_425",
+    "object_not_grounded": 1,
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_446",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_3_sport_test_451",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_3_sport_test_455",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_469",
+    "ontology": "3_sport",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_471",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_3_sport_test_474",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_3_sport_test_486",
+    "ontology": "3_sport",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_5",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_6",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_11",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_15",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_29",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_32",
+    "object_not_grounded": 1,
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_33",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 4,
+    "id": "ont_4_book_test_36",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_37",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_38",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_51",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_4_book_test_54",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_64",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_67",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_4_book_test_73",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_76",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_87",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 4,
+    "id": "ont_4_book_test_91",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_95",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 7,
+    "corpus": "wikidata_tekgen",
+    "generated": 7,
+    "id": "ont_4_book_test_98",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_101",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_115",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_116",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_117",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_138",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_140",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_152",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_155",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_162",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_169",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_4_book_test_173",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_182",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 9,
+    "generated": 10,
+    "id": "ont_4_book_test_186",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_189",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_193",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_195",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_196",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_198",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_220",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_221",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_228",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_232",
+    "ontology": "4_book",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_245",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_247",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_256",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_259",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_264",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_275",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_291",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_293",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_302",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_303",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_310",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_323",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_329",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_332",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_336",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 6,
+    "id": "ont_4_book_test_340",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_345",
+    "object_not_grounded": 2,
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_347",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_351",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_357",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_374",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_375",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_379",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_386",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_399",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_404",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_409",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_423",
+    "ontology": "4_book",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_432",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_436",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_439",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_447",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_457",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_458",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_463",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_467",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_469",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_475",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 3,
+    "id": "ont_4_book_test_482",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_487",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_4_book_test_492",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_4_book_test_498",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_4_book_test_505",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_4_book_test_508",
+    "malformed_output": 1,
+    "ontology": "4_book"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_511",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_4_book_test_524",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_4_book_test_527",
+    "ontology": "4_book",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_11",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_5_military_test_17",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_22",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_25",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_27",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_28",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_34",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_42",
+    "ontology": "5_military",
+    "subject_not_grounded": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_55",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_57",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_62",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_65",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_78",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_80",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_86",
+    "object_not_grounded": 1,
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_88",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_93",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_94",
+    "object_not_grounded": 1,
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_96",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_5_military_test_103",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_108",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_116",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_119",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_126",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_144",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_152",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_160",
+    "ontology": "5_military",
+    "relation_outside_ontology": 1,
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_161",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_162",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_5_military_test_165",
+    "malformed_output": 1,
+    "ontology": "5_military"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_186",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_199",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_201",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_5_military_test_202",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_204",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_219",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_224",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_5_military_test_230",
+    "ontology": "5_military",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_6_computer_test_3",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_10",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_13",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_6_computer_test_22",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_6_computer_test_23",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_27",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_65",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_71",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_74",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_6_computer_test_76",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_77",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_78",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_80",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_90",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_6_computer_test_96",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_97",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_99",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_6_computer_test_100",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_6_computer_test_101",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 3,
+    "id": "ont_6_computer_test_108",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 8,
+    "generated": 9,
+    "id": "ont_6_computer_test_139",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_6_computer_test_154",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_164",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_6_computer_test_166",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_170",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_171",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_186",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_190",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_191",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_193",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 4,
+    "generated": 8,
+    "id": "ont_6_computer_test_206",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_209",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_215",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_217",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_220",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_6_computer_test_221",
+    "malformed_output": 1,
+    "ontology": "6_computer"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_6_computer_test_223",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_6_computer_test_229",
+    "ontology": "6_computer",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_2",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_10",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_15",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_17",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_19",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_22",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 1,
+    "id": "ont_7_space_test_42",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_66",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_72",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_75",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_88",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_94",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_96",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_103",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_109",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_116",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_120",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_124",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_7_space_test_148",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_151",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_156",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_163",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_170",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_172",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_7_space_test_175",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_7_space_test_178",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_182",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_7_space_test_186",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_7_space_test_188",
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_192",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_194",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_7_space_test_202",
+    "object_not_grounded": 1,
+    "ontology": "7_space",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_7_space_test_203",
+    "malformed_output": 1,
+    "ontology": "7_space"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_9",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_10",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_19",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_8_politics_test_35",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_37",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_38",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_8_politics_test_46",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_47",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_8_politics_test_51",
+    "object_not_grounded": 1,
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_54",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_61",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_67",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_71",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_72",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_88",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_93",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_97",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_8_politics_test_98",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_107",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_108",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_109",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_111",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_123",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_8_politics_test_129",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 1,
+    "id": "ont_8_politics_test_138",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_8_politics_test_142",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_148",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_155",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_156",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_8_politics_test_166",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_177",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_8_politics_test_178",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_191",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_8_politics_test_203",
+    "ontology": "8_politics",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_8_politics_test_207",
+    "malformed_output": 1,
+    "ontology": "8_politics"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_2",
+    "object_not_grounded": 1,
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_7",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_12",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_28",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 6,
+    "corpus": "wikidata_tekgen",
+    "generated": 6,
+    "id": "ont_9_nature_test_32",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 3,
+    "generated": 3,
+    "id": "ont_9_nature_test_41",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_72",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_80",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_9_nature_test_88",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_96",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_101",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_109",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_114",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_125",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_142",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_145",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_149",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_9_nature_test_150",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_159",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_162",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_163",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 3,
+    "id": "ont_9_nature_test_167",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_169",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_174",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_178",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_186",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_210",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_215",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_217",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_222",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_224",
+    "object_not_grounded": 2,
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 2,
+    "generated": 2,
+    "id": "ont_9_nature_test_232",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_233",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_234",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_273",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_274",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_9_nature_test_277",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_9_nature_test_282",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 3,
+    "id": "ont_9_nature_test_284",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_290",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_293",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_297",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_9_nature_test_299",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_308",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 2,
+    "id": "ont_9_nature_test_309",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_314",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_318",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_9_nature_test_319",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_320",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_322",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_326",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_330",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_342",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 4,
+    "corpus": "wikidata_tekgen",
+    "generated": 4,
+    "id": "ont_9_nature_test_346",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 5,
+    "corpus": "wikidata_tekgen",
+    "generated": 5,
+    "id": "ont_9_nature_test_347",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_348",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_353",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_365",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_366",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_369",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 3,
+    "corpus": "wikidata_tekgen",
+    "generated": 3,
+    "id": "ont_9_nature_test_373",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_387",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_388",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_400",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_401",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "evidence_not_grounded": 1,
+    "generated": 1,
+    "id": "ont_9_nature_test_402",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_403",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_407",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "accepted": 1,
+    "corpus": "wikidata_tekgen",
+    "generated": 1,
+    "id": "ont_9_nature_test_416",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_419",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "accepted": 2,
+    "corpus": "wikidata_tekgen",
+    "generated": 2,
+    "id": "ont_9_nature_test_432",
+    "ontology": "9_nature",
+    "syntax_repaired": 1
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_438",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_446",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_447",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_459",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_466",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  },
+  {
+    "corpus": "wikidata_tekgen",
+    "id": "ont_9_nature_test_467",
+    "malformed_output": 1,
+    "ontology": "9_nature"
+  }
+]

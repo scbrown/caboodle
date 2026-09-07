@@ -1,0 +1,76 @@
+{
+  "corpora": 2,
+  "end": "2026-09-05T18:09:53Z",
+  "estimate_qualification": "Single deterministic stratified sample; each stratum scaled by population/sample count. Successful-invocation ledger only, excludes unobserved retry usage. Not executed whole-corpus inference or a subscription-budget projection; no uncertainty interval estimated.",
+  "latency_seconds": {
+    "max": 127.29532654798822,
+    "p50": 2.7977865645079874,
+    "p95": 4.449148546991637,
+    "sum": 3199.122754882992
+  },
+  "models": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "ontologies": 29,
+  "population_cases": 6076,
+  "provider_refusal_flags": 0,
+  "quality": {
+    "relation_filtered": {
+      "f1": 0.38545454545454544,
+      "fn": 1468,
+      "fp": 898,
+      "precision": 0.4524390243902439,
+      "recall": 0.3357466063348416,
+      "tp": 742
+    },
+    "strict": {
+      "f1": 0.3227490213136146,
+      "fn": 1468,
+      "fp": 1646,
+      "precision": 0.31072026800670016,
+      "recall": 0.3357466063348416,
+      "tp": 742
+    }
+  },
+  "refusal_flag_definition": "empty raw output only",
+  "selected_cases": 1000,
+  "slow_cases_over_10_seconds": [
+    {
+      "id": "ont_1_university_test_66",
+      "seconds": 124.31225320900558
+    },
+    {
+      "id": "ont_1_movie_test_284",
+      "seconds": 13.348686263983836
+    },
+    {
+      "id": "ont_2_music_test_582",
+      "seconds": 127.29532654798822
+    }
+  ],
+  "stage_counts": {
+    "accepted": 2388,
+    "evidence_not_grounded": 123,
+    "generated": 2712,
+    "malformed_output": 141,
+    "object_not_grounded": 140,
+    "relation_outside_ontology": 15,
+    "subject_not_grounded": 46,
+    "syntax_repaired": 859
+  },
+  "start": "2026-09-05T17:16:11Z",
+  "stratum_weighted_population_estimate": {
+    "input_tokens": 16814384.884767916,
+    "list_cost_usd": 23.58088206736782,
+    "output_tokens": 1353299.436519981,
+    "thinking_tokens": 0.0
+  },
+  "usage": {
+    "input_tokens": 2776374,
+    "list_cost_usd": 3.890529,
+    "output_tokens": 222831,
+    "thinking_tokens": 0
+  },
+  "usage_scope": "Recorded successful CLI invocations only; timed-out attempt usage is unavailable",
+  "wall_seconds": 3222.0
+}

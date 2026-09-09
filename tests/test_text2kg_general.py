@@ -269,3 +269,62 @@ def test_an_empty_group_contributes_nothing_without_consuming_budget():
     later ontology silently loses cases it was entitled to."""
     assert prefix_take([], 5) == []
     assert prefix_take(["x", "y"], 5, {"nothing"}) == []
+
+
+@pytest.mark.parametrize('commentary', ['Explanation follows.', 'No more facts.', ''])
+def test_versioned_parser_accepts_one_json_fence_with_prose(commentary):
+    raw='Preface.\n```json\n{"triples": []}\n```\n'+commentary
+    assert parse_response(raw) == (None, False)
+    assert parse_response(raw, parser='fenced-json-v2') == ({'triples': []}, True)
+
+
+@pytest.mark.parametrize('raw', [
+    'prefix {"triples": []} suffix',
+    '```json\n{"triples": []}\n```\n```json\n{"triples": []}\n```',
+    '```python\n{"triples": []}\n```',
+    '```json\n{"triples": []}',
+    '```json\n{"triples": [}\n```',
+    '```json\n{"triples": []} {"triples": []}\n```',
+    '{"triples": null}', '{"triples": "abc"}', '[]', 'true',
+])
+def test_versioned_parser_refuses_ambiguous_or_invalid_shape(raw):
+    assert parse_response(raw, parser='fenced-json-v2') == (None, False)
+
+
+@pytest.mark.parametrize('value', [',}', ',]', 'comma, } literal', 'a\\"b,}', '\\\\,]',
+                                    'triple backticks ``` inside a string'])
+def test_versioned_repair_preserves_every_string_byte(value):
+    payload={'triples': [{'subject': value, 'relation': 'alpha', 'object': 'Bob',
+                           'evidence_span': value}]}
+    encoded=json.dumps(payload,ensure_ascii=False)
+    raw='```json\n'+encoded[:-1]+',}\n```\nExplanation.'
+    assert parse_response(raw, parser='fenced-json-v2') == (payload, True)
+
+
+def test_versioned_parser_keeps_grounding_and_relation_validation():
+    raw='```json\n'+json.dumps({'triples':[
+        {'subject':'Alice','relation':'alpha','object':'Bob','evidence_span':'Alice alpha Bob'},
+        {'subject':'Alice','relation':'unknown','object':'Bob','evidence_span':'Alice alpha Bob'},
+        {'subject':'Alice','relation':'alpha','object':'GOLD_ONLY','evidence_span':'Alice alpha Bob'}]})+'\n```\nExplanation.'
+    payload,_=parse_response(raw,parser='fenced-json-v2')
+    assert [validate_candidate(c,'Alice alpha Bob.',ONTOLOGY)[0] for c in payload['triples']] == [
+        'accepted','relation_outside_ontology','object_not_grounded']
+
+
+def test_unknown_parser_refused_even_without_responses(tmp_path):
+    with pytest.raises(ValueError,match='unknown response parser'):
+        score_suite(tmp_path,{},tmp_path,parser='made-up')
+
+
+def test_score_suite_parser_switch_is_explicit_and_grounded(tmp_path):
+    dataset,manifest=make_suite(tmp_path)
+    response_dir=tmp_path/'responses'/'example';response_dir.mkdir(parents=True)
+    raw='```json\n'+json.dumps({'triples':[{'subject':'Alice','relation':'alpha',
+        'object':'Bob','evidence_span':'Alice alpha Bob'}]})+'\n```\nExplanation.'
+    (response_dir/'synthetic.jsonl').write_text(json.dumps({'id':'case-1','raw_response':raw})+'\n')
+    old=score_suite(dataset,manifest,response_dir.parent,'L1')
+    new=score_suite(dataset,manifest,response_dir.parent,'L1',parser='fenced-json-v2')
+    assert old['cases'][0]['strict']['tp']==0
+    assert new['cases'][0]['strict']['tp']==1
+    assert old['pipeline']!=new['pipeline']
+    assert new['parser']=='fenced-json-v2'

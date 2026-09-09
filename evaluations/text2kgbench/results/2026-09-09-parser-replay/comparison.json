@@ -1,0 +1,5249 @@
+{
+  "after": {
+    "relation_filtered": {
+      "f1": 0.39878388649607294,
+      "fn": 1423,
+      "fp": 950,
+      "precision": 0.45308002302820954,
+      "recall": 0.3561085972850679,
+      "tp": 787
+    },
+    "strict": {
+      "f1": 0.33164770332911925,
+      "fn": 1423,
+      "fp": 1749,
+      "precision": 0.3103312302839117,
+      "recall": 0.3561085972850679,
+      "tp": 787
+    }
+  },
+  "after_parser": "fenced-json-v2",
+  "after_pipeline": "caboodle-text2kg-v3-ontology-guided+fenced-json-v2",
+  "baseline_matches_published_cases": true,
+  "before": {
+    "relation_filtered": {
+      "f1": 0.38545454545454544,
+      "fn": 1468,
+      "fp": 898,
+      "precision": 0.4524390243902439,
+      "recall": 0.3357466063348416,
+      "tp": 742
+    },
+    "strict": {
+      "f1": 0.3227490213136146,
+      "fn": 1468,
+      "fp": 1646,
+      "precision": 0.31072026800670016,
+      "recall": 0.3357466063348416,
+      "tp": 742
+    }
+  },
+  "before_parser": "strict-v1",
+  "before_pipeline": "caboodle-text2kg-v3-ontology-guided",
+  "changed_cases": [
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_14_writtenwork_test_35",
+      "ontology": "14_writtenwork"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_14_writtenwork_test_54",
+      "ontology": "14_writtenwork"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5,
+          "fn": 2,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_14_writtenwork_test_82",
+      "ontology": "14_writtenwork"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5,
+          "fn": 2,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_14_writtenwork_test_90",
+      "ontology": "14_writtenwork"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_15_sportsteam_test_55",
+      "ontology": "15_sportsteam"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_16_city_test_6",
+      "ontology": "16_city"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_16_city_test_53",
+      "ontology": "16_city"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_16_city_test_186",
+      "ontology": "16_city"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.8,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.8,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_17_artist_test_39",
+      "ontology": "17_artist"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.3333333333333333,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_17_artist_test_47",
+      "ontology": "17_artist"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5,
+          "fn": 2,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.5,
+          "fn": 2,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_18_scientist_test_94",
+      "ontology": "18_scientist"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.5,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.5,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_18_scientist_test_136",
+      "ontology": "18_scientist"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.8,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_1_university_test_21",
+      "ontology": "1_university"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_3_airport_test_49",
+      "ontology": "3_airport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_3_airport_test_60",
+      "ontology": "3_airport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_6_politician_test_2",
+      "ontology": "6_politician"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.4,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_6_politician_test_5",
+      "ontology": "6_politician"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.8,
+          "fn": 1,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_6_politician_test_94",
+      "ontology": "6_politician"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3333333333333333,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.3333333333333333,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 3,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "dbpedia_webnlg",
+      "id": "ont_9_astronaut_test_13",
+      "ontology": "9_astronaut"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_44",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_67",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_103",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_104",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_105",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_110",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_10_culture_test_142",
+      "ontology": "10_culture"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 4,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_143",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_250",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 26,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 26,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 26,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 26,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_403",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_416",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_548",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_556",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_643",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_723",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_740",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.5714285714285715,
+          "fn": 0,
+          "fp": 3,
+          "precision": 0.4,
+          "recall": 1.0,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_745",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_1_movie_test_790",
+      "ontology": "1_movie"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_27",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_41",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_263",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_282",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_287",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_398",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_401",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_430",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_445",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_552",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_2_music_test_610",
+      "ontology": "2_music"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 3,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_3_sport_test_30",
+      "ontology": "3_sport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_3_sport_test_32",
+      "ontology": "3_sport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_3_sport_test_64",
+      "ontology": "3_sport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.8,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.6666666666666666,
+          "recall": 1.0,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 2,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_3_sport_test_139",
+      "ontology": "3_sport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_3_sport_test_179",
+      "ontology": "3_sport"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_4_book_test_357",
+      "ontology": "4_book"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_4_book_test_508",
+      "ontology": "4_book"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_25",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_55",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_57",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_62",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_116",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_5_military_test_119",
+      "ontology": "5_military"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_10",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_13",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_27",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_65",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_74",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_80",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_99",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_186",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_6_computer_test_209",
+      "ontology": "6_computer"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_75",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_94",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_96",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_109",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_116",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_192",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_194",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_7_space_test_203",
+      "ontology": "7_space"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_8_politics_test_108",
+      "ontology": "8_politics"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_8_politics_test_123",
+      "ontology": "8_politics"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_8_politics_test_177",
+      "ontology": "8_politics"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_8_politics_test_191",
+      "ontology": "8_politics"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_8_politics_test_207",
+      "ontology": "8_politics"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_109",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_149",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_159",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 2,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_174",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.6666666666666666,
+          "fn": 0,
+          "fp": 1,
+          "precision": 0.5,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_273",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_293",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_366",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_369",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 1.0,
+          "fn": 0,
+          "fp": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_387",
+      "ontology": "9_nature"
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 1,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        },
+        "strict": {
+          "f1": 0.0,
+          "fn": 1,
+          "fp": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0
+        }
+      },
+      "corpus": "wikidata_tekgen",
+      "id": "ont_9_nature_test_388",
+      "ontology": "9_nature"
+    }
+  ],
+  "comparison_implementation_sha256": "45fd5cae07ab752419a50a34d4da4d460bb918609b0336280149f4cd9609d7dd",
+  "corpora": [
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.425531914893617,
+          "fn": 646,
+          "fp": 461,
+          "precision": 0.4707233065442021,
+          "recall": 0.38825757575757575,
+          "tp": 410
+        },
+        "strict": {
+          "f1": 0.3866100895803866,
+          "fn": 646,
+          "fp": 655,
+          "precision": 0.38497652582159625,
+          "recall": 0.38825757575757575,
+          "tp": 410
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.41310089804543054,
+          "fn": 665,
+          "fp": 446,
+          "precision": 0.46714456391875747,
+          "recall": 0.3702651515151515,
+          "tp": 391
+        },
+        "strict": {
+          "f1": 0.3761423761423761,
+          "fn": 665,
+          "fp": 632,
+          "precision": 0.38220918866080156,
+          "recall": 0.3702651515151515,
+          "tp": 391
+        }
+      },
+      "cases": 340,
+      "corpus": "dbpedia_webnlg",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3732673267326733,
+          "fn": 777,
+          "fp": 489,
+          "precision": 0.4353348729792148,
+          "recall": 0.3266897746967071,
+          "tp": 377
+        },
+        "strict": {
+          "f1": 0.28723809523809524,
+          "fn": 777,
+          "fp": 1094,
+          "precision": 0.256288239292998,
+          "recall": 0.3266897746967071,
+          "tp": 377
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.35871231476750126,
+          "fn": 803,
+          "fp": 452,
+          "precision": 0.43711083437110837,
+          "recall": 0.304159445407279,
+          "tp": 351
+        },
+        "strict": {
+          "f1": 0.278682016673283,
+          "fn": 803,
+          "fp": 1014,
+          "precision": 0.2571428571428571,
+          "recall": 0.304159445407279,
+          "tp": 351
+        }
+      },
+      "cases": 660,
+      "corpus": "wikidata_tekgen",
+      "regressed_classes": []
+    }
+  ],
+  "dataset_commit": "50a3d255371b8817cdff70fd88459ac82b339cfe",
+  "experiment": "offline paired parser replay",
+  "manifest_sha256": "fc966665a2e53a9fb16fbdff33cdaa5d365206269fef242ae207b86d9694fd4d",
+  "new_model_calls": 0,
+  "ontologies": 29,
+  "original_models": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "original_providers": [
+    "claude_code"
+  ],
+  "parser_implementation_sha256": "f8888ccd1c8d0c33f3b2aedb5d7a719aee7dbaaa124f7c0d26afb2f8b2b17936",
+  "per_ontology": [
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.10256410256410256,
+          "fn": 19,
+          "fp": 16,
+          "precision": 0.1111111111111111,
+          "recall": 0.09523809523809523,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.10256410256410256,
+          "fn": 19,
+          "fp": 16,
+          "precision": 0.1111111111111111,
+          "recall": 0.09523809523809523,
+          "tp": 2
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.10256410256410256,
+          "fn": 19,
+          "fp": 16,
+          "precision": 0.1111111111111111,
+          "recall": 0.09523809523809523,
+          "tp": 2
+        },
+        "strict": {
+          "f1": 0.10256410256410256,
+          "fn": 19,
+          "fp": 16,
+          "precision": 0.1111111111111111,
+          "recall": 0.09523809523809523,
+          "tp": 2
+        }
+      },
+      "cases": 7,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "10_comicscharacter",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.40963855421686746,
+          "fn": 31,
+          "fp": 18,
+          "precision": 0.4857142857142857,
+          "recall": 0.3541666666666667,
+          "tp": 17
+        },
+        "strict": {
+          "f1": 0.34693877551020413,
+          "fn": 31,
+          "fp": 33,
+          "precision": 0.34,
+          "recall": 0.3541666666666667,
+          "tp": 17
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.40963855421686746,
+          "fn": 31,
+          "fp": 18,
+          "precision": 0.4857142857142857,
+          "recall": 0.3541666666666667,
+          "tp": 17
+        },
+        "strict": {
+          "f1": 0.34693877551020413,
+          "fn": 31,
+          "fp": 33,
+          "precision": 0.34,
+          "recall": 0.3541666666666667,
+          "tp": 17
+        }
+      },
+      "cases": 16,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "11_meanoftransportation",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.09090909090909091,
+          "fn": 10,
+          "fp": 10,
+          "precision": 0.09090909090909091,
+          "recall": 0.09090909090909091,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.08333333333333334,
+          "fn": 10,
+          "fp": 12,
+          "precision": 0.07692307692307693,
+          "recall": 0.09090909090909091,
+          "tp": 1
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.09090909090909091,
+          "fn": 10,
+          "fp": 10,
+          "precision": 0.09090909090909091,
+          "recall": 0.09090909090909091,
+          "tp": 1
+        },
+        "strict": {
+          "f1": 0.08333333333333334,
+          "fn": 10,
+          "fp": 12,
+          "precision": 0.07692307692307693,
+          "recall": 0.09090909090909091,
+          "tp": 1
+        }
+      },
+      "cases": 4,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "12_monument",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5536723163841807,
+          "fn": 39,
+          "fp": 40,
+          "precision": 0.550561797752809,
+          "recall": 0.5568181818181818,
+          "tp": 49
+        },
+        "strict": {
+          "f1": 0.5268817204301076,
+          "fn": 39,
+          "fp": 49,
+          "precision": 0.5,
+          "recall": 0.5568181818181818,
+          "tp": 49
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5536723163841807,
+          "fn": 39,
+          "fp": 40,
+          "precision": 0.550561797752809,
+          "recall": 0.5568181818181818,
+          "tp": 49
+        },
+        "strict": {
+          "f1": 0.5268817204301076,
+          "fn": 39,
+          "fp": 49,
+          "precision": 0.5,
+          "recall": 0.5568181818181818,
+          "tp": 49
+        }
+      },
+      "cases": 25,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "13_food",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4369747899159664,
+          "fn": 37,
+          "fp": 30,
+          "precision": 0.4642857142857143,
+          "recall": 0.4126984126984127,
+          "tp": 26
+        },
+        "strict": {
+          "f1": 0.4227642276422764,
+          "fn": 37,
+          "fp": 34,
+          "precision": 0.43333333333333335,
+          "recall": 0.4126984126984127,
+          "tp": 26
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.40707964601769914,
+          "fn": 40,
+          "fp": 27,
+          "precision": 0.46,
+          "recall": 0.36507936507936506,
+          "tp": 23
+        },
+        "strict": {
+          "f1": 0.39999999999999997,
+          "fn": 40,
+          "fp": 29,
+          "precision": 0.4423076923076923,
+          "recall": 0.36507936507936506,
+          "tp": 23
+        }
+      },
+      "cases": 21,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "14_writtenwork",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5584415584415585,
+          "fn": 38,
+          "fp": 30,
+          "precision": 0.589041095890411,
+          "recall": 0.5308641975308642,
+          "tp": 43
+        },
+        "strict": {
+          "f1": 0.5512820512820513,
+          "fn": 38,
+          "fp": 32,
+          "precision": 0.5733333333333334,
+          "recall": 0.5308641975308642,
+          "tp": 43
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.543046357615894,
+          "fn": 40,
+          "fp": 29,
+          "precision": 0.5857142857142857,
+          "recall": 0.5061728395061729,
+          "tp": 41
+        },
+        "strict": {
+          "f1": 0.5359477124183006,
+          "fn": 40,
+          "fp": 31,
+          "precision": 0.5694444444444444,
+          "recall": 0.5061728395061729,
+          "tp": 41
+        }
+      },
+      "cases": 19,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "15_sportsteam",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.1212121212121212,
+          "fn": 96,
+          "fp": 78,
+          "precision": 0.13333333333333333,
+          "recall": 0.1111111111111111,
+          "tp": 12
+        },
+        "strict": {
+          "f1": 0.10619469026548672,
+          "fn": 96,
+          "fp": 106,
+          "precision": 0.1016949152542373,
+          "recall": 0.1111111111111111,
+          "tp": 12
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.12371134020618559,
+          "fn": 96,
+          "fp": 74,
+          "precision": 0.13953488372093023,
+          "recall": 0.1111111111111111,
+          "tp": 12
+        },
+        "strict": {
+          "f1": 0.10909090909090909,
+          "fn": 96,
+          "fp": 100,
+          "precision": 0.10714285714285714,
+          "recall": 0.1111111111111111,
+          "tp": 12
+        }
+      },
+      "cases": 36,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "16_city",
+      "regressed_classes": [
+        "strict",
+        "relation_filtered"
+      ]
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.38961038961038963,
+          "fn": 27,
+          "fp": 20,
+          "precision": 0.42857142857142855,
+          "recall": 0.35714285714285715,
+          "tp": 15
+        },
+        "strict": {
+          "f1": 0.35294117647058826,
+          "fn": 27,
+          "fp": 28,
+          "precision": 0.3488372093023256,
+          "recall": 0.35714285714285715,
+          "tp": 15
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.3287671232876712,
+          "fn": 30,
+          "fp": 19,
+          "precision": 0.3870967741935484,
+          "recall": 0.2857142857142857,
+          "tp": 12
+        },
+        "strict": {
+          "f1": 0.3,
+          "fn": 30,
+          "fp": 26,
+          "precision": 0.3157894736842105,
+          "recall": 0.2857142857142857,
+          "tp": 12
+        }
+      },
+      "cases": 14,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "17_artist",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5858585858585859,
+          "fn": 30,
+          "fp": 11,
+          "precision": 0.725,
+          "recall": 0.4915254237288136,
+          "tp": 29
+        },
+        "strict": {
+          "f1": 0.5321100917431192,
+          "fn": 30,
+          "fp": 21,
+          "precision": 0.58,
+          "recall": 0.4915254237288136,
+          "tp": 29
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5567010309278351,
+          "fn": 32,
+          "fp": 11,
+          "precision": 0.7105263157894737,
+          "recall": 0.4576271186440678,
+          "tp": 27
+        },
+        "strict": {
+          "f1": 0.5046728971962616,
+          "fn": 32,
+          "fp": 21,
+          "precision": 0.5625,
+          "recall": 0.4576271186440678,
+          "tp": 27
+        }
+      },
+      "cases": 25,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "18_scientist",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5272727272727273,
+          "fn": 32,
+          "fp": 20,
+          "precision": 0.5918367346938775,
+          "recall": 0.47540983606557374,
+          "tp": 29
+        },
+        "strict": {
+          "f1": 0.4715447154471545,
+          "fn": 32,
+          "fp": 33,
+          "precision": 0.46774193548387094,
+          "recall": 0.47540983606557374,
+          "tp": 29
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5272727272727273,
+          "fn": 32,
+          "fp": 20,
+          "precision": 0.5918367346938775,
+          "recall": 0.47540983606557374,
+          "tp": 29
+        },
+        "strict": {
+          "f1": 0.4715447154471545,
+          "fn": 32,
+          "fp": 33,
+          "precision": 0.46774193548387094,
+          "recall": 0.47540983606557374,
+          "tp": 29
+        }
+      },
+      "cases": 21,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "19_film",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5813953488372092,
+          "fn": 23,
+          "fp": 13,
+          "precision": 0.6578947368421053,
+          "recall": 0.5208333333333334,
+          "tp": 25
+        },
+        "strict": {
+          "f1": 0.5,
+          "fn": 23,
+          "fp": 27,
+          "precision": 0.4807692307692308,
+          "recall": 0.5208333333333334,
+          "tp": 25
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5476190476190476,
+          "fn": 25,
+          "fp": 13,
+          "precision": 0.6388888888888888,
+          "recall": 0.4791666666666667,
+          "tp": 23
+        },
+        "strict": {
+          "f1": 0.4742268041237114,
+          "fn": 25,
+          "fp": 26,
+          "precision": 0.46938775510204084,
+          "recall": 0.4791666666666667,
+          "tp": 23
+        }
+      },
+      "cases": 12,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "1_university",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.11464968152866242,
+          "fn": 80,
+          "fp": 59,
+          "precision": 0.1323529411764706,
+          "recall": 0.10112359550561797,
+          "tp": 9
+        },
+        "strict": {
+          "f1": 0.09278350515463918,
+          "fn": 80,
+          "fp": 96,
+          "precision": 0.08571428571428572,
+          "recall": 0.10112359550561797,
+          "tp": 9
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.11464968152866242,
+          "fn": 80,
+          "fp": 59,
+          "precision": 0.1323529411764706,
+          "recall": 0.10112359550561797,
+          "tp": 9
+        },
+        "strict": {
+          "f1": 0.09278350515463918,
+          "fn": 80,
+          "fp": 96,
+          "precision": 0.08571428571428572,
+          "recall": 0.10112359550561797,
+          "tp": 9
+        }
+      },
+      "cases": 34,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "2_musicalwork",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4799999999999999,
+          "fn": 24,
+          "fp": 15,
+          "precision": 0.5454545454545454,
+          "recall": 0.42857142857142855,
+          "tp": 18
+        },
+        "strict": {
+          "f1": 0.4390243902439024,
+          "fn": 24,
+          "fp": 22,
+          "precision": 0.45,
+          "recall": 0.42857142857142855,
+          "tp": 18
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.4507042253521127,
+          "fn": 26,
+          "fp": 13,
+          "precision": 0.5517241379310345,
+          "recall": 0.38095238095238093,
+          "tp": 16
+        },
+        "strict": {
+          "f1": 0.4155844155844156,
+          "fn": 26,
+          "fp": 19,
+          "precision": 0.45714285714285713,
+          "recall": 0.38095238095238093,
+          "tp": 16
+        }
+      },
+      "cases": 14,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "3_airport",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4175824175824176,
+          "fn": 32,
+          "fp": 21,
+          "precision": 0.475,
+          "recall": 0.37254901960784315,
+          "tp": 19
+        },
+        "strict": {
+          "f1": 0.37623762376237624,
+          "fn": 32,
+          "fp": 31,
+          "precision": 0.38,
+          "recall": 0.37254901960784315,
+          "tp": 19
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.4175824175824176,
+          "fn": 32,
+          "fp": 21,
+          "precision": 0.475,
+          "recall": 0.37254901960784315,
+          "tp": 19
+        },
+        "strict": {
+          "f1": 0.37623762376237624,
+          "fn": 32,
+          "fp": 31,
+          "precision": 0.38,
+          "recall": 0.37254901960784315,
+          "tp": 19
+        }
+      },
+      "cases": 17,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "4_building",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5909090909090908,
+          "fn": 26,
+          "fp": 10,
+          "precision": 0.7222222222222222,
+          "recall": 0.5,
+          "tp": 26
+        },
+        "strict": {
+          "f1": 0.49056603773584906,
+          "fn": 26,
+          "fp": 28,
+          "precision": 0.48148148148148145,
+          "recall": 0.5,
+          "tp": 26
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5909090909090908,
+          "fn": 26,
+          "fp": 10,
+          "precision": 0.7222222222222222,
+          "recall": 0.5,
+          "tp": 26
+        },
+        "strict": {
+          "f1": 0.49056603773584906,
+          "fn": 26,
+          "fp": 28,
+          "precision": 0.48148148148148145,
+          "recall": 0.5,
+          "tp": 26
+        }
+      },
+      "cases": 18,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "5_athlete",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4264705882352941,
+          "fn": 44,
+          "fp": 34,
+          "precision": 0.4603174603174603,
+          "recall": 0.3972602739726027,
+          "tp": 29
+        },
+        "strict": {
+          "f1": 0.39726027397260266,
+          "fn": 44,
+          "fp": 44,
+          "precision": 0.3972602739726027,
+          "recall": 0.3972602739726027,
+          "tp": 29
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.38461538461538464,
+          "fn": 48,
+          "fp": 32,
+          "precision": 0.43859649122807015,
+          "recall": 0.3424657534246575,
+          "tp": 25
+        },
+        "strict": {
+          "f1": 0.3597122302158274,
+          "fn": 48,
+          "fp": 41,
+          "precision": 0.3787878787878788,
+          "recall": 0.3424657534246575,
+          "tp": 25
+        }
+      },
+      "cases": 23,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "6_politician",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.5714285714285715,
+          "fn": 14,
+          "fp": 7,
+          "precision": 0.6666666666666666,
+          "recall": 0.5,
+          "tp": 14
+        },
+        "strict": {
+          "f1": 0.509090909090909,
+          "fn": 14,
+          "fp": 13,
+          "precision": 0.5185185185185185,
+          "recall": 0.5,
+          "tp": 14
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5714285714285715,
+          "fn": 14,
+          "fp": 7,
+          "precision": 0.6666666666666666,
+          "recall": 0.5,
+          "tp": 14
+        },
+        "strict": {
+          "f1": 0.509090909090909,
+          "fn": 14,
+          "fp": 13,
+          "precision": 0.5185185185185185,
+          "recall": 0.5,
+          "tp": 14
+        }
+      },
+      "cases": 10,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "7_company",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.48717948717948717,
+          "fn": 22,
+          "fp": 18,
+          "precision": 0.5135135135135135,
+          "recall": 0.4634146341463415,
+          "tp": 19
+        },
+        "strict": {
+          "f1": 0.48101265822784817,
+          "fn": 22,
+          "fp": 19,
+          "precision": 0.5,
+          "recall": 0.4634146341463415,
+          "tp": 19
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.48717948717948717,
+          "fn": 22,
+          "fp": 18,
+          "precision": 0.5135135135135135,
+          "recall": 0.4634146341463415,
+          "tp": 19
+        },
+        "strict": {
+          "f1": 0.48101265822784817,
+          "fn": 22,
+          "fp": 19,
+          "precision": 0.5,
+          "recall": 0.4634146341463415,
+          "tp": 19
+        }
+      },
+      "cases": 12,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "8_celestialbody",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6292134831460674,
+          "fn": 22,
+          "fp": 11,
+          "precision": 0.717948717948718,
+          "recall": 0.56,
+          "tp": 28
+        },
+        "strict": {
+          "f1": 0.6292134831460674,
+          "fn": 22,
+          "fp": 11,
+          "precision": 0.717948717948718,
+          "recall": 0.56,
+          "tp": 28
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.627906976744186,
+          "fn": 23,
+          "fp": 9,
+          "precision": 0.75,
+          "recall": 0.54,
+          "tp": 27
+        },
+        "strict": {
+          "f1": 0.627906976744186,
+          "fn": 23,
+          "fp": 9,
+          "precision": 0.75,
+          "recall": 0.54,
+          "tp": 27
+        }
+      },
+      "cases": 12,
+      "corpus": "dbpedia_webnlg",
+      "ontology": "9_astronaut",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3137254901960784,
+          "fn": 21,
+          "fp": 14,
+          "precision": 0.36363636363636365,
+          "recall": 0.27586206896551724,
+          "tp": 8
+        },
+        "strict": {
+          "f1": 0.253968253968254,
+          "fn": 21,
+          "fp": 26,
+          "precision": 0.23529411764705882,
+          "recall": 0.27586206896551724,
+          "tp": 8
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.2916666666666667,
+          "fn": 22,
+          "fp": 12,
+          "precision": 0.3684210526315789,
+          "recall": 0.2413793103448276,
+          "tp": 7
+        },
+        "strict": {
+          "f1": 0.25,
+          "fn": 22,
+          "fp": 20,
+          "precision": 0.25925925925925924,
+          "recall": 0.2413793103448276,
+          "tp": 7
+        }
+      },
+      "cases": 26,
+      "corpus": "wikidata_tekgen",
+      "ontology": "10_culture",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3407407407407408,
+          "fn": 274,
+          "fp": 171,
+          "precision": 0.4020979020979021,
+          "recall": 0.29562982005141386,
+          "tp": 115
+        },
+        "strict": {
+          "f1": 0.28642590286425895,
+          "fn": 274,
+          "fp": 299,
+          "precision": 0.2777777777777778,
+          "recall": 0.29562982005141386,
+          "tp": 115
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.3353474320241692,
+          "fn": 278,
+          "fp": 162,
+          "precision": 0.4065934065934066,
+          "recall": 0.2853470437017995,
+          "tp": 111
+        },
+        "strict": {
+          "f1": 0.2846153846153846,
+          "fn": 278,
+          "fp": 280,
+          "precision": 0.28388746803069054,
+          "recall": 0.2853470437017995,
+          "tp": 111
+        }
+      },
+      "cases": 136,
+      "corpus": "wikidata_tekgen",
+      "ontology": "1_movie",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.39800995024875624,
+          "fn": 150,
+          "fp": 92,
+          "precision": 0.46511627906976744,
+          "recall": 0.34782608695652173,
+          "tp": 80
+        },
+        "strict": {
+          "f1": 0.30075187969924816,
+          "fn": 150,
+          "fp": 222,
+          "precision": 0.26490066225165565,
+          "recall": 0.34782608695652173,
+          "tp": 80
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.3897435897435897,
+          "fn": 154,
+          "fp": 84,
+          "precision": 0.475,
+          "recall": 0.33043478260869563,
+          "tp": 76
+        },
+        "strict": {
+          "f1": 0.2951456310679611,
+          "fn": 154,
+          "fp": 209,
+          "precision": 0.26666666666666666,
+          "recall": 0.33043478260869563,
+          "tp": 76
+        }
+      },
+      "cases": 109,
+      "corpus": "wikidata_tekgen",
+      "ontology": "2_music",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3267326732673267,
+          "fn": 91,
+          "fp": 45,
+          "precision": 0.4230769230769231,
+          "recall": 0.2661290322580645,
+          "tp": 33
+        },
+        "strict": {
+          "f1": 0.2275862068965517,
+          "fn": 91,
+          "fp": 133,
+          "precision": 0.19879518072289157,
+          "recall": 0.2661290322580645,
+          "tp": 33
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.29441624365482233,
+          "fn": 95,
+          "fp": 44,
+          "precision": 0.3972602739726027,
+          "recall": 0.23387096774193547,
+          "tp": 29
+        },
+        "strict": {
+          "f1": 0.20714285714285713,
+          "fn": 95,
+          "fp": 127,
+          "precision": 0.1858974358974359,
+          "recall": 0.23387096774193547,
+          "tp": 29
+        }
+      },
+      "cases": 79,
+      "corpus": "wikidata_tekgen",
+      "ontology": "3_sport",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4202334630350194,
+          "fn": 80,
+          "fp": 69,
+          "precision": 0.43902439024390244,
+          "recall": 0.40298507462686567,
+          "tp": 54
+        },
+        "strict": {
+          "f1": 0.3059490084985836,
+          "fn": 80,
+          "fp": 165,
+          "precision": 0.2465753424657534,
+          "recall": 0.40298507462686567,
+          "tp": 54
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.421875,
+          "fn": 80,
+          "fp": 68,
+          "precision": 0.4426229508196721,
+          "recall": 0.40298507462686567,
+          "tp": 54
+        },
+        "strict": {
+          "f1": 0.3076923076923077,
+          "fn": 80,
+          "fp": 163,
+          "precision": 0.2488479262672811,
+          "recall": 0.40298507462686567,
+          "tp": 54
+        }
+      },
+      "cases": 89,
+      "corpus": "wikidata_tekgen",
+      "ontology": "4_book",
+      "regressed_classes": [
+        "strict",
+        "relation_filtered"
+      ]
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.4242424242424243,
+          "fn": 21,
+          "fp": 17,
+          "precision": 0.45161290322580644,
+          "recall": 0.4,
+          "tp": 14
+        },
+        "strict": {
+          "f1": 0.30434782608695654,
+          "fn": 21,
+          "fp": 43,
+          "precision": 0.24561403508771928,
+          "recall": 0.4,
+          "tp": 14
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.41269841269841273,
+          "fn": 22,
+          "fp": 15,
+          "precision": 0.4642857142857143,
+          "recall": 0.37142857142857144,
+          "tp": 13
+        },
+        "strict": {
+          "f1": 0.31325301204819284,
+          "fn": 22,
+          "fp": 35,
+          "precision": 0.2708333333333333,
+          "recall": 0.37142857142857144,
+          "tp": 13
+        }
+      },
+      "cases": 38,
+      "corpus": "wikidata_tekgen",
+      "ontology": "5_military",
+      "regressed_classes": [
+        "strict"
+      ]
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.3106796116504854,
+          "fn": 48,
+          "fp": 23,
+          "precision": 0.41025641025641024,
+          "recall": 0.25,
+          "tp": 16
+        },
+        "strict": {
+          "f1": 0.2644628099173554,
+          "fn": 48,
+          "fp": 41,
+          "precision": 0.2807017543859649,
+          "recall": 0.25,
+          "tp": 16
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.2978723404255319,
+          "fn": 50,
+          "fp": 16,
+          "precision": 0.4666666666666667,
+          "recall": 0.21875,
+          "tp": 14
+        },
+        "strict": {
+          "f1": 0.2545454545454546,
+          "fn": 50,
+          "fp": 32,
+          "precision": 0.30434782608695654,
+          "recall": 0.21875,
+          "tp": 14
+        }
+      },
+      "cases": 38,
+      "corpus": "wikidata_tekgen",
+      "ontology": "6_computer",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.6506024096385542,
+          "fn": 16,
+          "fp": 13,
+          "precision": 0.675,
+          "recall": 0.627906976744186,
+          "tp": 27
+        },
+        "strict": {
+          "f1": 0.5934065934065934,
+          "fn": 16,
+          "fp": 21,
+          "precision": 0.5625,
+          "recall": 0.627906976744186,
+          "tp": 27
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.5789473684210527,
+          "fn": 21,
+          "fp": 11,
+          "precision": 0.6666666666666666,
+          "recall": 0.5116279069767442,
+          "tp": 22
+        },
+        "strict": {
+          "f1": 0.5301204819277109,
+          "fn": 21,
+          "fp": 18,
+          "precision": 0.55,
+          "recall": 0.5116279069767442,
+          "tp": 22
+        }
+      },
+      "cases": 33,
+      "corpus": "wikidata_tekgen",
+      "ontology": "7_space",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.23076923076923075,
+          "fn": 19,
+          "fp": 21,
+          "precision": 0.2222222222222222,
+          "recall": 0.24,
+          "tp": 6
+        },
+        "strict": {
+          "f1": 0.13953488372093023,
+          "fn": 19,
+          "fp": 55,
+          "precision": 0.09836065573770492,
+          "recall": 0.24,
+          "tp": 6
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.16666666666666666,
+          "fn": 21,
+          "fp": 19,
+          "precision": 0.17391304347826086,
+          "recall": 0.16,
+          "tp": 4
+        },
+        "strict": {
+          "f1": 0.10126582278481013,
+          "fn": 21,
+          "fp": 50,
+          "precision": 0.07407407407407407,
+          "recall": 0.16,
+          "tp": 4
+        }
+      },
+      "cases": 35,
+      "corpus": "wikidata_tekgen",
+      "ontology": "8_politics",
+      "regressed_classes": []
+    },
+    {
+      "after": {
+        "relation_filtered": {
+          "f1": 0.37209302325581395,
+          "fn": 57,
+          "fp": 24,
+          "precision": 0.5,
+          "recall": 0.2962962962962963,
+          "tp": 24
+        },
+        "strict": {
+          "f1": 0.24742268041237112,
+          "fn": 57,
+          "fp": 89,
+          "precision": 0.21238938053097345,
+          "recall": 0.2962962962962963,
+          "tp": 24
+        }
+      },
+      "before": {
+        "relation_filtered": {
+          "f1": 0.3414634146341463,
+          "fn": 60,
+          "fp": 21,
+          "precision": 0.5,
+          "recall": 0.25925925925925924,
+          "tp": 21
+        },
+        "strict": {
+          "f1": 0.23076923076923075,
+          "fn": 60,
+          "fp": 80,
+          "precision": 0.2079207920792079,
+          "recall": 0.25925925925925924,
+          "tp": 21
+        }
+      },
+      "cases": 77,
+      "corpus": "wikidata_tekgen",
+      "ontology": "9_nature",
+      "regressed_classes": []
+    }
+  ],
+  "population_cases": 6076,
+  "regression_gate": "FAIL",
+  "response_files_sha256": {
+    "responses/dbpedia_webnlg/10_comicscharacter.jsonl": "13d70ceefa757ca2eb719724f198e542116a27f47c5c315120a7daf606f62edd",
+    "responses/dbpedia_webnlg/11_meanoftransportation.jsonl": "4f41573bf0e9111fed4f8b78fd59d027562d0bbb73b798c36f87c8cf30ba9469",
+    "responses/dbpedia_webnlg/12_monument.jsonl": "be4726d9adde5ce1c30b87d1e973ba4e9e94d9711e0b71ba40dbf2f0194257d9",
+    "responses/dbpedia_webnlg/13_food.jsonl": "c0cd762750eb48e93db68b4f1e4bc9e06f805eb1a08da60bdf6e63b809707583",
+    "responses/dbpedia_webnlg/14_writtenwork.jsonl": "11064bb6ad270823979c641da64fea89996f9c6c2d24e50f3131a89cd587f098",
+    "responses/dbpedia_webnlg/15_sportsteam.jsonl": "f757bedc367dc0a239b7f9f2c3f944c0814153697e6fe5b6df52b2f4c5878660",
+    "responses/dbpedia_webnlg/16_city.jsonl": "36b3fe9c309299f215348fe8890804afd6652b69c91bc52b816e48e9b7c5a97b",
+    "responses/dbpedia_webnlg/17_artist.jsonl": "0b582f43b4b349a79b97485e8102e0addf742604433e16976c275f731b3d2cbd",
+    "responses/dbpedia_webnlg/18_scientist.jsonl": "64829a2b69b4e0b8cad3fc9056b3acc8927f7321deb318fdc85ab3e8c0b9a6cf",
+    "responses/dbpedia_webnlg/19_film.jsonl": "689c9b01f34957a284400f15c46bb59994c4dd3be74fe2a6bdb4949b3132a94b",
+    "responses/dbpedia_webnlg/1_university.jsonl": "b699e490e1d1dff14e728e26024140ffd4c29ff080cd985b71dd3069905b23d2",
+    "responses/dbpedia_webnlg/2_musicalwork.jsonl": "81c401c73ef6963014fef5e213f1a3f2368f0243bfa12a8906f6683e98f7861c",
+    "responses/dbpedia_webnlg/3_airport.jsonl": "cb85dc5ade832e620c1cc6221c71a4d9a2807af61cedb4787803195d20416481",
+    "responses/dbpedia_webnlg/4_building.jsonl": "ae47b0a8285c2d2c1c3e5de70488a531aba41661fc9e3abc15a38611bbef1f9e",
+    "responses/dbpedia_webnlg/5_athlete.jsonl": "7ca19d473968acd0cb76e747e2db821f39738dd8dfdf8b233e2bda73e5d059dd",
+    "responses/dbpedia_webnlg/6_politician.jsonl": "34ccb63bf90accf8cb8f3d5a497f429bc95493f9d8ecb1fe37236675ed7cd981",
+    "responses/dbpedia_webnlg/7_company.jsonl": "a78fcd1700df303d64d0a3d4d29eb5324de3bf160f42fb1498fb8749f77338cb",
+    "responses/dbpedia_webnlg/8_celestialbody.jsonl": "73ea8799688ca4f11e563b0e82094c66348075ac84296e25f3d87463e1d53273",
+    "responses/dbpedia_webnlg/9_astronaut.jsonl": "393dd0cfb2385353a399b3b12ab2c30bfc80a7e0dac35c61ab4df95e349c2690",
+    "responses/wikidata_tekgen/10_culture.jsonl": "5b457ee9745a624b835e975ad99133b534cb9cf7eb687e767c386858eec84910",
+    "responses/wikidata_tekgen/1_movie.jsonl": "81798926bafa9245271083b82be692737afbf40afc26147240fc5c4ac94c9c6b",
+    "responses/wikidata_tekgen/2_music.jsonl": "b8e708448c9ca0e5ee87f843caf127bbb0af22c35c9669f4d658cb86335fdec9",
+    "responses/wikidata_tekgen/3_sport.jsonl": "960bf2327cb3b940586d4df35d9060dbcbadef90b732d5cd9ab22f3114096e34",
+    "responses/wikidata_tekgen/4_book.jsonl": "60f0d1e503bf3212afe9a6b020c7579cf1348115004404ab55754c1249fd947a",
+    "responses/wikidata_tekgen/5_military.jsonl": "18a74a06ce81ec2cf1a765acb20781b6379b943fc72d82234dbdef9054fca270",
+    "responses/wikidata_tekgen/6_computer.jsonl": "6255ef629e20325791b086c3ae67b4e84cbb543eccc56c9baacbdfd9eac9ea93",
+    "responses/wikidata_tekgen/7_space.jsonl": "3f975ebace6d38ae1bc5d7a263bd1c5c95a22bb840b02332be2e4a9dc24ee60f",
+    "responses/wikidata_tekgen/8_politics.jsonl": "5d58d59cef93ffbb44119524a8cc24f945dd8456460369198a4766a9ade6ab02",
+    "responses/wikidata_tekgen/9_nature.jsonl": "a2e00d7c31805fc3b1159541416899b4408db40518586d7a38fff18a5d9593fb"
+  },
+  "schema_version": 1,
+  "selected_cases": 1000,
+  "selection_sha256": "ba75babdd2dca9b675c1208543c132895c2aeb32f920dc17130b8d69da9db0ee",
+  "stage_counts": {
+    "fenced-json-v2": {
+      "accepted": 2536,
+      "evidence_not_grounded": 128,
+      "generated": 2902,
+      "malformed_output": 6,
+      "object_not_grounded": 158,
+      "relation_outside_ontology": 19,
+      "subject_not_grounded": 61,
+      "syntax_repaired": 994
+    },
+    "strict-v1": {
+      "accepted": 2388,
+      "evidence_not_grounded": 123,
+      "generated": 2712,
+      "malformed_output": 141,
+      "object_not_grounded": 140,
+      "relation_outside_ontology": 15,
+      "subject_not_grounded": 46,
+      "syntax_repaired": 859
+    }
+  },
+  "unresolved_malformed_ids": [
+    "ont_10_culture_test_28",
+    "ont_3_sport_test_13",
+    "ont_3_sport_test_406",
+    "ont_4_building_test_87",
+    "ont_6_politician_test_13",
+    "ont_9_astronaut_test_12"
+  ]
+}

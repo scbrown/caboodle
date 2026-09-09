@@ -121,3 +121,17 @@ Code, on the recorded date and model string, and that reproducing it needs a Cla
 
 `reconcilers.json` declares the old film plugin as domain-specific. It is excluded from v3 and
 cannot contribute to either general corpus aggregate.
+
+### Versioned parser replay
+
+`score --parser strict-v1` is the unchanged default. The opt-in
+`--parser fenced-json-v2` accepts exactly one JSON fence with surrounding
+commentary and uses string-aware trailing-comma repair. Multiple blocks remain
+ambiguous and are rejected; ontology and evidence validation still apply.
+
+The [paired parser replay](results/2026-09-09-parser-replay/REPORT.md) uses the
+same saved 1,000-case stratified L1 responses, with zero new model calls. Its
+aggregate F1 gains coexist with three ontology regressions, so the comparison
+runner exits3 and the default parser stays unchanged. Reproduce with
+`scripts/compare-text2kg-parsers.py`; it pins input hashes and selection, verifies
+the legacy baseline, and refuses to hide a per-ontology regression in an average.

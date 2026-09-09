@@ -13,6 +13,7 @@ from typing import Iterable
 PIPELINE = "caboodle-text2kg-v3-ontology-guided"
 SMOKE_SEED = "aegis-tydvlg.4-l1-smoke-v1"
 PROMPT_TEMPLATE = "ontology-guided-json-evidence-v1"
+PARSERS = ("strict-v1", "fenced-json-v2")
 
 
 def canonical_json(value: object) -> str:
@@ -225,7 +226,12 @@ def validate_candidate(candidate: object, sentence: str, ontology: dict) -> tupl
     return "accepted", values
 
 
-def parse_response(raw: str) -> tuple[dict | None, bool]:
+def parse_response(raw: str, *, parser: str = "strict-v1") -> tuple[dict | None, bool]:
+    if parser not in PARSERS:
+        raise ValueError(f"unknown response parser: {parser}")
+    if parser == "fenced-json-v2":
+        return _parse_fenced_json(raw)
+    # Preserve the published parser byte-for-byte for reproducible comparisons.
     try:
         return json.loads(raw), False
     except json.JSONDecodeError:
@@ -237,6 +243,65 @@ def parse_response(raw: str) -> tuple[dict | None, bool]:
             return json.loads(repaired), True
         except json.JSONDecodeError:
             return None, False
+
+
+def _remove_trailing_commas(text: str) -> str:
+    """Repair punctuation outside strings; a regex corrupts literal ',}' values."""
+    result = []
+    in_string = escaped = False
+    for index, char in enumerate(text):
+        if in_string:
+            result.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+            result.append(char)
+        elif char == ',' and text[index + 1:].lstrip().startswith(('}', ']')):
+            continue
+        else:
+            result.append(char)
+    return ''.join(result)
+
+
+def _parse_fenced_json(raw: str) -> tuple[dict | None, bool]:
+    """Read one explicit JSON block, not arbitrary braces in model commentary.
+
+    Multiple blocks are ambiguous and refused, even if one would score better.
+    This parser receives no ontology, sentence, gold, or case identity. It repairs
+    the response envelope only; the existing evidence validator still decides
+    which triples are grounded.
+    """
+    def shape(value):
+        return value if isinstance(value, dict) and isinstance(value.get('triples'), list) else None
+
+    try:
+        return shape(json.loads(raw)), False
+    except json.JSONDecodeError:
+        pass
+    fences = list(re.finditer(r"(?m)^[ \t]*```[^\n]*$", raw))
+    if len(fences) != 2:
+        return None, False
+    opening, closing = fences
+    if not re.fullmatch(r"[ \t]*```(?:json)?[ \t]*", opening.group()):
+        return None, False
+    if not re.fullmatch(r"[ \t]*```[ \t]*", closing.group()):
+        return None, False
+    content = raw[opening.end():closing.start()]
+    try:
+        # Try valid JSON first: repair must not modify string values.
+        payload = json.loads(content)
+    except json.JSONDecodeError:
+        try:
+            payload = json.loads(_remove_trailing_commas(content))
+        except json.JSONDecodeError:
+            return None, False
+    payload = shape(payload)
+    return (payload, True) if payload is not None else (None, False)
 
 
 def validate_manifest(dataset_root: Path, manifest: dict) -> dict:
@@ -320,7 +385,10 @@ def validate_reconcilers(registry: dict, ontology_ids: set[tuple[str, str]]) -> 
             raise ValueError(f"reconciler {item['id']} has invalid mode")
 
 
-def score_suite(dataset_root: Path, manifest: dict, response_root: Path, lever: str = "L0") -> dict:
+def score_suite(dataset_root: Path, manifest: dict, response_root: Path, lever: str = "L0",
+                *, parser: str = "strict-v1") -> dict:
+    if parser not in PARSERS:
+        raise ValueError(f"unknown response parser: {parser}")
     per_ontology, case_rows, stage_rows = [], [], []
     aggregate: dict[str, dict[str, list[int]]] = defaultdict(
         lambda: {"strict": [0, 0, 0], "relation_filtered": [0, 0, 0]})
@@ -341,7 +409,7 @@ def score_suite(dataset_root: Path, manifest: dict, response_root: Path, lever: 
             else:
                 payload, repaired = (({"triples": response["triples"]}, False)
                                      if lever == "L0" and isinstance(response.get("triples"), list)
-                                     else parse_response(str(response.get("raw_response", response.get("response", "")))))
+                                     else parse_response(str(response.get("raw_response", response.get("response", ""))), parser=parser))
                 if repaired:
                     stage["syntax_repaired"] += 1
                 if payload is None:
@@ -420,7 +488,7 @@ def score_suite(dataset_root: Path, manifest: dict, response_root: Path, lever: 
                 predicted = {normalized_triple(item) for item in response.get("triples", [])
                              if isinstance(item, list) and len(item) == 3}
             else:
-                payload, _ = parse_response(str(response.get("raw_response", "")))
+                payload, _ = parse_response(str(response.get("raw_response", "")), parser=parser)
                 for candidate in payload.get("triples", []) if isinstance(payload, dict) else []:
                     verdict, value = validate_candidate(candidate, row["sent"], ontology)
                     if verdict == "accepted" and value:
@@ -432,5 +500,6 @@ def score_suite(dataset_root: Path, manifest: dict, response_root: Path, lever: 
                     unseen_counts[label][index] += counts[index]
     strata.append({"name": "wikidata_unseen", "cases": unseen_cases,
                    **{label: metric(*values) for label, values in unseen_counts.items()}})
-    return {"pipeline": PIPELINE, "lever": lever, "corpora": corpus_rows, "ontologies": per_ontology,
+    return {"pipeline": PIPELINE if parser == "strict-v1" else PIPELINE + "+" + parser,
+            "parser": parser, "lever": lever, "corpora": corpus_rows, "ontologies": per_ontology,
             "strata": strata, "cases": case_rows, "stages": stage_rows}

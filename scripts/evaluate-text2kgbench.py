@@ -15,7 +15,7 @@ import urllib.request
 from pathlib import Path
 
 from text2kg_grounded import canonical_relation, reconcile
-from text2kg_general import (PIPELINE, canonical_json, compile_ontology, prefix_take, request_hash,
+from text2kg_general import (PARSERS, PIPELINE, canonical_json, compile_ontology, prefix_take, request_hash,
                              score_suite, sha256_bytes, smoke_ids, stratified_ids, validate_manifest,
                              validate_reconcilers)
 
@@ -273,6 +273,8 @@ def general_main(argv: list[str]) -> int:
             command.add_argument("--responses", required=True, type=Path)
             command.add_argument("--output", required=True, type=Path)
             command.add_argument("--lever", choices=("L0", "L1"), default="L0")
+            command.add_argument("--parser", choices=PARSERS, default="strict-v1",
+                                 help="versioned response parser; default preserves published scores")
     command = sub.add_parser("run")
     command.add_argument("--dataset-root", required=True, type=Path)
     command.add_argument("--manifest", required=True, type=Path)
@@ -315,7 +317,7 @@ def general_main(argv: list[str]) -> int:
         print(json.dumps(inventory, indent=2, sort_keys=True))
         return 0
     if args.command == "score":
-        result = score_suite(args.dataset_root, manifest, args.responses, args.lever)
+        result = score_suite(args.dataset_root, manifest, args.responses, args.lever, parser=args.parser)
         args.output.mkdir(parents=True, exist_ok=True)
         write_json(args.output / "cases.json", result["cases"])
         write_json(args.output / "errors.json", result["stages"])
@@ -323,7 +325,7 @@ def general_main(argv: list[str]) -> int:
         write_json(args.output / "corpus-summary.json", result["corpora"])
         write_json(args.output / "strata-summary.json", result["strata"])
         artifacts = {path.name: digest(path) for path in sorted(args.output.glob("*.json"))}
-        report = {"schema_version": 3, "pipeline": PIPELINE, "scope": inventory,
+        report = {"schema_version": 3, "pipeline": result["pipeline"], "parser": args.parser, "scope": inventory,
                   "scorer": manifest["scorer"], "artifacts": artifacts}
         write_json(args.output / "report.json", report)
         print(json.dumps(report, indent=2, sort_keys=True))

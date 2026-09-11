@@ -17,9 +17,9 @@ use crate::{
 const SHANTYTOWN_VERSION: &str = "0.4.0";
 const SHANTYTOWN_WHEEL_SHA256: &str =
     "afd52cb5e2b8c67eef8fa7e3aa4e8c725419d0f1f3e84184d6a01b52134ca8ac";
-const CREEL_REVISION: &str = "57606dcfa0ff72d6c1bb083d70644c9926b181eb";
+const CREEL_REVISION: &str = "0003aee9b1eec512e59d13b64a6c5a4d3b8b55d6";
 const CREEL_ARCHIVE_SHA256: &str =
-    "22dea10d41e45ab89d6c4e4d2421d38d35369563cc1f3fb26daa4ecc6c2b3aea";
+    "951809b5ce49f3180872c5a634c7e34bf57e7be0195da70e1dfe32c50101801c";
 
 #[derive(Debug, Default)]
 pub struct CrewEvidence {

@@ -490,9 +490,9 @@ impl Adapter for Bobbin {
     }
 }
 
-const YUPANA_VERSION: &str = "0.7.0";
+const YUPANA_VERSION: &str = "0.8.0";
 const YUPANA_ARCHIVE_SHA256: &str =
-    "4de483b57e5b57270bfea3d173ffee01dd9b1d9b119357c7af0bf83d7bbb5938";
+    "0b503e83968d35843389b0a0b75822691c652e916fad3cbbeae981e55a67d9bb";
 
 impl Adapter for Yupana {
     fn name(&self) -> ToolName {
@@ -612,6 +612,28 @@ where
     Ok(result)
 }
 
+// Review and install the executable the user's shell actually selects. CARGO_HOME
+// must not silently override a different dp on PATH (aegis-fnp1wp).
+fn desire_path_program() -> Result<PathBuf> {
+    if let Some(path) = env::var_os("PATH") {
+        for directory in env::split_paths(&path) {
+            let candidate = directory.join("dp");
+            if candidate.is_file() {
+                #[cfg(unix)]
+                {
+                    use std::os::unix::fs::PermissionsExt;
+                    if candidate.metadata()?.permissions().mode() & 0o111 == 0 {
+                        continue;
+                    }
+                }
+                return fs::canonicalize(candidate).context("resolve Desire Path executable");
+            }
+        }
+    }
+    let home = env::var_os("HOME").context("HOME is required to install Desire Path")?;
+    Ok(PathBuf::from(home).join(".local/bin/dp"))
+}
+
 const DESIRE_PATH_REVISION: &str = "6c5840f4037afff62494a010ddef8cac6acdc8f2";
 const DESIRE_PATH_VERSION: &str = "v0.2.1";
 
@@ -624,13 +646,18 @@ impl Adapter for DesirePath {
         format!("dp {DESIRE_PATH_VERSION} ({})", &DESIRE_PATH_REVISION[..7])
     }
 
+    fn is_current(&self, installed: &str) -> bool {
+        let expected = self.desired_version();
+        installed.trim_start_matches("dp ").trim_start_matches('v')
+            == expected.trim_start_matches("dp ").trim_start_matches('v')
+    }
+
     fn install(&self) -> Result<()> {
-        let home = env::var_os("HOME").context("HOME is required to install Desire Path")?;
-        let bin = env::var_os("CARGO_HOME")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from(home).join(".cargo"))
-            .join("bin");
-        fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
+        let executable = desire_path_program()?;
+        let bin = executable
+            .parent()
+            .context("Desire Path needs an install directory")?;
+        fs::create_dir_all(bin).with_context(|| format!("create {}", bin.display()))?;
         let ldflags = format!(
             "-X github.com/scbrown/desire-path/internal/cli.Version={DESIRE_PATH_VERSION} -X github.com/scbrown/desire-path/internal/cli.Commit={DESIRE_PATH_REVISION}"
         );
@@ -642,7 +669,7 @@ impl Adapter for DesirePath {
                 &ldflags,
                 &format!("github.com/scbrown/desire-path/cmd/dp@{DESIRE_PATH_REVISION}"),
             ])
-            .env("GOBIN", &bin);
+            .env("GOBIN", bin);
         let result = command
             .output()
             .context("build pinned Desire Path revision")?;
@@ -657,16 +684,18 @@ impl Adapter for DesirePath {
     }
 
     fn version(&self) -> Result<String> {
-        let result = checked(cargo_program("dp"), ["version"], None)?;
+        let result = checked(desire_path_program()?, ["version"], None)?;
         let version = String::from_utf8_lossy(&result.stdout).trim().to_owned();
-        if !version.contains(DESIRE_PATH_VERSION) || !version.contains(&DESIRE_PATH_REVISION[..7]) {
+        if !version.contains(DESIRE_PATH_VERSION.trim_start_matches('v'))
+            || !version.contains(&DESIRE_PATH_REVISION[..7])
+        {
             bail!("dp version is not the CABOODLE-pinned revision: {version}");
         }
         Ok(version)
     }
 
     fn verify(&self) -> Result<()> {
-        let dp = cargo_program("dp");
+        let dp = desire_path_program()?;
         let root = tempfile::tempdir().context("create Desire Path verification directory")?;
         let db = root.path().join("desires.db");
         let marker = "caboodle_desire_path_marker";

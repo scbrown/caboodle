@@ -104,7 +104,7 @@ exit 2
         bin,
         "bobbin",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.10.4'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.16.2'; exit 0; fi
 if [ "${1:-}" = "init" ]; then mkdir -p .bobbin; exit 0; fi
 if [ "${1:-}" = "index" ]; then
   if [ -f fixture.rs ]; then cp fixture.rs .bobbin/indexed; else : > .bobbin/indexed; fi
@@ -127,7 +127,7 @@ exit 2
         bin,
         "yupana",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'yupana 0.6.4'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'yupana 0.7.0'; exit 0; fi
 if [ "${1:-}" = "analyze" ]; then exit 0; fi
 if [ "${1:-}" = "callers" ]; then
   if [ -f fixture.rs ]; then echo 'fixture.rs:2 caboodle_yupana_caller';
@@ -141,7 +141,7 @@ exit 2
         bin,
         "dp",
         r#"
-if [ "${1:-}" = "version" ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi
+if [ "${1:-}" = "version" ]; then echo 'dp v0.2.1 (6c5840f)'; exit 0; fi
 db=''
 while [ "$#" -gt 0 ]; do
   if [ "$1" = "--db" ]; then shift; db=$1; fi
@@ -204,7 +204,7 @@ esac
     fs::create_dir_all(camayoc.join("ontology")).unwrap();
     fs::write(
         camayoc.join("REVISION"),
-        "f33da14bba7bdd579852f5ddaa5d6328197d806f\n",
+        "65d7206d3ead59069f50db00066701c9191bc8d0\n",
     )
     .unwrap();
     fs::write(camayoc.join("scripts/bootstrap.sh"), "#!/bin/sh\nexit 0\n").unwrap();
@@ -217,7 +217,7 @@ esac
     fs::create_dir_all(creel.join("app/wasm/pkg")).unwrap();
     fs::write(
         creel.join("REVISION"),
-        "57606dcfa0ff72d6c1bb083d70644c9926b181eb\n",
+        "0003aee9b1eec512e59d13b64a6c5a4d3b8b55d6\n",
     )
     .unwrap();
     fs::write(creel.join("app/index.html"), "<!doctype html>").unwrap();
@@ -424,7 +424,7 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
         .arg("check-updates")
         .assert()
         .success()
-        .stdout(predicate::str::contains("bobbin: current (bobbin 0.10.4)"));
+        .stdout(predicate::str::contains("bobbin: current (bobbin 0.16.2)"));
 
     fake_tool(
         &bin,
@@ -499,7 +499,7 @@ fn check_updates_reads_desire_path_from_cargo_home_before_a_shadowing_path() {
     fake_tool(
         &cargo_bin,
         "dp",
-        "if [ \"${1:-}\" = version ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.2.1 (6c5840f)'; exit 0; fi\nexit 2",
     );
 
     command(root.path(), &bin)
@@ -513,7 +513,7 @@ fn check_updates_reads_desire_path_from_cargo_home_before_a_shadowing_path() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "desire-path: current (dp v0.0.0-caboodle.20260827 (1ca7b36))",
+            "desire-path: current (dp v0.2.1 (6c5840f))",
         ));
 }
 
@@ -546,7 +546,7 @@ fn expanded_adapter_negative_controls_turn_verification_red() {
     fake_tool(
         &yupana_bin,
         "yupana",
-        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.6.4'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.7.0'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
     );
     command(yupana_root.path(), &yupana_bin)
         .args(["plan", "--profile", "code-intel"])
@@ -567,7 +567,7 @@ fn expanded_adapter_negative_controls_turn_verification_red() {
     fake_tool(
         &dp_bin,
         "dp",
-        "if [ \"${1:-}\" = version ]; then echo 'dp v0.0.0-caboodle.20260827 (1ca7b36)'; exit 0; fi\necho '[{\"tool_name\":\"caboodle_desire_path_marker\"}]'",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.2.1 (6c5840f)'; exit 0; fi\necho '[{\"tool_name\":\"caboodle_desire_path_marker\"}]'",
     );
     command(dp_root.path(), &dp_bin)
         .args(["plan", "--profile", "everything"])

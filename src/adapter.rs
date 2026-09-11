@@ -361,7 +361,7 @@ struct Yupana;
 struct DesirePath;
 
 struct Camayoc;
-const BOBBIN_VERSION: &str = "0.10.4";
+const BOBBIN_VERSION: &str = "0.16.2";
 
 impl Adapter for Camayoc {
     fn name(&self) -> ToolName {
@@ -490,9 +490,9 @@ impl Adapter for Bobbin {
     }
 }
 
-const YUPANA_VERSION: &str = "0.6.4";
+const YUPANA_VERSION: &str = "0.7.0";
 const YUPANA_ARCHIVE_SHA256: &str =
-    "f227b965741851dff8f3bc59dbb80c80a0bd80d1469739b596c2eac0b36bcca2";
+    "4de483b57e5b57270bfea3d173ffee01dd9b1d9b119357c7af0bf83d7bbb5938";
 
 impl Adapter for Yupana {
     fn name(&self) -> ToolName {
@@ -612,8 +612,8 @@ where
     Ok(result)
 }
 
-const DESIRE_PATH_REVISION: &str = "1ca7b36a73a6c931ac962dbfd093455f85f2d8ca";
-const DESIRE_PATH_VERSION: &str = "v0.0.0-caboodle.20260827";
+const DESIRE_PATH_REVISION: &str = "6c5840f4037afff62494a010ddef8cac6acdc8f2";
+const DESIRE_PATH_VERSION: &str = "v0.2.1";
 
 impl Adapter for DesirePath {
     fn name(&self) -> ToolName {
@@ -834,9 +834,9 @@ fn ensure_bobbin_link(link: &Path, target: &Path) -> Result<()> {
     Ok(())
 }
 
-const CAMAYOC_REVISION: &str = "f33da14bba7bdd579852f5ddaa5d6328197d806f";
+const CAMAYOC_REVISION: &str = "65d7206d3ead59069f50db00066701c9191bc8d0";
 const CAMAYOC_ARCHIVE_SHA256: &str =
-    "e3e9ebb2975dd6c518c051930f5dd9b61560046195793356cde8b62d42483086";
+    "6673178778e22a9540a4375d27cb901535b1037d42cb85e3fc5ee7a046558e4d";
 
 fn camayoc_root() -> Result<PathBuf> {
     if let Some(path) = env::var_os("CABOODLE_CAMAYOC_ROOT") {

@@ -127,7 +127,7 @@ exit 2
         bin,
         "yupana",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'yupana 0.7.0'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'yupana 0.8.0'; exit 0; fi
 if [ "${1:-}" = "analyze" ]; then exit 0; fi
 if [ "${1:-}" = "callers" ]; then
   if [ -f fixture.rs ]; then echo 'fixture.rs:2 caboodle_yupana_caller';
@@ -484,7 +484,7 @@ fn check_updates_reads_quipu_from_cargo_home_before_a_shadowing_path() {
 }
 
 #[test]
-fn check_updates_reads_desire_path_from_cargo_home_before_a_shadowing_path() {
+fn check_updates_rejects_stale_path_despite_current_cargo_copy() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     let cargo_bin = root.path().join("cargo/bin");
@@ -511,9 +511,43 @@ fn check_updates_reads_desire_path_from_cargo_home_before_a_shadowing_path() {
         .env("CARGO_HOME", root.path().join("cargo"))
         .arg("check-updates")
         .assert()
+        .failure()
+        .stdout(predicate::str::contains(
+            "dp version is not the CABOODLE-pinned revision: dp c964ea2",
+        ));
+}
+
+#[test]
+fn check_updates_accepts_current_path_despite_stale_cargo_copy() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    let cargo_bin = root.path().join("cargo/bin");
+    fs::create_dir(&bin).unwrap();
+    fs::create_dir_all(&cargo_bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fake_tool(
+        &bin,
+        "dp",
+        "if [ \"${1:-}\" = version ]; then echo 'dp 0.2.1 (6c5840f)'; exit 0; fi\nexit 2",
+    );
+    fake_tool(
+        &cargo_bin,
+        "dp",
+        "if [ \"${1:-}\" = version ]; then echo 'dp stale (1ca7b36)'; exit 0; fi\nexit 2",
+    );
+
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .args(["plan", "--profile", "everything"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .env("CARGO_HOME", root.path().join("cargo"))
+        .arg("check-updates")
+        .assert()
         .success()
         .stdout(predicate::str::contains(
-            "desire-path: current (dp v0.2.1 (6c5840f))",
+            "desire-path: current (dp 0.2.1 (6c5840f))",
         ));
 }
 
@@ -546,7 +580,7 @@ fn expanded_adapter_negative_controls_turn_verification_red() {
     fake_tool(
         &yupana_bin,
         "yupana",
-        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.7.0'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.8.0'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
     );
     command(yupana_root.path(), &yupana_bin)
         .args(["plan", "--profile", "code-intel"])

@@ -75,9 +75,10 @@ where
     let result = output(program, args, cwd)?;
     if !result.status.success() {
         bail!(
-            "{} failed ({}): {}",
+            "{} failed ({})\nstdout:\n{}\nstderr:\n{}",
             program.to_string_lossy(),
             result.status,
+            String::from_utf8_lossy(&result.stdout).trim(),
             String::from_utf8_lossy(&result.stderr).trim()
         );
     }
@@ -1116,6 +1117,31 @@ mod flavor_tests {
 mod tests {
     use super::ensure_bobbin_link;
     use std::{fs, os::unix::fs::symlink};
+
+    #[test]
+    fn failed_commands_preserve_both_diagnostic_streams_and_status() {
+        for script in [
+            "printf 'bootstrap rejected'; exit 2",
+            "printf 'bootstrap rejected' >&2; exit 2",
+            "printf 'probe started'; printf 'bootstrap rejected' >&2; exit 2",
+            "exit 2",
+        ] {
+            let error = super::checked("sh", ["-c", script], None)
+                .unwrap_err()
+                .to_string();
+            assert!(error.contains("exit status: 2"), "{error}");
+            assert!(error.contains("stdout:\n"), "{error}");
+            assert!(error.contains("stderr:\n"), "{error}");
+            if script.contains("bootstrap rejected") {
+                assert!(error.contains("bootstrap rejected"), "{error}");
+            }
+            if script.contains("probe started") {
+                assert!(error.contains("probe started"), "{error}");
+            }
+        }
+        let output = super::checked("sh", ["-c", "printf 'successful output'"], None).unwrap();
+        assert_eq!(output.stdout, b"successful output");
+    }
 
     #[test]
     fn bobbin_link_accepts_its_restored_cache_entry_but_refuses_foreign_paths() {

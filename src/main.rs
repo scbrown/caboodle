@@ -107,6 +107,14 @@ enum Commands {
         #[arg(long)]
         creel_admission: Option<PathBuf>,
     },
+    /// Update this installer from a published checksummed release
+    #[cfg(unix)]
+    UpdateSelf {
+        #[arg(long, default_value = ".caboodle/state.json")]
+        state: PathBuf,
+        #[arg(long)]
+        check: bool,
+    },
     /// Track a published binary release for one tool in an existing reviewed plan
     #[cfg(unix)]
     UpdateRelease {
@@ -326,6 +334,10 @@ fn main() -> Result<()> {
                     creel_admission,
                 },
             )?;
+        }
+        #[cfg(unix)]
+        Commands::UpdateSelf { state, check } => {
+            caboodle::release_update::update_self(&state, check)?;
         }
         #[cfg(unix)]
         Commands::UpdateRelease {

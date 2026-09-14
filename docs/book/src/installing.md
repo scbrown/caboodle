@@ -174,3 +174,10 @@ beside the state file to serialize release updates; backups are retained under
 `release-backups/<binary>/<sha256>` in the same directory. A host scheduler must
 bound total runtime and retain stdout/stderr. This command does not itself install
 a timer or claim that another host or a long-running process has updated.
+
+`caboodle update-self` applies the same release, checksum, downgrade, backup and
+interruption-recovery controls to Caboodle itself. Its post-install contract
+requires the new binary's version and `update-release --help` to answer correctly.
+Use `update-self --check` to inspect metadata. Bootstrap from a published release
+before scheduling this command; a same-version source build with different bytes
+is deliberately refused rather than silently overwritten.

@@ -54,19 +54,22 @@ fn installed_version(output: &str) -> Result<(u64, u64, u64)> {
     )
 }
 
-fn names(tool: ToolName, tag: &str) -> Result<(&'static str, &'static str, String, String)> {
+fn names(
+    tool: Option<ToolName>,
+    tag: &str,
+) -> Result<(&'static str, &'static str, String, String)> {
     if env::consts::OS != "linux" || env::consts::ARCH != "x86_64" {
         bail!("release-update currently supports Linux x86_64 only");
     }
     stable_version(tag)?;
     Ok(match tool {
-        ToolName::Bobbin => (
+        Some(ToolName::Bobbin) => (
             "bobbin",
             "bobbin",
             format!("bobbin-{tag}-x86_64-unknown-linux-gnu.tar.gz"),
             "SHA256SUMS.txt".into(),
         ),
-        ToolName::Yupana => {
+        Some(ToolName::Yupana) => {
             let archive = format!("yupana-{tag}-x86_64-linux-gnu.tar.gz");
             (
                 "yupana",
@@ -75,7 +78,7 @@ fn names(tool: ToolName, tag: &str) -> Result<(&'static str, &'static str, Strin
                 format!("{archive}.sha256"),
             )
         }
-        ToolName::DesirePath => (
+        Some(ToolName::DesirePath) => (
             "desire-path",
             "dp",
             format!(
@@ -84,7 +87,16 @@ fn names(tool: ToolName, tag: &str) -> Result<(&'static str, &'static str, Strin
             ),
             "checksums.txt".into(),
         ),
-        _ => bail!(
+        None => {
+            let archive = format!("caboodle-{tag}-x86_64-unknown-linux-gnu.tar.gz");
+            (
+                "caboodle",
+                "caboodle",
+                archive.clone(),
+                format!("{archive}.sha256"),
+            )
+        }
+        Some(tool) => bail!(
             "{} has a separate source/service update contract; release-update refuses it",
             tool.as_str()
         ),
@@ -184,6 +196,21 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     if !plan.tools.contains(&tool) {
         bail!("tool is not selected by the reviewed plan");
     }
+    update_binary(Some(plan), Some(tool), state_path, check_only)
+}
+
+/// Update Caboodle itself from a published checksummed release.
+pub fn update_self(state_path: &Path, check_only: bool) -> Result<()> {
+    update_binary(None, None, state_path, check_only)
+}
+
+fn update_binary(
+    plan: Option<&Plan>,
+    tool: Option<ToolName>,
+    state_path: &Path,
+    check_only: bool,
+) -> Result<()> {
+    let tool_id = tool.map_or("caboodle", |t| t.as_str());
     let (repo, binary, _, _) = names(tool, "v0.0.0")?;
     let state_dir = state_path
         .parent()
@@ -198,11 +225,11 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     FileExt::try_lock_exclusive(&lock).context("another release update holds the state lock")?;
     transaction::recover(state_path)?;
     if held() {
-        println!("{}: held (no release lookup or install)", tool.as_str());
+        println!("{}: held (no release lookup or install)", tool_id);
         return Ok(());
     }
     let destination = selected_path(binary)?;
-    let version_arg = if tool == ToolName::DesirePath {
+    let version_arg = if tool == Some(ToolName::DesirePath) {
         "version"
     } else {
         "--version"
@@ -241,13 +268,12 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     if installed > wanted {
         println!(
             "{}: ahead of published {} — refusing downgrade (installed {before})",
-            tool.as_str(),
-            release.tag_name
+            tool_id, release.tag_name
         );
         return Ok(());
     }
     if check_only {
-        println!("{}: published {}, installed {before}; assets available, install/functional proof not run", tool.as_str(), release.tag_name);
+        println!("{}: published {}, installed {before}; assets available, install/functional proof not run", tool_id, release.tag_name);
         return Ok(());
     }
     let temporary = tempfile::tempdir()?;
@@ -304,13 +330,12 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     if old_hash == new_hash
         && state
             .tools
-            .get(tool.as_str())
+            .get(tool_id)
             .is_some_and(|s| s.verified && s.version == after)
     {
         println!(
             "{}: current and verified ({}; sha256 {new_hash})",
-            tool.as_str(),
-            release.tag_name
+            tool_id, release.tag_name
         );
         return Ok(());
     }
@@ -327,7 +352,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         .join(&old_hash);
     atomic_copy(&destination, &backup)?;
     if held() {
-        println!("{}: held before swap", tool.as_str());
+        println!("{}: held before swap", tool_id);
         return Ok(());
     }
     if hash(&destination)? != old_hash {
@@ -336,7 +361,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     transaction::begin(
         state_path,
         &transaction::Pending {
-            tool: tool.as_str().into(),
+            tool: tool_id.into(),
             destination: destination.clone(),
             backup: backup.clone(),
             sha256: old_hash.clone(),
@@ -349,7 +374,19 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         {
             bail!("installed artifact read-back mismatch");
         }
-        adapter(tool, plan.quipu_flavor).verify()?;
+        if let Some(tool) = tool {
+            adapter(
+                tool,
+                plan.context("tool update requires a reviewed plan")?
+                    .quipu_flavor,
+            )
+            .verify()?;
+        } else {
+            let help = text(destination.to_str().unwrap(), &["update-release", "--help"])?;
+            if !help.contains("--tool") {
+                bail!("updated Caboodle omitted release-update command contract");
+            }
+        }
         Ok(())
     })();
     if let Err(error) = verify {
@@ -361,7 +398,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         return Err(error).context("release verification failed; previous artifact restored");
     }
     state.tools.insert(
-        tool.as_str().to_owned(),
+        tool_id.to_owned(),
         ToolState {
             version: after.clone(),
             applied: true,
@@ -369,11 +406,11 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         },
     );
     state.write(state_path)?;
-    emission::queue_transition(state_path, tool.as_str(), "release-updated", &after)?;
+    emission::queue_transition(state_path, tool_id, "release-updated", &after)?;
     transaction::finish(state_path)?;
     println!(
         "{}: installed and verified {} sha256={new_hash} backup={}",
-        tool.as_str(),
+        tool_id,
         release.tag_name,
         backup.display()
     );

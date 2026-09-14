@@ -1513,3 +1513,57 @@ fn published_release_missing_assets_and_ambiguous_identity_never_install() {
         assert!(!root.path().join(".caboodle/state.json").exists());
     }
 }
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_can_update_the_installer_itself() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    release_fixture(root.path(), &bin, false, false);
+    fake_tool(&bin, "caboodle", "echo 'caboodle 0.2.0'");
+    let stage = root.path().join("self-stage");
+    fs::create_dir(&stage).unwrap();
+    fake_tool(&stage, "caboodle", "if [ \"$1\" = --version ]; then echo 'caboodle 0.2.1'; else echo '--tool bobbin yupana desire-path'; fi");
+    let name = "caboodle-v0.2.1-x86_64-unknown-linux-gnu.tar.gz";
+    let archive = root.path().join(name);
+    assert!(std::process::Command::new("tar")
+        .arg("-czf")
+        .arg(&archive)
+        .arg("-C")
+        .arg(&stage)
+        .arg("caboodle")
+        .status()
+        .unwrap()
+        .success());
+    use sha2::{Digest, Sha256};
+    let digest = format!("{:x}", Sha256::digest(fs::read(&archive).unwrap()));
+    fs::write(
+        root.path().join(format!("{name}.sha256")),
+        format!("{digest}  {name}\n"),
+    )
+    .unwrap();
+    fs::write(root.path().join("latest.json"), serde_json::json!({"tag_name":"v0.2.1","draft":false,"prerelease":false,"assets":[{"name":name},{"name":format!("{name}.sha256")}]}).to_string()).unwrap();
+    fake_tool(
+        &bin,
+        "curl",
+        r#"
+url=''; output=''
+while [ "$#" -gt 0 ]; do
+ case "$1" in --output|-o) shift; output=$1 ;; https://*) url=$1 ;; esac
+ shift
+done
+case "$url" in */releases/latest) cat "$HOME/latest.json" ;; *) cp "$HOME/${url##*/}" "$output" ;; esac
+"#,
+    );
+    command(root.path(), &bin)
+        .arg("update-self")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "caboodle: installed and verified v0.2.1",
+        ));
+    assert!(fs::read_to_string(root.path().join(".caboodle/state.json"))
+        .unwrap()
+        .contains("caboodle 0.2.1"));
+}

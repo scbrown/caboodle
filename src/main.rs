@@ -107,6 +107,27 @@ enum Commands {
         #[arg(long)]
         creel_admission: Option<PathBuf>,
     },
+    /// Update this installer from a published checksummed release
+    #[cfg(unix)]
+    UpdateSelf {
+        #[arg(long, default_value = ".caboodle/state.json")]
+        state: PathBuf,
+        #[arg(long)]
+        check: bool,
+    },
+    /// Track a published binary release for one tool in an existing reviewed plan
+    #[cfg(unix)]
+    UpdateRelease {
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+        #[arg(long, default_value = ".caboodle/state.json")]
+        state: PathBuf,
+        #[arg(long, value_parser = ["bobbin", "yupana", "desire-path"])]
+        tool: String,
+        /// Inspect release/version metadata without downloading or replacing binaries
+        #[arg(long)]
+        check: bool,
+    },
     /// Project one reviewed crew policy through harness-owned settings adapters
     ProjectSettings {
         #[arg(short, long, default_value = "caboodle-plan.toml")]
@@ -313,6 +334,20 @@ fn main() -> Result<()> {
                     creel_admission,
                 },
             )?;
+        }
+        #[cfg(unix)]
+        Commands::UpdateSelf { state, check } => {
+            caboodle::release_update::update_self(&state, check)?;
+        }
+        #[cfg(unix)]
+        Commands::UpdateRelease {
+            plan,
+            state,
+            tool,
+            check,
+        } => {
+            let tool = serde_json::from_value(serde_json::Value::String(tool))?;
+            caboodle::release_update::update(&Plan::read(&plan)?, tool, &state, check)?;
         }
         Commands::ProjectSettings { plan, output } => {
             for name in projection::write(&Plan::read(&plan)?, &output)? {

@@ -272,6 +272,8 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
             println!("{}: current", name.as_str());
             continue;
         }
+        #[cfg(unix)]
+        crate::release_update::guard_reviewed_update(name, &adapter.desired_version())?;
         eprintln!(
             "{}: converging {:?} -> {}",
             name.as_str(),

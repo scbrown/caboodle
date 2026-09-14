@@ -8,3 +8,6 @@ pub mod interview;
 pub mod model;
 pub mod observability;
 pub mod projection;
+
+#[cfg(unix)]
+pub mod release_update;

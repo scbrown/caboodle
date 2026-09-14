@@ -1295,3 +1295,221 @@ fn embedding_model_verify_goes_red_when_bytes_drift_on_disk() {
         .failure()
         .stderr(predicate::str::contains("model.onnx drifted on disk"));
 }
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn release_fixture(root: &Path, bin: &Path, broken: bool, bad_checksum: bool) {
+    install_fakes(root, bin);
+    let stage = root.join("release-stage");
+    fs::create_dir(&stage).unwrap();
+    let body = if broken {
+        "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'bobbin 0.16.3'; exit 0; fi\nexit 9\n"
+            .to_owned()
+    } else {
+        fs::read_to_string(bin.join("bobbin"))
+            .unwrap()
+            .replace("0.16.2", "0.16.3")
+    };
+    fs::write(stage.join("bobbin"), body).unwrap();
+    fs::set_permissions(stage.join("bobbin"), fs::Permissions::from_mode(0o755)).unwrap();
+    let archive = root.join("bobbin-v0.16.3-x86_64-unknown-linux-gnu.tar.gz");
+    assert!(std::process::Command::new("tar")
+        .args(["-czf"])
+        .arg(&archive)
+        .arg("-C")
+        .arg(&stage)
+        .arg("bobbin")
+        .status()
+        .unwrap()
+        .success());
+    use sha2::{Digest, Sha256};
+    let digest = if bad_checksum {
+        "0".repeat(64)
+    } else {
+        format!("{:x}", Sha256::digest(fs::read(&archive).unwrap()))
+    };
+    fs::write(
+        root.join("SHA256SUMS.txt"),
+        format!("{digest}  bobbin-v0.16.3-x86_64-unknown-linux-gnu.tar.gz\n"),
+    )
+    .unwrap();
+    fs::write(root.join("latest.json"), r#"{"tag_name":"v0.16.3","draft":false,"prerelease":false,"assets":[{"name":"bobbin-v0.16.3-x86_64-unknown-linux-gnu.tar.gz"},{"name":"SHA256SUMS.txt"}]}"#).unwrap();
+    fake_tool(
+        bin,
+        "curl",
+        r#"
+url=''; output=''
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --output|-o) shift; output=$1 ;;
+    https://*) url=$1 ;;
+  esac
+  shift
+done
+case "$url" in
+  */releases/latest) cat "$HOME/latest.json" ;;
+  */SHA256SUMS.txt) cp "$HOME/SHA256SUMS.txt" "$output" ;;
+  */bobbin-v0.16.3-x86_64-unknown-linux-gnu.tar.gz) cp "$HOME/bobbin-v0.16.3-x86_64-unknown-linux-gnu.tar.gz" "$output" ;;
+  *) echo "unexpected URL" >&2; exit 99 ;;
+esac
+"#,
+    );
+    command(root, bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_update_ignores_stale_pin_and_keeps_backup() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    release_fixture(root.path(), &bin, false, false);
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    command(root.path(), &bin)
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("installed and verified v0.16.3"));
+    let state = fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap();
+    assert!(state.contains("0.16.3"));
+    let backups: Vec<_> = fs::read_dir(root.path().join(".caboodle/release-backups/bobbin"))
+        .unwrap()
+        .collect();
+    assert_eq!(backups.len(), 1);
+    assert_eq!(
+        fs::read(backups[0].as_ref().unwrap().path()).unwrap(),
+        before
+    );
+    command(root.path(), &bin)
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("current and verified"));
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_bad_checksum_and_failed_functional_proof_preserve_previous() {
+    for (broken, bad_checksum, message) in [
+        (false, true, "SHA256 mismatch"),
+        (true, false, "previous artifact restored"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        release_fixture(root.path(), &bin, broken, bad_checksum);
+        let before = fs::read(bin.join("bobbin")).unwrap();
+        command(root.path(), &bin)
+            .args(["update-release", "--tool", "bobbin"])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(message));
+        assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+    }
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_ahead_and_hold_never_downgrade() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    release_fixture(root.path(), &bin, false, false);
+    fake_tool(&bin, "bobbin", "echo 'bobbin 9.0.0'");
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    command(root.path(), &bin)
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("refusing downgrade"));
+    assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+    let hold = root.path().join("hold");
+    fs::write(&hold, "").unwrap();
+    fs::remove_file(root.path().join("latest.json")).unwrap();
+    command(root.path(), &bin)
+        .env("CABOODLE_HOLD_FILE", &hold)
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("held"));
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_interrupted_update_recovers_even_during_hold() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    release_fixture(root.path(), &bin, false, false);
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    let state_dir = root.path().join(".caboodle");
+    fs::create_dir_all(&state_dir).unwrap();
+    let backup = state_dir.join("old");
+    fs::write(&backup, &before).unwrap();
+    use sha2::{Digest, Sha256};
+    let sha = format!("{:x}", Sha256::digest(&before));
+    fs::write(state_dir.join("state.release-pending.json"), serde_json::json!({"tool":"bobbin", "destination":bin.join("bobbin"), "backup":backup, "sha256":sha}).to_string()).unwrap();
+    fake_tool(&bin, "bobbin", "exit 99");
+    let hold = root.path().join("hold");
+    fs::write(&hold, "").unwrap();
+    command(root.path(), &bin)
+        .env("CABOODLE_HOLD_FILE", &hold)
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("recovered interrupted update"));
+    assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+    assert!(!state_dir.join("state.release-pending.json").exists());
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn reviewed_pin_update_cannot_undo_newer_published_binary() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    release_fixture(root.path(), &bin, false, false);
+    fake_tool(&bin, "bobbin", "echo 'bobbin 0.16.3'");
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    command(root.path(), &bin)
+        .arg("update")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("refusing reviewed-pin downgrade"));
+    assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn published_release_missing_assets_and_ambiguous_identity_never_install() {
+    for mode in ["missing", "equal", "unreadable", "check"] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        release_fixture(root.path(), &bin, false, false);
+        if mode == "missing" {
+            fs::write(
+                root.path().join("latest.json"),
+                r#"{"tag_name":"v0.16.3","draft":false,"prerelease":false,"assets":[]}"#,
+            )
+            .unwrap();
+        } else if mode == "equal" {
+            fake_tool(&bin, "bobbin", "echo 'bobbin 0.16.3'");
+        } else if mode == "unreadable" {
+            fake_tool(&bin, "bobbin", "echo 'bobbin unknown'");
+        }
+        let before = fs::read(bin.join("bobbin")).unwrap();
+        let mut cmd = command(root.path(), &bin);
+        cmd.args(["update-release", "--tool", "bobbin"]);
+        if mode == "check" {
+            cmd.arg("--check").assert().success();
+        } else {
+            cmd.assert().failure();
+        }
+        assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+    }
+}

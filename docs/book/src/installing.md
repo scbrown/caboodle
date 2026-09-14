@@ -133,3 +133,44 @@ rm "${CARGO_HOME:-$HOME/.cargo}/bin/caboodle"
 # Optional, from the directory where Caboodle was run:
 rm -r .caboodle
 ```
+
+## Opt-in published binary updates
+
+After the initial install and plan review, track published stable releases for a
+selected binary without waiting for this Caboodle build's reviewed pins to change:
+
+```bash
+caboodle update-release --tool bobbin --check
+caboodle update-release --tool bobbin
+caboodle update-release --tool yupana
+caboodle update-release --tool desire-path
+```
+
+This path currently supports Linux x86_64. The tool must already be installed on
+PATH and selected in the retained plan. `--plan` and `--state` select the existing
+files; the command never starts a new interview or changes the selected profile.
+Each invocation changes one tool, not the whole stack. Quipu server/CLI source
+convergence, Camayoc source bundles, and crew runtime updates retain their own
+contracts and are not silently included.
+
+The updater resolves GitHub's latest published stable release, requires the named
+binary archive and checksum asset, checks the downloaded SHA256 and executable's
+version, then atomically replaces the PATH entry. Symlink targets are not written
+through. It retains the previous bytes, runs the existing adapter's functional
+verification, and only then records the new version as verified. Failed proof
+restores the backup. An interrupted update leaves a journal; the next invocation
+restores its previous artifact before doing anything else, including during a hold.
+
+A numerically newer installed version is preserved. Equal versions with different
+binary bytes are ambiguous (for example a source build ahead of its release) and
+are refused. Unreadable versions, missing assets and wrong checksums are errors,
+never evidence of a current install. The older reviewed-pin `update` path also
+refuses to replace a newer installed binary or an ambiguous equal-version build.
+For initial or missing installations, use `apply` first.
+
+Create `~/.caboodle/hold` to defer new release lookup and installation, or set
+`CABOODLE_HOLD_FILE` to a shared host hold path. The updater uses an OS-held lock
+beside the state file to serialize release updates; backups are retained under
+`release-backups/<binary>/<sha256>` in the same directory. A host scheduler must
+bound total runtime and retain stdout/stderr. This command does not itself install
+a timer or claim that another host or a long-running process has updated.

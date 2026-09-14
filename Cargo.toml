@@ -6,6 +6,21 @@ description = "Install and prove the whole AI knowledge-tool kit"
 license = "MIT"
 repository = "https://github.com/scbrown/caboodle"
 rust-version = "1.80"
+# NOT a crates.io crate, declared rather than left to inference (aegis-9ax8pa).
+#
+# The documented install is `cargo install --git https://github.com/scbrown/caboodle
+# --locked` (README), which never consults the registry. caboodle is the installer
+# for the Quipu stack: `--git --locked` pins exactly what a host gets, and a
+# registry copy would be a second distribution channel nobody documents and
+# nothing tests, free to diverge from the one people actually use.
+#
+# Stating it here does two things a monitoring exclusion cannot: it refuses an
+# accidental `cargo publish`, and it puts the intent in the repo rather than in a
+# rule someone has to find. Measured 2026-09-14: crates.io returns 404 "crate
+# `caboodle` does not exist" (control: quipu-ai returns 200), and there is no
+# publish path anywhere in .github — so the crate was never published, which is a
+# different condition from being behind.
+publish = false
 
 [dependencies]
 anyhow = "1.0"

@@ -25,13 +25,114 @@ struct ImportResult {
     promotion: ImportPromotion,
 }
 
+/// What `apply` should do about an installed tool whose version is not the one
+/// this Caboodle build reviewed (aegis-5ctwu3).
+///
+/// Split out as a pure function ON PURPOSE: the act it decides is a network
+/// download, so a test that drove `apply` end to end would be measuring GitHub
+/// rather than the decision. Every branch below is covered by a unit test; the
+/// branch that could not be, would not have been.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum Convergence {
+    /// Installed IS the reviewed release. Nothing to do.
+    Current,
+    /// Installed is strictly older. Converge upward, then prove by read-back.
+    Converge,
+    /// Installed is at or ahead of the reviewed release, or the two versions
+    /// are not comparable. Do NOT install — that would be a downgrade or a
+    /// replacement on a guess (aegis-48dvl3). Say so instead.
+    Decline,
+    /// Skewed, and the operator asked for no installs. A MISSING tool already
+    /// fails under `--skip-install`; a skewed one reporting "applied" was the
+    /// inconsistency this bead is about.
+    RefuseSkipInstall,
+}
+
+pub(crate) fn decide_convergence(
+    installed: &str,
+    desired: &str,
+    is_current: bool,
+    skip_install: bool,
+) -> Convergence {
+    if is_current {
+        return Convergence::Current;
+    }
+    if skip_install {
+        return Convergence::RefuseSkipInstall;
+    }
+    match crate::release_update::behind_reviewed(installed, desired) {
+        Some(true) => Convergence::Converge,
+        // `None` is "cannot compare", NOT "stale". Treating it as stale is how
+        // an unrecognised build gets replaced on a guess.
+        Some(false) | None => Convergence::Decline,
+    }
+}
+
 pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
         let adapter = adapter(name, plan.quipu_flavor);
+        let desired = adapter.desired_version();
+        // aegis-5ctwu3: PRESENCE IS NOT CONVERGENCE. Until this match looked at
+        // `is_current`, a binary that merely EXISTED was reported "applied" and
+        // left at whatever version it was — bobbin sat at 0.1.0 while this build
+        // reviewed 0.17.0, and `caboodle install` then failed its own verify with
+        // `error: unexpected argument '--source' found`. The installer knew the
+        // newer contract, verified against it, and had never installed it; the
+        // operator got a clap error instead of "your bobbin is 16 minors old".
+        // `st doctor` had it right the whole time ("bobbin 0.1.0 installed —
+        // 0.17.0 available (STALE)"), which is the tell that this was never a
+        // detection problem.
         let version = match adapter.version() {
-            Ok(version) => version,
+            Ok(installed) if adapter.is_current(&installed) => installed,
+
+            // Known-wrong under --skip-install. The flag means "do not install",
+            // not "call it applied anyway", and a MISSING tool already fails
+            // here — a SKEWED one reporting success was the inconsistency.
+            Ok(installed) => {
+                match decide_convergence(&installed, &desired, false, skip_install) {
+                    Convergence::Current => installed,
+                    Convergence::RefuseSkipInstall => bail!(
+                        "{} is installed at {installed} but this Caboodle build reviewed {desired}; \
+                         --skip-install refuses to converge it. Install {desired}, or drop \
+                         --skip-install to let apply converge it.",
+                        name.as_str()
+                    ),
+                    Convergence::Decline => {
+                        println!(
+                            "{}: NOT converged — installed {installed}, reviewed {desired}. \
+                             Apply does not downgrade or replace an unrecognised version; \
+                             use `caboodle update-release` deliberately if that is what you want.",
+                            name.as_str()
+                        );
+                        installed
+                    }
+                    Convergence::Converge => {
+                        eprintln!(
+                            "{}: stale ({installed}); converging to reviewed {desired}",
+                            name.as_str()
+                        );
+                        adapter.install().with_context(|| {
+                            format!("{} convergence to reviewed {desired}", name.as_str())
+                        })?;
+                        let after = adapter.version().with_context(|| {
+                            format!("{} version read-back after convergence", name.as_str())
+                        })?;
+                        // The read-back is the proof, not the install's exit code.
+                        if !adapter.is_current(&after) {
+                            bail!(
+                                "{} did not reach reviewed release {desired} (got {after}); \
+                                 refusing to record it as applied",
+                                name.as_str()
+                            );
+                        }
+                        println!("{}: converged {installed} -> {after}", name.as_str());
+                        after
+                    }
+                }
+            }
+
             Err(error) if !skip_install => {
                 eprintln!("{}: not installed ({error:#}); installing", name.as_str());
                 adapter
@@ -214,9 +315,26 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         let version = adapter
             .version()
             .with_context(|| format!("{} version read-back", name.as_str()))?;
-        adapter
-            .verify()
-            .with_context(|| format!("{} functional verification", name.as_str()))?;
+        // aegis-5ctwu3 item 3. A verification failure on a SKEWED tool used to
+        // surface the tool's own complaint — `error: unexpected argument
+        // '--source' found` — which points at an argument, not at the cause. We
+        // verify against the contract of the release we reviewed, so when the
+        // installed version is not that release, the skew IS the finding and
+        // must be said first.
+        adapter.verify().with_context(|| {
+            let desired = adapter.desired_version();
+            if adapter.is_current(&version) {
+                format!("{} functional verification", name.as_str())
+            } else {
+                format!(
+                    "{} functional verification — VERSION SKEW: {version} is installed, \
+                     this Caboodle build reviewed and verifies against {desired}. The error \
+                     below is most likely that skew, not a broken tool. Converge with \
+                     `caboodle apply` (or `caboodle update`), then re-verify.",
+                    name.as_str()
+                )
+            }
+        })?;
         check_path_resolution(name)?;
         state.tools.insert(
             name.as_str().to_owned(),
@@ -393,4 +511,49 @@ pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {
         println!("question {}: verified — {}", index + 1, contract.question);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod convergence_tests {
+    use super::{decide_convergence, Convergence};
+
+    const REVIEWED: &str = "bobbin 0.16.2";
+
+    #[test]
+    fn current_is_left_alone_even_under_skip_install() {
+        // Unreachable from apply today (is_current is matched first), which is why
+        // this branch is covered here rather than deleted as apparently dead.
+        assert_eq!(
+            decide_convergence(REVIEWED, REVIEWED, true, true),
+            Convergence::Current
+        );
+        assert_eq!(
+            decide_convergence(REVIEWED, REVIEWED, true, false),
+            Convergence::Current
+        );
+    }
+
+    #[test]
+    fn stale_converges_and_skip_install_refuses_instead_of_claiming_applied() {
+        assert_eq!(
+            decide_convergence("bobbin 0.1.0", REVIEWED, false, false),
+            Convergence::Converge
+        );
+        assert_eq!(
+            decide_convergence("bobbin 0.1.0", REVIEWED, false, true),
+            Convergence::RefuseSkipInstall
+        );
+    }
+
+    #[test]
+    fn ahead_or_incomparable_is_declined_not_replaced() {
+        assert_eq!(
+            decide_convergence("bobbin 0.99.0", REVIEWED, false, false),
+            Convergence::Decline
+        );
+        assert_eq!(
+            decide_convergence("bobbin dev", REVIEWED, false, false),
+            Convergence::Decline
+        );
+    }
 }

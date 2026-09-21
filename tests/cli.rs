@@ -663,6 +663,93 @@ fn plan_install_verify_is_resumable() {
     assert_eq!(state["tools"]["bobbin"]["verified"], true);
 }
 
+fn retrieval_plan_with_bobbin(
+    version: &str,
+    functional: bool,
+) -> (tempfile::TempDir, std::path::PathBuf) {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    if !functional || version != "0.16.2" {
+        // Any subcommand but --version fails like a clap argument error, which is
+        // what an old bobbin says to the reviewed release's verification contract.
+        fake_tool(
+            &bin,
+            "bobbin",
+            &format!(
+                "if [ \"${{1:-}}\" = --version ]; then echo 'bobbin {version}'; exit 0; fi\n\
+                 echo \"error: unexpected argument '--source' found\" >&2; exit 2"
+            ),
+        );
+    }
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    (root, bin)
+}
+
+#[test]
+fn apply_skip_install_refuses_a_stale_tool_naming_both_versions() {
+    let (root, bin) = retrieval_plan_with_bobbin("0.1.0", false);
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("0.1.0"))
+        .stderr(predicate::str::contains("0.16.2"));
+}
+
+#[test]
+fn apply_skip_install_accepts_the_reviewed_release() {
+    // Control for the test above: without it, "fails on a skew" is
+    // indistinguishable from "apply --skip-install always fails".
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("bobbin: applied"));
+}
+
+#[test]
+fn apply_declines_to_downgrade_a_tool_ahead_of_the_pin() {
+    let (root, bin) = retrieval_plan_with_bobbin("0.99.0", false);
+    command(root.path(), &bin)
+        .args(["apply"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("bobbin: NOT converged"));
+    // Nothing was fetched or replaced.
+    assert!(!root.path().join(".local/share/caboodle/bobbin").exists());
+}
+
+#[test]
+fn verify_names_a_version_skew_before_the_tools_own_error() {
+    let (root, bin) = retrieval_plan_with_bobbin("0.1.0", false);
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "VERSION SKEW: bobbin 0.1.0 is installed",
+        ))
+        .stderr(predicate::str::contains("unexpected argument '--source'"));
+}
+
+#[test]
+fn verify_does_not_claim_a_skew_when_the_reviewed_release_fails() {
+    // Control: the skew message must not fire on every verification failure.
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", false);
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("bobbin functional verification"))
+        .stderr(predicate::str::contains("VERSION SKEW").not());
+}
+
 #[test]
 fn profile_stages_canonical_quipu_shares_without_promoting_them() {
     let root = tempfile::tempdir().unwrap();

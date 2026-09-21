@@ -54,6 +54,19 @@ fn installed_version(output: &str) -> Result<(u64, u64, u64)> {
     )
 }
 
+/// Is `installed` strictly OLDER than `reviewed`? `None` when either string
+/// carries no comparable semantic version, so a caller can tell "this is a
+/// stale install I may converge" from "I cannot tell, do not act".
+///
+/// Direction matters and the two answers have opposite remedies: converging a
+/// STALE tool is the aegis-5ctwu3 fix, converging an AHEAD one is the
+/// aegis-48dvl3 downgrade this repo already paid for once.
+pub fn behind_reviewed(installed: &str, reviewed: &str) -> Option<bool> {
+    let installed = installed_version(installed).ok()?;
+    let reviewed = installed_version(reviewed).ok()?;
+    Some(installed < reviewed)
+}
+
 fn names(
     tool: Option<ToolName>,
     tag: &str,
@@ -420,6 +433,23 @@ fn update_binary(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn behind_reviewed_reports_direction_and_refuses_to_guess() {
+        assert_eq!(behind_reviewed("bobbin 0.1.0", "bobbin 0.16.2"), Some(true));
+        assert_eq!(
+            behind_reviewed("bobbin 0.16.2", "bobbin 0.16.2"),
+            Some(false)
+        );
+        assert_eq!(
+            behind_reviewed("bobbin 0.17.1", "bobbin 0.16.2"),
+            Some(false)
+        );
+        // Not comparable is None, never "stale": replacing an unrecognised build
+        // on a guess is the aegis-48dvl3 downgrade.
+        assert_eq!(behind_reviewed("bobbin dev-build", "bobbin 0.16.2"), None);
+        assert_eq!(behind_reviewed("bobbin", "bobbin 0.16.2"), None);
+    }
     #[test]
     fn stable_versions_are_numeric_and_ambiguous_inputs_refused() {
         assert!(stable_version("v0.16.3").unwrap() > stable_version("0.9.9").unwrap());

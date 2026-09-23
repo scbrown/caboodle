@@ -1,0 +1,21 @@
+# A starter intent for `caboodle plan --intent examples/caboodle-intent.toml`.
+#
+# The intent is the non-interactive form of `caboodle init --guided`. It records
+# what you want the stack for and at least one question the finished knowledge
+# graph must be able to answer. `caboodle verify-questions` runs that question
+# after install, so the question is an acceptance test, not a wish.
+#
+# Edit the prose to describe your own use. Never put credentials in this file.
+
+intended_use = "give my coding agent searchable context and a knowledge graph for one repository"
+
+# Named agent personas for a crew. Leave empty when a single agent or a person
+# uses the stack directly.
+crew_members = []
+
+[[anticipated_questions]]
+question = "which verification entities has caboodle recorded?"
+answer_shape = "a list of entity IRIs"
+seed_intent = "one Verification node named caboodle-verify-roundtrip"
+sparql = "SELECT ?s WHERE { ?s <http://www.w3.org/2000/01/rdf-schema#label> \"caboodle-verify-roundtrip\" }"
+expected = "caboodle-verify-roundtrip"

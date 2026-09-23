@@ -30,6 +30,27 @@ cargo install --git https://github.com/scbrown/caboodle \
 caboodle --version
 ```
 
+## Preflight
+
+`caboodle doctor` reports what would stop an install on this host and changes
+nothing. With a plan in the current directory it checks that plan; without one
+it checks every tool in the `everything` profile. It exits nonzero when any line
+is a `FAIL`:
+
+- the install directory (`$CARGO_HOME/bin`, default `~/.cargo/bin`) is not on
+  PATH, so installed tools could not be read back;
+- a command an install or verification step shells out to is missing (`curl`,
+  `tar`, `git`, `bash`, `python3`, `sha256sum`, `go` for Desire Path, `cargo`
+  for the lancedb Quipu flavor);
+- a selected tool is not installed and has no reviewed release for this
+  platform (Quipu and Yupana publish Linux x86_64 only), with the source build
+  to run instead.
+
+It warns, without failing, when a tool differs from the reviewed version, when
+several copies of a tool are on PATH (the first one runs), and when a Quipu
+server is already live at `QUIPU_SERVER`, because Camayoc's verification loads
+its ontology into that server.
+
 ## First proof and resume
 
 The interview writes a plan and changes nothing else. Read the complete file
@@ -54,6 +75,23 @@ server's `GET /version` per-feature compile map), and
 `--embedding-model <spec.toml>` provisions checksum-pinned embedding-model
 artifacts (a mismatched download is deleted and fails the step; verify
 re-hashes the artifacts on disk).
+
+## Registering MCP servers
+
+Installation and registration have separate owners. Caboodle installs each tool
+and proves it works. It does not yet register MCP servers with a harness, and
+`caboodle project-settings` only projects settings for a plan with crew
+members. Until registration is automated, register the servers after a green
+install. For Claude Code:
+
+```bash
+claude mcp add bobbin -- bobbin serve
+claude mcp add yupana -- yupana serve
+claude mcp list
+```
+
+Bobbin's MCP server includes Quipu's knowledge tools. On a Shantytown host,
+`st` projects the crew's MCP manifest from Quipu into each harness instead.
 
 ## Claude Code cloud environments
 

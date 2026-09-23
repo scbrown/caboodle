@@ -864,7 +864,7 @@ fn ensure_bobbin_link(link: &Path, target: &Path) -> Result<()> {
     Ok(())
 }
 
-const CAMAYOC_REVISION: &str = "65d7206d3ead59069f50db00066701c9191bc8d0";
+const CAMAYOC_REVISION: &str = "b09562e58136029796dcf441c04bda2f5501e4cd";
 const CAMAYOC_ARCHIVE_SHA256: &str =
     "6673178778e22a9540a4375d27cb901535b1037d42cb85e3fc5ee7a046558e4d";
 

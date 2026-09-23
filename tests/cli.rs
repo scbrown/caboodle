@@ -204,7 +204,7 @@ esac
     fs::create_dir_all(camayoc.join("ontology")).unwrap();
     fs::write(
         camayoc.join("REVISION"),
-        "65d7206d3ead59069f50db00066701c9191bc8d0\n",
+        "b09562e58136029796dcf441c04bda2f5501e4cd\n",
     )
     .unwrap();
     fs::write(camayoc.join("scripts/bootstrap.sh"), "#!/bin/sh\nexit 0\n").unwrap();

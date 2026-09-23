@@ -21,6 +21,9 @@ For CABOODLE itself, prefer the reviewed checksummed release path documented in
 3. Run `skills/caboodle/scripts/check-surface.sh "$(command -v caboodle)"`
    when this skill directory is available. A failed surface check is a bootstrap
    failure; do not continue with guessed commands.
+4. When `caboodle doctor --help` answers, run `caboodle doctor` before any
+   apply or install. It is read-only. Report every `FAIL` line with its fix and
+   stop until each is resolved; report `warn` lines to the operator.
 
 Do not print credentials or introduce private endpoints. Do not delete
 `.caboodle/` to recover from an error: it contains the resumable interview and

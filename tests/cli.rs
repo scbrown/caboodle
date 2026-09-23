@@ -1567,3 +1567,45 @@ case "$url" in */releases/latest) cat "$HOME/latest.json" ;; *) cp "$HOME/${url#
         .unwrap()
         .contains("caboodle 0.2.1"));
 }
+
+#[test]
+fn doctor_reports_blockers_without_changing_anything() {
+    let root = tempfile::tempdir().unwrap();
+    let home = root.path().join("home");
+    let empty = root.path().join("empty-bin");
+    fs::create_dir_all(&empty).unwrap();
+    Command::cargo_bin("caboodle")
+        .unwrap()
+        .current_dir(root.path())
+        .env_clear()
+        .env("HOME", &home)
+        .env("PATH", &empty)
+        .arg("doctor")
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("no plan at caboodle-plan.toml"))
+        .stdout(predicate::str::contains("FAIL install directory"))
+        .stdout(predicate::str::contains("FAIL prerequisite curl"))
+        .stdout(predicate::str::contains(
+            "FAIL prerequisite go: not on PATH, needed by desire-path",
+        ))
+        .stdout(predicate::str::contains("blockers"));
+    assert!(!home.exists(), "doctor must not create install directories");
+    assert_eq!(
+        fs::read_dir(root.path()).unwrap().count(),
+        1,
+        "doctor must not write plan or state files"
+    );
+}
+
+#[test]
+fn missing_plan_points_at_the_interview() {
+    let root = tempfile::tempdir().unwrap();
+    Command::cargo_bin("caboodle")
+        .unwrap()
+        .current_dir(root.path())
+        .arg("install")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("caboodle init --guided"));
+}

@@ -25,6 +25,64 @@ pub trait Adapter {
     }
 }
 
+/// Why `install` cannot fetch a reviewed artifact for this host, if it cannot.
+/// Read-only: it inspects the platform, never the network. The same target
+/// functions drive the installers, so the answer cannot drift from them.
+pub fn release_blocker(name: ToolName, quipu_flavor: QuipuFlavor) -> Option<String> {
+    let result = match name {
+        ToolName::Quipu if quipu_flavor == QuipuFlavor::Release => quipu_release_target(),
+        ToolName::Bobbin => bobbin_release_target(),
+        ToolName::Yupana => yupana_release_target(),
+        // Camayoc is a source archive, Desire Path and the lancedb Quipu
+        // flavor are source builds: their blockers are missing prerequisites.
+        _ => return None,
+    };
+    result.err().map(|error| format!("{error:#}"))
+}
+
+/// Host commands the install and verification steps of one tool shell out to.
+pub fn prerequisites(name: ToolName, quipu_flavor: QuipuFlavor) -> &'static [&'static str] {
+    match name {
+        ToolName::Quipu if quipu_flavor == QuipuFlavor::Lancedb => &["cargo"],
+        ToolName::Quipu => &["curl", "tar"],
+        // Camayoc's bootstrap is bash + python3, and it talks to Quipu with curl.
+        ToolName::Camayoc => &["curl", "tar", "sha256sum", "bash", "python3"],
+        ToolName::Bobbin => &["curl", "tar", "git"],
+        ToolName::Yupana => &["curl", "tar", "sha256sum"],
+        ToolName::DesirePath => &["go"],
+    }
+}
+
+/// The reviewed source build to run by hand where no release exists for a host.
+pub fn source_install_command(name: ToolName) -> Option<String> {
+    match name {
+        ToolName::Quipu => Some(format!("cargo {}", quipu_install_args(QuipuFlavor::Release).join(" "))),
+        ToolName::Yupana => Some(format!(
+            "cargo install --git https://github.com/scbrown/yupana --tag v{YUPANA_VERSION} --locked --features mcp"
+        )),
+        _ => None,
+    }
+}
+
+/// Executables a tool puts on PATH, in the order a shell would look them up.
+pub fn programs(name: ToolName) -> &'static [&'static str] {
+    match name {
+        ToolName::Quipu => &["quipu", "quipu-server"],
+        ToolName::Camayoc => &[],
+        ToolName::Bobbin => &["bobbin"],
+        ToolName::Yupana => &["yupana"],
+        ToolName::DesirePath => &["dp"],
+    }
+}
+
+/// Where the release and cargo installers write binaries.
+pub fn managed_bin_dir() -> Option<PathBuf> {
+    env::var_os("CARGO_HOME")
+        .map(PathBuf::from)
+        .or_else(|| env::var_os("HOME").map(|home| PathBuf::from(home).join(".cargo")))
+        .map(|home| home.join("bin"))
+}
+
 pub fn adapter(name: ToolName, quipu_flavor: QuipuFlavor) -> Box<dyn Adapter> {
     match name {
         ToolName::Quipu => Box::new(Quipu {
@@ -505,14 +563,8 @@ impl Adapter for Yupana {
     }
 
     fn install(&self) -> Result<()> {
-        if (env::consts::ARCH, env::consts::OS) != ("x86_64", "linux") {
-            bail!(
-                "Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {}-{}",
-                env::consts::ARCH,
-                env::consts::OS
-            );
-        }
-        let archive_name = format!("yupana-v{YUPANA_VERSION}-x86_64-linux-gnu.tar.gz");
+        let target = yupana_release_target()?;
+        let archive_name = format!("yupana-v{YUPANA_VERSION}-{target}.tar.gz");
         let root = tempfile::tempdir().context("create Yupana download directory")?;
         let archive = root.path().join(&archive_name);
         download_https(
@@ -584,6 +636,15 @@ impl Adapter for Yupana {
             bail!("Yupana analyzed the fixture but callers did not return its caller");
         }
         Ok(())
+    }
+}
+
+fn yupana_release_target() -> Result<&'static str> {
+    match (env::consts::ARCH, env::consts::OS) {
+        ("x86_64", "linux") => Ok("x86_64-linux-gnu"),
+        (arch, os) => {
+            bail!("Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {arch}-{os}")
+        }
     }
 }
 
@@ -763,14 +824,18 @@ fn bobbin_result_count(stdout: &[u8]) -> Result<u64> {
         .context("bobbin search JSON omitted numeric count")
 }
 
-fn install_bobbin_release() -> Result<()> {
-    let target = match (env::consts::ARCH, env::consts::OS) {
-        ("x86_64", "linux") => "x86_64-unknown-linux-gnu",
-        ("aarch64", "linux") => "aarch64-unknown-linux-gnu",
-        ("x86_64", "macos") => "x86_64-apple-darwin",
-        ("aarch64", "macos") => "aarch64-apple-darwin",
+fn bobbin_release_target() -> Result<&'static str> {
+    match (env::consts::ARCH, env::consts::OS) {
+        ("x86_64", "linux") => Ok("x86_64-unknown-linux-gnu"),
+        ("aarch64", "linux") => Ok("aarch64-unknown-linux-gnu"),
+        ("x86_64", "macos") => Ok("x86_64-apple-darwin"),
+        ("aarch64", "macos") => Ok("aarch64-apple-darwin"),
         (arch, os) => bail!("bobbin has no CABOODLE release target for {arch}-{os}"),
-    };
+    }
+}
+
+fn install_bobbin_release() -> Result<()> {
+    let target = bobbin_release_target()?;
     let archive = format!("bobbin-v{BOBBIN_VERSION}-{target}.tar.gz");
     let base = format!("https://github.com/scbrown/bobbin/releases/download/v{BOBBIN_VERSION}");
     let download = tempfile::tempdir().context("create bobbin download directory")?;

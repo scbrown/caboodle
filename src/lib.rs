@@ -1,6 +1,7 @@
 pub mod adapter;
 pub mod configuration;
 pub mod crew;
+pub mod doctor;
 pub mod embedding;
 pub mod emission;
 pub mod engine;

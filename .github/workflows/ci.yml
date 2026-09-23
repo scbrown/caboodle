@@ -83,6 +83,8 @@ jobs:
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
           cd "$RUNNER_TEMP/caboodle-phase2"
+          # The read-only preflight must call a clean runner ready before install.
+          caboodle doctor 2>&1 | tee doctor.log
           caboodle install 2>&1 | tee first-install.log
           jq -e '
             .tools.quipu.verified == true and

@@ -36,7 +36,12 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
                 eprintln!("{}: not installed ({error:#}); installing", name.as_str());
                 adapter
                     .install()
-                    .with_context(|| format!("{} install step", name.as_str()))?;
+                    .with_context(|| {
+                        format!(
+                            "{} install step (run `caboodle doctor` to list every blocker on this host)",
+                            name.as_str()
+                        )
+                    })?;
                 adapter
                     .version()
                     .with_context(|| format!("{} version read-back after install", name.as_str()))?

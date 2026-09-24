@@ -288,6 +288,35 @@ pub struct QuestionContract {
     pub expected: String,
 }
 
+/// Marker the built-in self-test question seeds and expects. Same contract CI's
+/// quipu round trip uses (adapter.rs), so a fresh box can pass it with no
+/// ontology of its own (aegis-ro425e.4).
+pub const SELF_TEST_MARKER: &str = "caboodle-verify-roundtrip";
+
+impl QuestionContract {
+    /// The question offered when a first-time user presses enter at the
+    /// question-count prompt. It proves the store answers a real query; it
+    /// says nothing about the user's own domain, and `verify-questions` always
+    /// runs it against its own seeded scratch store.
+    pub fn self_test() -> Self {
+        Self {
+            question: "does the knowledge store answer a query about a fact written to it?".to_owned(),
+            answer_shape: "one entity label".to_owned(),
+            seed_intent: format!(
+                "caboodle writes one Verification node named {SELF_TEST_MARKER} into a scratch store"
+            ),
+            sparql: format!(
+                "SELECT ?s ?label WHERE {{ ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . FILTER(?label = \"{SELF_TEST_MARKER}\") }}"
+            ),
+            expected: SELF_TEST_MARKER.to_owned(),
+        }
+    }
+
+    pub fn is_self_test(&self) -> bool {
+        *self == Self::self_test()
+    }
+}
+
 impl InstallIntent {
     pub fn read(path: &Path) -> Result<Self> {
         if !path.exists() {

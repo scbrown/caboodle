@@ -83,8 +83,8 @@ there, and an interrupted `init` or `install` resumes when you rerun it.
 | `profile` | `retrieval` for a first install. See [profiles](#pick-a-profile). |
 | `what should this installation help you do?` | One plain sentence. It is recorded in the plan. |
 | `how many themed crew members` | `0` unless you run a named team of agents. |
-| `how many ontology questions` | `1`. Each question is a check the finished graph must pass. |
-| the question's five fields | A question in words, its answer shape, the seed fact that answers it, a SPARQL `SELECT` or `ASK` query, and a word the answer must contain. |
+| `how many ontology questions` | Press **enter** on a first install: caboodle uses a built-in self-test question that checks the store answers a query, and asks nothing else. Or type a number to write your own; each question is a check the finished graph must pass. |
+| the question's five fields | Only if you typed a number. A question in words, its answer shape, the seed fact that answers it, a SPARQL `SELECT` or `ASK` query, and a word the answer must contain. |
 
 To skip the interview, write the same answers to a file and pass it in. A
 starter file is in [`examples/caboodle-intent.toml`](examples/caboodle-intent.toml):

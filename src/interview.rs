@@ -171,17 +171,29 @@ pub fn guided<R: BufRead, W: Write>(
         draft.write(session_path)?;
     }
     if draft.question_count.is_none() {
-        draft.question_count = Some(parse_count(
-            &ask(
-                input,
+        let answer = ask(
+            input,
+            output,
+            "how many ontology questions must the finished graph answer? \
+             (press enter to use the built-in self-test question) ",
+            session_path,
+        )?;
+        if answer.is_empty() {
+            // A first-time user has no ontology yet and cannot write SPARQL for
+            // one (aegis-ro425e.4). Offer the self-test contract instead of refusing.
+            writeln!(
                 output,
-                "how many ontology questions must the finished graph answer? ",
-                session_path,
-            )?,
-            "anticipated question",
-        )?);
-        if draft.question_count == Some(0) {
-            bail!("at least one anticipated ontology question is required");
+                "using the built-in self-test question; add your own later by editing the plan's [intent]"
+            )?;
+            draft.question_count = Some(1);
+            draft
+                .anticipated_questions
+                .push(QuestionContract::self_test());
+        } else {
+            draft.question_count = Some(parse_count(&answer, "anticipated question")?);
+            if draft.question_count == Some(0) {
+                bail!("at least one anticipated ontology question is required");
+            }
         }
         draft.write(session_path)?;
     }

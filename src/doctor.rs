@@ -308,14 +308,14 @@ fn check_quipu_server() -> Finding {
             Level::Ok,
             "quipu server",
             format!(
-                "nothing answers at {server}; camayoc verification starts a quipu-server from ./.quipu in this directory and leaves it running (pid in .quipu/server.pid)"
+                "nothing answers at {server}; camayoc verification uses its own scratch server and never touches this address"
             ),
         ),
         (true, source) => Finding::new(
-            Level::Warn,
+            Level::Ok,
             "quipu server",
             format!(
-                "{server} ({}) is live. camayoc verification loads its ontology and shapes into that server and writes one marker node. Unset QUIPU_SERVER or stop that server if it holds data you care about",
+                "{server} ({}) is live. camayoc verification does not write to it (it uses its own scratch server); run camayoc's scripts/bootstrap.sh yourself to set this server up",
                 if source { "from QUIPU_SERVER" } else { "the default" }
             ),
         ),

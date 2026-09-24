@@ -1069,9 +1069,9 @@ fn ensure_bobbin_link(link: &Path, target: &Path) -> Result<()> {
     Ok(())
 }
 
-const CAMAYOC_REVISION: &str = "b09562e58136029796dcf441c04bda2f5501e4cd";
+const CAMAYOC_REVISION: &str = "f443bf19974d06ab662c8ae3deeccfbb1e082f48";
 const CAMAYOC_ARCHIVE_SHA256: &str =
-    "7d64d5cb3524b1c98d90148a01eb0afaf3f135772390289d60311e90ab8c477c";
+    "67b1945615d811ac3c0251412d6b5d619f00d58a7ca87785474c0f1db46ba544";
 
 pub(crate) fn camayoc_root() -> Result<PathBuf> {
     if let Some(path) = env::var_os("CABOODLE_CAMAYOC_ROOT") {

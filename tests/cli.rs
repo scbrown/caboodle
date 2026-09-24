@@ -204,7 +204,7 @@ esac
     fs::create_dir_all(camayoc.join("ontology")).unwrap();
     fs::write(
         camayoc.join("REVISION"),
-        "b09562e58136029796dcf441c04bda2f5501e4cd\n",
+        "f443bf19974d06ab662c8ae3deeccfbb1e082f48\n",
     )
     .unwrap();
     // Behaves like the real bootstrap when nothing answers: starts a server process

@@ -312,8 +312,11 @@ impl QuestionContract {
         }
     }
 
+    /// Keyed on the marker, not whole-struct equality: a plan written by an
+    /// earlier caboodle with different prose around the same marker is still the
+    /// self-test, and must still get its scratch store.
     pub fn is_self_test(&self) -> bool {
-        *self == Self::self_test()
+        self.expected == SELF_TEST_MARKER
     }
 }
 
@@ -560,5 +563,20 @@ impl State {
             .map_err(|error| error.error)
             .with_context(|| format!("replace state {}", path.display()))?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod self_test_question_tests {
+    use super::QuestionContract;
+
+    #[test]
+    fn self_test_is_recognised_by_its_marker_not_its_prose() {
+        let mut reworded = QuestionContract::self_test();
+        reworded.question = "reworded by a later caboodle".to_owned();
+        assert!(reworded.is_self_test());
+        let mut users_own = QuestionContract::self_test();
+        users_own.expected = "my-own-marker".to_owned();
+        assert!(!users_own.is_self_test());
     }
 }

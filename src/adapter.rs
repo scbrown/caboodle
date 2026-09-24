@@ -1183,6 +1183,28 @@ fn curl_get_json(url: &str) -> Result<Value> {
     curl_json_request(url, None)
 }
 
+/// The curl config line carrying `QUIPU_AUTH_TOKEN`, in a temp file so the token
+/// never reaches argv. curl parses a quoted config value with backslash
+/// escapes, so `\` and `"` are escaped; a newline would end the line and let
+/// the token inject a second directive, so it is refused rather than escaped.
+fn quipu_auth_config() -> Result<Option<tempfile::NamedTempFile>> {
+    let Ok(token) = env::var("QUIPU_AUTH_TOKEN") else {
+        return Ok(None);
+    };
+    let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
+    fs::write(file.path(), curl_auth_header_line(&token)?)
+        .context("write temporary Quipu auth config")?;
+    Ok(Some(file))
+}
+
+pub(crate) fn curl_auth_header_line(token: &str) -> Result<String> {
+    if token.contains(['\n', '\r']) {
+        bail!("QUIPU_AUTH_TOKEN contains a line break; refusing to pass it to curl");
+    }
+    let escaped = token.replace('\\', "\\\\").replace('"', "\\\"");
+    Ok(format!("header = \"Authorization: Bearer {escaped}\"\n"))
+}
+
 /// POST an empty body to `/episode` with the caller's token and return the HTTP
 /// status and body. Quipu checks the bearer before it parses the episode, so an
 /// accepted token yields a validation error (400) and NOTHING is written, while a
@@ -1191,16 +1213,7 @@ fn curl_get_json(url: &str) -> Result<Value> {
 /// token travels in a curl config file, never on the command line.
 pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String)> {
     let body_file = tempfile::NamedTempFile::new().context("create write-probe body file")?;
-    let mut auth = None;
-    if let Ok(token) = env::var("QUIPU_AUTH_TOKEN") {
-        let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
-        fs::write(
-            file.path(),
-            format!("header = \"Authorization: Bearer {token}\"\n"),
-        )
-        .context("write temporary Quipu auth config")?;
-        auth = Some(file);
-    }
+    let auth = quipu_auth_config()?;
     let mut args: Vec<OsString> = [
         "--silent",
         "--max-time",
@@ -1237,16 +1250,7 @@ pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String)> {
 }
 
 fn curl_json_request(url: &str, body: Option<String>) -> Result<Value> {
-    let mut auth = None;
-    if let Ok(token) = env::var("QUIPU_AUTH_TOKEN") {
-        let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
-        fs::write(
-            file.path(),
-            format!("header = \"Authorization: Bearer {token}\"\n"),
-        )
-        .context("write temporary Quipu auth config")?;
-        auth = Some(file);
-    }
+    let auth = quipu_auth_config()?;
     let mut args = vec![
         OsString::from("--fail"),
         OsString::from("--silent"),
@@ -1454,5 +1458,25 @@ mod tests {
             fs::read_to_string(&link).unwrap(),
             "a real bobbin somebody installed"
         );
+    }
+}
+
+#[cfg(test)]
+mod auth_config_tests {
+    use super::curl_auth_header_line;
+
+    #[test]
+    fn curl_auth_line_escapes_quotes_and_refuses_line_breaks() {
+        assert_eq!(
+            curl_auth_header_line("abc").unwrap(),
+            "header = \"Authorization: Bearer abc\"\n"
+        );
+        assert_eq!(
+            curl_auth_header_line(r#"a"b\c"#).unwrap(),
+            "header = \"Authorization: Bearer a\\\"b\\\\c\"\n"
+        );
+        // A newline would end the config line and let the token add a directive.
+        assert!(curl_auth_header_line("tok\nurl = \"http://elsewhere\"").is_err());
+        assert!(curl_auth_header_line("tok\r").is_err());
     }
 }

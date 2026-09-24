@@ -134,17 +134,15 @@ send install records to a remote quipu with `flush-episodes`.
 - Unpacked releases under `~/.local/share/caboodle/`.
 - One setting, `[quipu.owl] reactive_materialize = true`, merged into
   `~/.config/bobbin/config.toml`. Other settings in that file are kept.
-- In the directory you ran it from: `caboodle-plan.toml`, `.caboodle/` (interview,
-  state, queued install records), `.bobbin/config.toml`, and `.quipu/`.
-- **A running `quipu-server` on `localhost:3030`**, started by camayoc's
-  verification from `./.quipu` and left running. Its pid is in
-  `.quipu/server.pid`. Stop it with `kill "$(cat .quipu/server.pid)"`.
+- In the directory you ran it from: `caboodle-plan.toml` and `.caboodle/` (interview,
+  state, queued install records).
 
-The quipu, bobbin, yupana, and desire-path checks each use a throwaway
-directory. The camayoc check does not: it loads its vocabulary into the quipu
-server at `QUIPU_SERVER` (default `http://localhost:3030`) and writes one marker
-node there. If `caboodle doctor` warns that a server is already live at that
-address and it holds data you care about, stop it or unset `QUIPU_SERVER` first.
+Every verification check uses a throwaway directory, camayoc's included. The camayoc
+check starts its own `quipu-server` on a free localhost port with a temporary store,
+loads camayoc's vocabulary and one marker node into it, and stops it afterwards. It
+never touches the server at `QUIPU_SERVER`. To set camayoc up against your real quipu
+server, run the bundle's bootstrap yourself as a separate step:
+`QUIPU_SERVER=<your server> bash ~/.local/share/caboodle/camayoc/<revision>/scripts/bootstrap.sh`.
 
 To remove caboodle, delete `~/.cargo/bin/caboodle` and the `.caboodle/`
 directory. Installed tools stay, because other workflows may use them. The
@@ -281,8 +279,8 @@ caboodle plan --profile everything --crew both
 from its checksummed release bundle (including its runtime), not a source build.
 A successful installer exit alone is not accepted. `verify` proves a marker is
 absent first, writes/indexes it, and then requires the reader path to return it.
-Every check uses a temporary isolated store except camayoc's, which runs against
-the quipu server at `QUIPU_SERVER` (see
+Every check uses a temporary isolated store; camayoc's starts and stops its own
+scratch quipu server (see
 [what install leaves on your machine](#what-install-leaves-on-your-machine)). Progress is written atomically to
 `.caboodle/state.json`, so rerunning converges and preserves a still-current
 verified result.

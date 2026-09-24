@@ -207,7 +207,14 @@ esac
         "b09562e58136029796dcf441c04bda2f5501e4cd\n",
     )
     .unwrap();
-    fs::write(camayoc.join("scripts/bootstrap.sh"), "#!/bin/sh\nexit 0\n").unwrap();
+    // Behaves like the real bootstrap when nothing answers: starts a server process
+    // under $CLAUDE_PROJECT_DIR/.quipu and records its pid, plus the server it was
+    // pointed at so tests can prove verification never used QUIPU_SERVER.
+    fs::write(
+        camayoc.join("scripts/bootstrap.sh"),
+        "#!/bin/sh\nprintf '%s\\n' \"$QUIPU_SERVER\" >> \"$HOME/camayoc-bootstrap.log\"\nmkdir -p \"$CLAUDE_PROJECT_DIR/.quipu\"\nsleep 300 >/dev/null 2>&1 &\necho $! > \"$CLAUDE_PROJECT_DIR/.quipu/server.pid\"\necho $! >> \"$HOME/camayoc-server-pids.log\"\nexit 0\n",
+    )
+    .unwrap();
     fs::write(
         camayoc.join("ontology/core.ttl"),
         "@prefix aegis: <https://example.test/ontology/> .\n",
@@ -771,6 +778,45 @@ fn camayoc_verification_refuses_broken_control_retrieval_and_replay() {
             .assert()
             .failure()
             .stderr(predicate::str::contains(message));
+    }
+}
+
+#[test]
+fn camayoc_verification_uses_its_own_scratch_server_and_stops_it() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "kg"])
+        .assert()
+        .success();
+    command(root.path(), &bin).arg("verify").assert().success();
+
+    let servers = fs::read_to_string(root.path().join("camayoc-bootstrap.log")).unwrap();
+    assert!(!servers.is_empty(), "camayoc bootstrap never ran");
+    for server in servers.lines() {
+        assert!(
+            server.starts_with("http://127.0.0.1:"),
+            "bootstrap was pointed at {server}, not a scratch localhost server"
+        );
+        assert!(
+            !server.contains("quipu.test"),
+            "verification reached QUIPU_SERVER"
+        );
+    }
+    assert!(
+        !root.path().join(".quipu").exists(),
+        "verification left a .quipu store in the working directory"
+    );
+    let pids = fs::read_to_string(root.path().join("camayoc-server-pids.log")).unwrap();
+    for pid in pids.lines() {
+        let alive = std::process::Command::new("kill")
+            .args(["-0", pid])
+            .status()
+            .unwrap()
+            .success();
+        assert!(!alive, "scratch quipu-server {pid} was left running");
     }
 }
 

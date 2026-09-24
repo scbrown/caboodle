@@ -447,13 +447,56 @@ impl Adapter for Camayoc {
 
     fn verify(&self) -> Result<()> {
         let root = camayoc_root()?;
-        checked(
-            "bash",
-            [root.join("scripts/bootstrap.sh").as_os_str()],
-            None,
-        )?;
-        verify_camayoc_first_ingest(&root)
+        // Isolated like every other adapter (aegis-ro425e.2): bootstrap is pointed at a
+        // free localhost port inside a tempdir, so it starts its OWN quipu-server from
+        // <tempdir>/.quipu instead of loading ontology, shapes and a marker into whatever
+        // QUIPU_SERVER names. Bootstrapping the user's real server is a separate, explicit
+        // step: run the bundle's scripts/bootstrap.sh yourself.
+        let scratch = tempfile::tempdir().context("create Camayoc verification directory")?;
+        let port = free_local_port()?;
+        let server = format!("http://127.0.0.1:{port}");
+        let _guard = ScratchServer(scratch.path().join(".quipu/server.pid"));
+        let bootstrap = Command::new("bash")
+            .arg(root.join("scripts/bootstrap.sh"))
+            .current_dir(scratch.path())
+            .env("QUIPU_SERVER", &server)
+            .env("CLAUDE_PROJECT_DIR", scratch.path())
+            .env_remove("QUIPU_AUTH_TOKEN")
+            .output()
+            .context("run Camayoc bootstrap against a scratch Quipu")?;
+        if !bootstrap.status.success() {
+            bail!(
+                "Camayoc bootstrap failed against scratch Quipu {server} ({})\nstdout:\n{}\nstderr:\n{}",
+                bootstrap.status,
+                String::from_utf8_lossy(&bootstrap.stdout).trim(),
+                String::from_utf8_lossy(&bootstrap.stderr).trim()
+            );
+        }
+        if !scratch.path().join(".quipu/server.pid").exists() {
+            bail!("Camayoc bootstrap did not start a scratch Quipu at {server}; refusing to verify against a server caboodle does not own");
+        }
+        verify_camayoc_first_ingest(&root, &server)
     }
+}
+
+/// Stops the scratch quipu-server Camayoc's bootstrap started, on every exit path.
+struct ScratchServer(PathBuf);
+
+impl Drop for ScratchServer {
+    fn drop(&mut self) {
+        if let Ok(pid) = fs::read_to_string(&self.0) {
+            let pid = pid.trim();
+            if !pid.is_empty() && pid.chars().all(|c| c.is_ascii_digit()) {
+                let _ = Command::new("kill").arg(pid).status();
+            }
+        }
+    }
+}
+
+fn free_local_port() -> Result<u16> {
+    let listener =
+        std::net::TcpListener::bind("127.0.0.1:0").context("reserve a free localhost port")?;
+    Ok(listener.local_addr()?.port())
 }
 
 impl Adapter for Bobbin {
@@ -977,13 +1020,12 @@ fn install_camayoc_bundle() -> Result<()> {
     Ok(())
 }
 
-fn verify_camayoc_first_ingest(root: &Path) -> Result<()> {
-    let server = env::var("QUIPU_SERVER").unwrap_or_else(|_| "http://localhost:3030".to_owned());
+fn verify_camayoc_first_ingest(root: &Path, server: &str) -> Result<()> {
     let namespace = camayoc_aegis_namespace(&root.join("ontology/core.ttl"))?;
     let control = "caboodle-camayoc-control-must-stay-absent";
     let marker = "caboodle-camayoc-first-ingest-v1";
 
-    if label_count(&server, &namespace, control)? != 0 {
+    if label_count(server, &namespace, control)? != 0 {
         bail!("Camayoc negative control unexpectedly exists");
     }
 
@@ -997,17 +1039,17 @@ fn verify_camayoc_first_ingest(root: &Path) -> Result<()> {
         "actor": "caboodle",
         "source": "caboodle Camayoc first-ingest verification"
     });
-    if label_count(&server, &namespace, marker)? == 0 {
+    if label_count(server, &namespace, marker)? == 0 {
         let first = curl_json(&format!("{server}/knot"), &payload)?;
         if first.get("count").and_then(Value::as_u64).unwrap_or(0) == 0 {
             bail!("Camayoc first ingest wrote no triples");
         }
     }
-    if label_count(&server, &namespace, marker)? == 0 {
+    if label_count(server, &namespace, marker)? == 0 {
         bail!("Camayoc first ingest was not retrievable");
     }
     curl_json(&format!("{server}/knot"), &payload)?;
-    if label_count(&server, &namespace, marker)? != 1 {
+    if label_count(server, &namespace, marker)? != 1 {
         bail!("Camayoc idempotent replay wrote duplicate triples");
     }
     Ok(())

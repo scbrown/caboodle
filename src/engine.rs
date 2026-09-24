@@ -492,6 +492,14 @@ pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {
         "plan has no intended-use/question contract; regenerate it through the Phase 2 interview",
     )?;
     for (index, contract) in intent.anticipated_questions.iter().enumerate() {
+        // The self-test question is about the stack, not the user's graph, so it
+        // always runs against a scratch store seeded with its own fact.
+        let scratch = if contract.is_self_test() {
+            Some(seed_self_test_store()?)
+        } else {
+            None
+        };
+        let db = scratch.as_ref().map(|(_, db)| db.as_path()).or(db);
         let mut args = vec![OsString::from("read"), OsString::from(&contract.sparql)];
         if let Some(db) = db {
             args.push(OsString::from("--db"));
@@ -511,6 +519,34 @@ pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {
         println!("question {}: verified — {}", index + 1, contract.question);
     }
     Ok(())
+}
+
+/// A throwaway Quipu store holding exactly the self-test fact. The tempdir is
+/// returned so it lives as long as the query that reads it.
+fn seed_self_test_store() -> Result<(tempfile::TempDir, std::path::PathBuf)> {
+    use crate::model::SELF_TEST_MARKER;
+    let dir = tempfile::tempdir().context("create self-test question store")?;
+    let db = dir.path().join("self-test.db");
+    let episode = dir.path().join("episode.json");
+    std::fs::write(
+        &episode,
+        format!(
+            r#"{{"name":"caboodle self-test question","episode_body":"self-test seed","source":"caboodle","group_id":"caboodle-verification","nodes":[{{"name":"{SELF_TEST_MARKER}","type":"Verification","description":"caboodle self-test question seed"}}],"edges":[]}}"#
+        ),
+    )
+    .context("write self-test episode")?;
+    crate::adapter::checked(
+        "quipu",
+        [
+            OsString::from("episode"),
+            episode.into_os_string(),
+            OsString::from("--db"),
+            db.clone().into_os_string(),
+        ],
+        None,
+    )
+    .context("seed the self-test question store")?;
+    Ok((dir, db))
 }
 
 #[cfg(test)]

@@ -265,6 +265,37 @@ fn guided_interview_writes_the_same_reviewed_plan_as_plan_command() {
 }
 
 #[test]
+fn guided_interview_offers_a_self_test_question_that_verifies_on_a_fresh_box() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    // Enter at the question-count prompt: a newcomer has no ontology to write SPARQL for.
+    command(root.path(), &bin)
+        .args(["init", "--guided"])
+        .write_stdin(
+            "kg\nbuild a service graph\n1\nAda\nnavigator\nservices\nanswers dependencies\n\n",
+        )
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "using the built-in self-test question",
+        ));
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("caboodle-verify-roundtrip"), "{plan}");
+
+    // It must pass without any store of the user's, even when pointed at one
+    // that does not exist: the self-test seeds and reads its own scratch store.
+    command(root.path(), &bin)
+        .args(["verify-questions", "--db"])
+        .arg(root.path().join("no-such-user-store.db"))
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("question 1: verified"));
+    assert!(!root.path().join("no-such-user-store.db").exists());
+}
+
+#[test]
 fn guided_interview_resumes_after_input_ends() {
     let root = tempfile::tempdir().unwrap();
     command(root.path(), root.path())

@@ -1,10 +1,12 @@
 //! Read-only preflight: what will stop `caboodle install` on this host, before
 //! anything is downloaded, built, or started.
 //!
-//! Every check here inspects the platform, PATH, and one optional HTTP probe of
-//! the Quipu server. Nothing is installed, written, or registered, so running it
-//! first is always safe. A `fail` line is a blocker `install` would hit; a `warn`
-//! line is something that works but will surprise you.
+//! Every check here inspects the platform, PATH, the MCP registrations the agent
+//! CLI reports, and the Quipu server named by `QUIPU_SERVER`: health, one read,
+//! and an authenticated no-op write probe that Quipu refuses before writing
+//! anything. Nothing is installed, written, or registered, so running it first is
+//! always safe. A `fail` line is a blocker `install` would hit; a `warn` line is
+//! something that works but will surprise you.
 
 use std::{
     env,
@@ -115,9 +117,198 @@ pub fn diagnose(scope: &Scope) -> Vec<Finding> {
     for &tool in &scope.tools {
         findings.extend(check_tool(tool, scope.quipu_flavor, path.as_deref()));
     }
-    if scope.tools.contains(&ToolName::Camayoc) {
-        findings.push(check_quipu_server());
+    if scope.tools.contains(&ToolName::Camayoc) || scope.tools.contains(&ToolName::Quipu) {
+        findings.extend(check_graph());
     }
+    findings.extend(check_mcp(scope));
+    findings
+}
+
+/// MCP servers an agent needs for the selected tools, by the names the install
+/// docs register them under (`claude mcp add bobbin|yupana ...`).
+fn expected_mcp_servers(scope: &Scope) -> Vec<&'static str> {
+    let mut names = Vec::new();
+    if scope.tools.contains(&ToolName::Bobbin) {
+        names.push("bobbin");
+    }
+    if scope.tools.contains(&ToolName::Yupana) {
+        names.push("yupana");
+    }
+    names
+}
+
+/// Parse `claude mcp list`: `name: target - ✔ Connected` per server.
+pub(crate) fn parse_mcp_list(text: &str) -> Vec<(String, bool)> {
+    text.lines()
+        .filter_map(|line| {
+            let (name, rest) = line.split_once(": ")?;
+            let (_, status) = rest.rsplit_once(" - ")?;
+            let name = name.trim();
+            if name.is_empty() || name.contains(' ') && !name.starts_with("claude.ai") {
+                return None;
+            }
+            Some((
+                name.to_owned(),
+                status.contains("Connected") && !status.contains("Failed"),
+            ))
+        })
+        .collect()
+}
+
+pub(crate) fn mcp_findings(expected: &[&str], listed: &[(String, bool)]) -> Vec<Finding> {
+    expected
+        .iter()
+        .map(|want| match listed.iter().find(|(name, _)| name == want) {
+            Some((_, true)) => Finding::new(Level::Ok, format!("mcp {want}"), "registered and connected"),
+            Some((_, false)) => Finding::new(
+                Level::Warn,
+                format!("mcp {want}"),
+                "registered but NOT connecting; agents in this directory get no tools from it. Run `claude mcp list` for the error",
+            ),
+            None => Finding::new(
+                Level::Warn,
+                format!("mcp {want}"),
+                format!("not registered for this directory; agents here get no {want} tools. After install: `claude mcp add {want} -- {want} serve`"),
+            ),
+        })
+        .collect()
+}
+
+fn check_mcp(scope: &Scope) -> Vec<Finding> {
+    let expected = expected_mcp_servers(scope);
+    if expected.is_empty() {
+        return Vec::new();
+    }
+    if which_all("claude", env::var_os("PATH").as_deref()).is_empty() {
+        return vec![Finding::new(
+            Level::Warn,
+            "mcp",
+            "cannot check MCP registration: the `claude` CLI is not on PATH",
+        )];
+    }
+    match Command::new("claude")
+        .args(["mcp", "list"])
+        .stdin(Stdio::null())
+        .output()
+    {
+        Ok(out) if out.status.success() => mcp_findings(
+            &expected,
+            &parse_mcp_list(&String::from_utf8_lossy(&out.stdout)),
+        ),
+        Ok(out) => vec![Finding::new(
+            Level::Warn,
+            "mcp",
+            format!(
+                "`claude mcp list` failed ({}); MCP registration unknown",
+                out.status
+            ),
+        )],
+        Err(error) => vec![Finding::new(
+            Level::Warn,
+            "mcp",
+            format!("could not run `claude mcp list`: {error}; MCP registration unknown"),
+        )],
+    }
+}
+
+/// What the no-op write probe's answer means. Quipu authorizes before parsing.
+pub(crate) fn classify_write_probe(code: u16, body: &str, token_set: bool) -> Finding {
+    let token = if token_set {
+        "token from QUIPU_AUTH_TOKEN"
+    } else {
+        "no token (QUIPU_AUTH_TOKEN unset)"
+    };
+    match code {
+        400 | 422 if body.contains("episode") || body.contains("missing field") => Finding::new(
+            Level::Ok,
+            "quipu write",
+            format!("authorized ({token}); the probe was refused as an empty episode, nothing written"),
+        ),
+        401 | 403 => Finding::new(
+            Level::Warn,
+            "quipu write",
+            format!("REFUSED with HTTP {code} ({token}): reads work but every write will fail. Set QUIPU_AUTH_TOKEN to a token this server accepts"),
+        ),
+        0 => Finding::new(Level::Warn, "quipu write", "write probe got no HTTP answer; write path unknown"),
+        other => Finding::new(
+            Level::Warn,
+            "quipu write",
+            format!("write probe returned an unexpected HTTP {other} ({token}); write path unknown"),
+        ),
+    }
+}
+
+fn check_graph() -> Vec<Finding> {
+    let explicit = env::var("QUIPU_SERVER").ok();
+    let server = explicit
+        .clone()
+        .unwrap_or_else(|| "http://localhost:3030".to_owned());
+    let mut findings = vec![check_quipu_server()];
+    let reachable = findings[0].detail.contains("is live");
+    if !reachable {
+        return findings;
+    }
+    let base = server.trim_end_matches('/');
+    // The namespace is the setting people most often get wrong, so echo it and
+    // check the server actually holds facts under it.
+    match adapter::camayoc_root()
+        .ok()
+        .map(|root| root.join("ontology/core.ttl"))
+        .filter(|path| path.exists())
+        .map(|path| adapter::camayoc_aegis_namespace(&path))
+    {
+        Some(Ok(namespace)) => {
+            // Subject-bound on a class camayoc's ontology declares: an index hit.
+            // A prefix FILTER over `?s ?p ?o` scans the store and 408s on a real
+            // graph (measured), which would report a healthy server as broken.
+            let query = format!("SELECT ?p WHERE {{ <{namespace}Verification> ?p ?o }} LIMIT 1");
+            findings.push(
+                match adapter::curl_json(&format!("{base}/query"), &serde_json::json!({ "query": query })) {
+                    Ok(answer) if answer["count"].as_u64().unwrap_or(0) > 0 => Finding::new(
+                        Level::Ok,
+                        "quipu namespace",
+                        format!("{namespace} on {server}: read OK, camayoc's ontology is loaded here"),
+                    ),
+                    Ok(_) => Finding::new(
+                        Level::Warn,
+                        "quipu namespace",
+                        format!("{namespace} on {server}: read OK but camayoc's ontology is NOT loaded here. Either it was never bootstrapped on this server, or this is the wrong server or namespace"),
+                    ),
+                    Err(error) => Finding::new(
+                        Level::Warn,
+                        "quipu namespace",
+                        format!("{namespace} on {server}: read FAILED: {}", one_line(&format!("{error:#}"))),
+                    ),
+                },
+            );
+        }
+        Some(Err(error)) => findings.push(Finding::new(
+            Level::Warn,
+            "quipu namespace",
+            format!(
+                "cannot resolve camayoc's namespace: {}",
+                one_line(&format!("{error:#}"))
+            ),
+        )),
+        None => findings.push(Finding::new(
+            Level::Ok,
+            "quipu namespace",
+            "camayoc not installed yet; namespace resolves after install",
+        )),
+    }
+    findings.push(match adapter::quipu_write_probe(base) {
+        Ok((code, body)) => {
+            classify_write_probe(code, &body, env::var_os("QUIPU_AUTH_TOKEN").is_some())
+        }
+        Err(error) => Finding::new(
+            Level::Warn,
+            "quipu write",
+            format!(
+                "write probe could not run: {}",
+                one_line(&format!("{error:#}"))
+            ),
+        ),
+    });
     findings
 }
 
@@ -322,6 +513,60 @@ pub fn report<W: Write>(findings: &[Finding], output: &mut W) -> Result<bool> {
 mod tests {
     use super::*;
     use std::{ffi::OsString, fs, path::PathBuf};
+
+    // Verbatim shape of `claude mcp list` (servers renamed, targets shortened).
+    const MCP_LIST: &str = "Checking MCP server health…\n\n\
+claude.ai Gmail: https://gmailmcp.example/mcp/v1 - ✔ Connected\n\
+bobbin: http://bobbin-mcp.example/mcp (HTTP) - ✔ Connected\n\
+yupana: yupana serve - ✗ Failed to connect\n";
+
+    #[test]
+    fn mcp_list_parses_connected_and_failed_servers() {
+        let listed = parse_mcp_list(MCP_LIST);
+        assert!(listed.contains(&("bobbin".to_owned(), true)));
+        assert!(listed.contains(&("yupana".to_owned(), false)));
+        assert!(!listed.iter().any(|(name, _)| name.starts_with("Checking")));
+    }
+
+    #[test]
+    fn mcp_findings_distinguish_connected_failing_and_missing() {
+        let listed = parse_mcp_list(MCP_LIST);
+        let got = mcp_findings(&["bobbin", "yupana", "quipu"], &listed);
+        assert_eq!(got[0].level, Level::Ok);
+        assert_eq!(got[1].level, Level::Warn);
+        assert!(got[1].detail.contains("NOT connecting"));
+        assert_eq!(got[2].level, Level::Warn);
+        assert!(got[2].detail.contains("not registered"));
+        // A clean install with zero servers: every expected one is reported, none silently.
+        assert!(mcp_findings(&["bobbin"], &[])
+            .iter()
+            .all(|f| f.level == Level::Warn));
+    }
+
+    #[test]
+    fn write_probe_is_authorized_only_on_a_validation_refusal() {
+        let ok = classify_write_probe(
+            400,
+            r#"{"error":"invalid episode JSON: missing field `name`"}"#,
+            true,
+        );
+        assert_eq!(ok.level, Level::Ok);
+        assert!(ok.detail.contains("nothing written"));
+
+        let refused = classify_write_probe(401, r#"{"error":"unauthorized"}"#, false);
+        assert_eq!(refused.level, Level::Warn);
+        assert!(
+            refused.detail.contains("REFUSED") && refused.detail.contains("QUIPU_AUTH_TOKEN unset")
+        );
+
+        // A 400 for some other reason is not proof of authorization.
+        assert_eq!(
+            classify_write_probe(400, "bad gateway html", true).level,
+            Level::Warn
+        );
+        assert_eq!(classify_write_probe(0, "", true).level, Level::Warn);
+        assert_eq!(classify_write_probe(200, "{}", true).level, Level::Warn);
+    }
 
     fn executable(dir: &Path, name: &str) -> PathBuf {
         let path = dir.join(name);

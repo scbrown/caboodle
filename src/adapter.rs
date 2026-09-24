@@ -1073,7 +1073,7 @@ const CAMAYOC_REVISION: &str = "b09562e58136029796dcf441c04bda2f5501e4cd";
 const CAMAYOC_ARCHIVE_SHA256: &str =
     "7d64d5cb3524b1c98d90148a01eb0afaf3f135772390289d60311e90ab8c477c";
 
-fn camayoc_root() -> Result<PathBuf> {
+pub(crate) fn camayoc_root() -> Result<PathBuf> {
     if let Some(path) = env::var_os("CABOODLE_CAMAYOC_ROOT") {
         return Ok(PathBuf::from(path));
     }
@@ -1152,7 +1152,7 @@ fn verify_camayoc_first_ingest(root: &Path, server: &str) -> Result<()> {
     Ok(())
 }
 
-fn camayoc_aegis_namespace(path: &Path) -> Result<String> {
+pub(crate) fn camayoc_aegis_namespace(path: &Path) -> Result<String> {
     let body = fs::read_to_string(path)
         .with_context(|| format!("read Camayoc ontology {}", path.display()))?;
     body.lines()
@@ -1175,12 +1175,65 @@ fn label_count(server: &str, namespace: &str, label: &str) -> Result<u64> {
         .context("Quipu query response omitted numeric count")
 }
 
-fn curl_json(url: &str, payload: &Value) -> Result<Value> {
+pub(crate) fn curl_json(url: &str, payload: &Value) -> Result<Value> {
     curl_json_request(url, Some(payload.to_string()))
 }
 
 fn curl_get_json(url: &str) -> Result<Value> {
     curl_json_request(url, None)
+}
+
+/// POST an empty body to `/episode` with the caller's token and return the HTTP
+/// status and body. Quipu checks the bearer before it parses the episode, so an
+/// accepted token yields a validation error (400) and NOTHING is written, while a
+/// missing or rejected token yields 401. That makes it an authenticated no-op:
+/// the only way to prove the write path without writing (aegis-0c1qdi). The
+/// token travels in a curl config file, never on the command line.
+pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String)> {
+    let body_file = tempfile::NamedTempFile::new().context("create write-probe body file")?;
+    let mut auth = None;
+    if let Ok(token) = env::var("QUIPU_AUTH_TOKEN") {
+        let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
+        fs::write(
+            file.path(),
+            format!("header = \"Authorization: Bearer {token}\"\n"),
+        )
+        .context("write temporary Quipu auth config")?;
+        auth = Some(file);
+    }
+    let mut args: Vec<OsString> = [
+        "--silent",
+        "--max-time",
+        "5",
+        "--request",
+        "POST",
+        "--header",
+        "Content-Type: application/json",
+        "--data",
+        "{}",
+        "--write-out",
+        "%{http_code}",
+        "--output",
+    ]
+    .iter()
+    .map(OsString::from)
+    .collect();
+    args.push(body_file.path().as_os_str().to_owned());
+    if let Some(file) = &auth {
+        args.push(OsString::from("--config"));
+        args.push(file.path().as_os_str().to_owned());
+    }
+    args.push(OsString::from(format!(
+        "{}/episode",
+        server.trim_end_matches('/')
+    )));
+    let result = output("curl", args, None)?;
+    let code = String::from_utf8_lossy(&result.stdout)
+        .trim()
+        .parse::<u16>()
+        .unwrap_or(0);
+    let body = fs::read_to_string(body_file.path()).unwrap_or_default();
+    Ok((code, body))
 }
 
 fn curl_json_request(url: &str, body: Option<String>) -> Result<Value> {

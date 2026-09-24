@@ -93,7 +93,7 @@ each book, and diverging from it is a review finding.
 
 ## 3. The shared stack block (identical everywhere)
 
-Copy verbatim, then mark your own row with **(you are here)**. It lists the
+Copy verbatim, then mark your own row by putting **(you are here)** straight after the repo link, as in `| [yupana](…) **(you are here)** | … |` (the pilot's placement). It lists the
 six stack repos only. Other projects belong on caboodle's book page, not in
 every README.
 

@@ -126,7 +126,7 @@ Caboodle installs these together and proves each one works; every tool also stan
 | [yupana](https://github.com/scbrown/yupana) | which code calls which: the blast radius before an edit |
 | [desire-path](https://github.com/scbrown/desire-path) | the tool calls your agents get wrong, so you can fix them |
 
-<!-- mark THIS repo's row: append " **(you are here)**" to its description -->
+<!-- mark THIS repo's row: put " **(you are here)**" straight after its repo link -->
 
 ## Contributing
 

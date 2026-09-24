@@ -9,6 +9,9 @@ cargo install --git https://github.com/scbrown/caboodle --locked
 # Guided: use, crew themes, and anticipated graph questions are checkpointed.
 caboodle init --guided
 
+# Read-only preflight: every blocker on this host, before anything installs.
+caboodle doctor
+
 # Non-interactive: read the same schema from caboodle-intent.toml.
 caboodle plan --profile retrieval --intent caboodle-intent.toml
 

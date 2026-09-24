@@ -290,6 +290,12 @@ pub struct QuestionContract {
 
 impl InstallIntent {
     pub fn read(path: &Path) -> Result<Self> {
+        if !path.exists() {
+            bail!(
+                "no intent file at {}; run `caboodle init --guided` to answer the interview instead, or write one (see the \"Using caboodle\" chapter of docs/book)",
+                path.display()
+            );
+        }
         let body =
             fs::read_to_string(path).with_context(|| format!("read intent {}", path.display()))?;
         let intent: Self =
@@ -386,6 +392,12 @@ impl Plan {
     }
 
     pub fn read(path: &Path) -> Result<Self> {
+        if !path.exists() {
+            bail!(
+                "no plan at {}; run `caboodle init --guided` (or `caboodle plan`) first",
+                path.display()
+            );
+        }
         let body =
             fs::read_to_string(path).with_context(|| format!("read plan {}", path.display()))?;
         let plan: Self =

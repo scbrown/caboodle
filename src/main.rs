@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use anyhow::Result;
 use caboodle::{
     crew::CrewEvidence,
+    doctor,
     embedding::EmbeddingModel,
     emission, engine, interview,
     model::{CrewMode, InstallIntent, Plan, Profile, QuipuFlavor},
@@ -19,6 +20,12 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Report, without changing anything, what would stop an install on this host
+    Doctor {
+        /// Plan to check; without one, every tool in the everything profile is checked
+        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        plan: PathBuf,
+    },
     /// Run the resumable guided interview and write a reviewable plan
     Init {
         /// Use the guided question flow
@@ -229,6 +236,23 @@ impl From<ProfileArg> for Profile {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Commands::Doctor { plan } => {
+            let scope = if plan.exists() {
+                println!("doctor: checking {}", plan.display());
+                doctor::Scope::from_plan(&Plan::read(&plan)?)
+            } else {
+                println!(
+                    "doctor: no plan at {}; checking every tool in the everything profile",
+                    plan.display()
+                );
+                doctor::Scope::everything()
+            };
+            let findings = doctor::diagnose(&scope);
+            let stdout = std::io::stdout();
+            if !doctor::report(&findings, &mut stdout.lock())? {
+                std::process::exit(1);
+            }
+        }
         Commands::Init {
             guided,
             output,

@@ -20,89 +20,231 @@
 > *"Kit and caboodle" — from Dutch* boedel*, one's whole estate and effects. Everything,
 > together, nothing left on the dock.*
 
-The stack has a store that governs what a fact may claim
-([quipu](https://github.com/scbrown/quipu)), a keeper that decides how knowledge
-earns its way in ([camayoc](https://github.com/scbrown/camayoc)), an index that
-serves it back into agent context ([bobbin](https://github.com/scbrown/bobbin)),
-and a graph that knows what your code touches
-([yupana](https://github.com/scbrown/yupana)). What it did not have is the first
-hour: a fresh machine, a person or an agent, and a working stack at the end of it.
+**Caboodle installs a set of open-source tools that give AI coding agents
+(Claude Code, Codex, Cursor) a memory and a map of your code, then proves each
+tool works on your machine.** A short interview writes a plan, one command
+installs and checks everything in it, and the result is a list of passed proofs
+rather than a list of exit codes.
 
-That is this repo's job. Caboodle is an **AI-installable install wizard**: an LLM
-agent — or a human answering the same interview — drives the install end to end,
-and every claim along the way is a proof, not a banner.
+## Why you would want it
 
-## 🧵 Role in the stack
+Coding agents forget everything between sessions and see your repository one
+file at a time. The tools caboodle installs fix both:
+
+- **[quipu](https://github.com/scbrown/quipu)** stores what your agents learn as
+  a knowledge graph that refuses facts that break its rules.
+- **[camayoc](https://github.com/scbrown/camayoc)** loads the starter vocabulary
+  into quipu and decides how new knowledge earns its way in.
+- **[bobbin](https://github.com/scbrown/bobbin)** indexes your repositories and
+  serves search and context to agents over MCP.
+- **[yupana](https://github.com/scbrown/yupana)** knows which functions call
+  which, so an agent can check the blast radius before it edits.
+- **[desire-path](https://github.com/scbrown/desire-path)** records the tool
+  calls your agents get wrong, so you can see what to fix.
+
+Each tool installs on its own. Caboodle is the part that picks the right
+versions, installs them together, and runs a real round trip through each one
+(write something, read it back, and first prove it was not already there).
+
+## Quickstart
+
+```bash
+# 1. Install the caboodle binary (checksummed release; read the script first if you like)
+curl -fsSLO https://raw.githubusercontent.com/scbrown/caboodle/main/scripts/install.sh
+sh install.sh && export PATH="$HOME/.cargo/bin:$PATH"
+
+# 2. Answer five short questions; this writes caboodle-plan.toml and changes nothing else
+mkdir my-stack && cd my-stack
+caboodle init --guided
+
+# 3. Install and prove every tool in the plan
+caboodle install
+```
+
+Before step 3, run `caboodle doctor`. It changes nothing and lists every
+missing prerequisite, unsupported platform, and stale or shadowed binary that
+would stop the install. Fix each `FAIL` line and run it again.
+
+A finished install ends with one `verified` line per tool:
+
+```text
+quipu: verified
+camayoc: verified
+bobbin: verified
+```
+
+Run everything from the same directory. Caboodle keeps its plan and progress
+there, and an interrupted `init` or `install` resumes when you rerun it.
+
+### Answering the interview
+
+| prompt | what to type |
+|---|---|
+| `profile` | `retrieval` for a first install. See [profiles](#pick-a-profile). |
+| `what should this installation help you do?` | One plain sentence. It is recorded in the plan. |
+| `how many themed crew members` | `0` unless you run a named team of agents. |
+| `how many ontology questions` | `1`. Each question is a check the finished graph must pass. |
+| the question's five fields | A question in words, its answer shape, the seed fact that answers it, a SPARQL `SELECT` or `ASK` query, and a word the answer must contain. |
+
+To skip the interview, write the same answers to a file and pass it in. A
+starter file is in [`examples/caboodle-intent.toml`](examples/caboodle-intent.toml):
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/scbrown/caboodle/main/examples/caboodle-intent.toml
+caboodle plan --profile retrieval --intent caboodle-intent.toml
+```
+
+## Before you start
+
+**Platforms.** Linux x86_64 needs no Rust toolchain: each tool comes from a
+checksummed release or source archive, and Go builds desire-path. On other
+platforms quipu and yupana have no release yet, so you build them once with
+Rust; `caboodle doctor` prints the exact command.
+
+| | Linux x86_64 | macOS arm64 | macOS x86_64 | Linux arm64 |
+|---|---|---|---|---|
+| caboodle | release | release | release | build with `cargo install --git` |
+| quipu | release | build with cargo | build with cargo | build with cargo |
+| camayoc | source archive | source archive | source archive | source archive |
+| bobbin | release | release | release | release |
+| yupana | release | build with cargo | build with cargo | build with cargo |
+| desire-path | built with Go | built with Go | built with Go | built with Go |
+
+**Commands on PATH.** `curl`, `tar`, `git`, `bash`, `python3`, and `sha256sum`
+(recent macOS ships it; otherwise `brew install coreutils`). The `everything`
+profile also needs Go 1.22+. Rust is only needed for the source builds above.
+
+**Accounts and servers.** None. Nothing talks to a private network, and no
+token is needed to install. A token (`QUIPU_AUTH_TOKEN`) matters only when you
+send install records to a remote quipu with `flush-episodes`.
+
+## Pick a profile
+
+| profile | installs | pick it when |
+|---|---|---|
+| `kg` | quipu, camayoc | you want the knowledge graph only |
+| `retrieval` | kg + bobbin | you want agents to search your code (start here) |
+| `code-intel` | retrieval + yupana | you also want call graphs and impact checks |
+| `everything` | code-intel + desire-path | you want the whole kit; needs Go |
+| `crew` | kg + bobbin + a crew runner | you run several agents at once with [shantytown](https://github.com/scbrown/shantytown) or [creel](https://github.com/scbrown/creel) |
+
+## What install leaves on your machine
+
+- Binaries in `~/.cargo/bin` (or `$CARGO_HOME/bin`). Keep that directory on your PATH.
+- Unpacked releases under `~/.local/share/caboodle/`.
+- One setting, `[quipu.owl] reactive_materialize = true`, merged into
+  `~/.config/bobbin/config.toml`. Other settings in that file are kept.
+- In the directory you ran it from: `caboodle-plan.toml`, `.caboodle/` (interview,
+  state, queued install records), `.bobbin/config.toml`, and `.quipu/`.
+- **A running `quipu-server` on `localhost:3030`**, started by camayoc's
+  verification from `./.quipu` and left running. Its pid is in
+  `.quipu/server.pid`. Stop it with `kill "$(cat .quipu/server.pid)"`.
+
+The quipu, bobbin, yupana, and desire-path checks each use a throwaway
+directory. The camayoc check does not: it loads its vocabulary into the quipu
+server at `QUIPU_SERVER` (default `http://localhost:3030`) and writes one marker
+node there. If `caboodle doctor` warns that a server is already live at that
+address and it holds data you care about, stop it or unset `QUIPU_SERVER` first.
+
+To remove caboodle, delete `~/.cargo/bin/caboodle` and the `.caboodle/`
+directory. Installed tools stay, because other workflows may use them. The
+[install guide](docs/book/src/installing.md) covers release pins, source
+installs, and updates.
+
+## Connect the tools to your agent
+
+`caboodle install` installs and proves the binaries. It does not register MCP
+servers with your agent yet. Register them yourself after a green install. For
+Claude Code:
+
+```bash
+claude mcp add bobbin -- bobbin serve
+claude mcp add yupana -- yupana serve   # code-intel and everything profiles
+claude mcp list                         # each should show as connected
+```
+
+Bobbin's MCP server also carries quipu's knowledge-graph tools. For Cursor and
+other MCP clients, use the same command and arguments in the client's MCP
+config. Index a repository before searching it: `cd your-repo && bobbin init &&
+bobbin index`.
+
+## When something fails
+
+- **`caboodle doctor`** first. It names the blocker and the fix.
+- **`<tool> install step ... no checksummed CABOODLE release for <platform>`**:
+  build that tool with the `cargo install` command doctor prints, then rerun
+  `caboodle install`. Caboodle adopts an installed tool that passes its checks.
+- **`<tool> functional verification`**: the tool installed but its round trip
+  failed. The error includes the tool's own output. Fix it and rerun
+  `caboodle install`; tools that already passed are not redone.
+- **macOS: bobbin panics with `Failed to load ONNX Runtime dylib`**: bobbin
+  looks for its bundled runtime next to the `~/.cargo/bin/bobbin` symlink rather
+  than next to the real binary. Until bobbin resolves the symlink, run
+  `export ORT_DYLIB_PATH="$HOME/.local/share/caboodle/bobbin/v0.16.2/lib/libonnxruntime.dylib"`
+  (add it to your shell profile) and rerun `caboodle install`.
+- **A new build still behaves like the old one**: another copy earlier on PATH
+  wins. Doctor lists every copy in the order your shell finds them.
+- **`no plan at caboodle-plan.toml`**: you are in a different directory from the
+  one where you ran `caboodle init --guided`.
+
+Do not delete `.caboodle/` to recover. It holds your interview answers and the
+last proven state.
+
+## Words you will see
+
+| word | meaning |
+|---|---|
+| plan | `caboodle-plan.toml`, the reviewed list of what will be installed. Nothing installs without one. |
+| state | `.caboodle/state.json`, what is installed and when it last passed its check. |
+| negative control | The half of a check that proves the thing is absent first, so a pass could have been a fail. |
+| episode | A batch of facts written to quipu in one go. |
+| knot | One write to quipu over HTTP (`/knot`). |
+| ontology, shapes | The vocabulary quipu accepts and the rules (SHACL) that reject bad facts. |
+| share, qpack | A portable export of a quipu graph that another store can import. |
+| crew | Several named coding agents that work together, run by shantytown (terminal) or creel (browser). |
+| bead, `br` | An issue in [beads](https://github.com/Dicklesworthstone/beads_rust), a git-friendly issue tracker agents use as memory. |
+| MCP | Model Context Protocol, how an agent calls a tool's server. |
+
+## How it works
 
 ```text
     caboodle                      (interview → plan → apply → verify → observe)
         │  installs, proves, and watches ↓
         ▼
-  quipu · bobbin · camayoc · yupana · desire-path · shantytown / creel · shanty
+  quipu · bobbin · camayoc · yupana · desire-path · shantytown / creel
         │
         ▼
     prometheus                    (every tool's metrics, consolidated)
 ```
 
-- Caboodle sits **above** the corpus: it never re-implements a tool's job, it
-  installs the tool and then makes the tool demonstrate its own job.
-- Camayoc ends at knowledge-graph bootstrapping; caboodle begins at
-  "I have a fresh machine and I want this stack."
+Caboodle never re-implements a tool's job. It installs the tool and then makes
+the tool demonstrate its own job, through three proofs:
 
-## 🔍 Three proofs, not one
+1. **Installed**: proven by reading the version back, never by an exit code.
+2. **Working**: a per-tool round trip. quipu accepts an episode and a query
+   finds it; bobbin indexes a fixture and search returns it; yupana finds a
+   caller in a fixture repository. Every check first proves its marker is
+   absent, so a pass is capable of failing.
+3. **Observable**: caboodle generates Prometheus scrape config, starter alerts,
+   and one dashboard for the selected tools, for you to review and deploy.
 
-1. **Installed** — proven by version read-back, never by exit code.
-2. **Working** — a per-tool functional round-trip: quipu accepts an episode and a
-   control-gated query finds it; bobbin indexes a fixture and search returns it;
-   yupana answers `impact` on a fixture repo. Every check pairs with a **negative
-   control** — the selftest that corrupts a byte and goes red — so a pass is
-   capable of failing.
-3. **Observable** — Prometheus actually scrapes each tool's declared exporter.
-   Caboodle generates the scrape config, a starter alert pack, and one
-   consolidated dashboard.
+Install and verification outcomes are also queued as quipu episodes, so a fresh
+box's first knowledge is a record of the box itself. The agent-facing version of
+this workflow is the [`caboodle` skill](skills/caboodle/SKILL.md), and the full
+design is in the [book](docs/book/src/introduction.md).
 
-## 🪢 What this repo owns
+## Reference: every command
 
-1. **The interview** — `caboodle init --guided`: what do you want (knowledge
-   graph only? retrieval? a full crew?), where does it run, do you have
-   Prometheus or should I bring one? Answers become a **plan file** the user or
-   agent reads before anything executes. Two-phase, always: nothing installs on
-   the strength of a conversation alone.
-2. **The engine** — plan → apply → verify over the corpus, driving each tool
-   through the conventions the repos already follow: CLI verbs
-   (`<tool> selftest`, `<tool> health`, `<tool> init`) and `just` recipes.
-   **Convention over manifest** — there is no per-repo config file to parse or
-   rot. A state file records what is installed *and last proven working*;
-   re-running converges; a failed step names itself.
-3. **Profiles** — `kg` (quipu + camayoc), `retrieval` (+ bobbin), `code-intel`
-   (+ yupana), `crew`, `everything`. The `crew` profile is a choice:
-   **shantytown, creel, both, or standalone** — a tmux-resident crew on a host,
-   parallel agent bursts in the browser, the pair, or no crew layer at all.
-   Both harnesses are first-class: **Claude Code and codex** can each drive the
-   install, and crews can run roles on either.
-4. **The observability weave** — each tool's metrics contract is catalogued in
-   camayoc (meaning and ownership live in the graph the box just installed),
-   and wired into Prometheus by generated config.
-   And caboodle is itself a **quipu emitter**: every install and verification
-   outcome becomes an episode through camayoc's ingress discipline — what is
-   installed, at what version, last proven working when — so a fresh box's
-   first knowledge domain is the box itself.
-5. **`skills/caboodle`** — the agent-facing skill: install, verify, diagnose,
-   upgrade. Its sibling `skills/camayoc` (the ontology-bootstrap interview)
-   ships with camayoc; caboodle installs both.
-
-## 🧰 What runs today
-
-The plan/apply/verify engine, fixed convention adapters for Quipu and Bobbin,
-and the resumable guided interview run without a tool manifest or private
-network assumptions:
-
-For checksummed release binaries, source installs pinned to a reviewed commit,
-resume semantics, and removal boundaries, see the
-[install guide](docs/book/src/installing.md).
+The quickstart covers `init`, `plan`, `doctor`, and `install`. The rest of the
+command surface, for reviewed updates, shared graphs, observability, and install
+records:
 
 ```bash
+# Build caboodle from source instead of the release installer.
 cargo install --git https://github.com/scbrown/caboodle --locked
+
+# Report what would block an install here. Changes nothing; exits nonzero on a blocker.
+caboodle doctor
 
 # Answer the use-shaped interview. It asks who the themed crew members are and
 # which questions the finished graph must answer, then only writes a plan.
@@ -115,7 +257,7 @@ caboodle plan --profile retrieval --intent caboodle-intent.toml
 # The target database is explicit; apply stages imports but never promotes them.
 caboodle plan --profile retrieval --share ./team-share --quipu-db ./knowledge.db
 
-# Converge the reviewed plan, then prove both tools with isolated round trips.
+# Converge the reviewed plan, then prove each tool with a round trip.
 caboodle apply
 caboodle verify
 caboodle verify-questions
@@ -137,9 +279,11 @@ caboodle plan --profile everything --crew both
 
 `apply` installs a missing released tool and reads its version back; Bobbin comes
 from its checksummed release bundle (including its runtime), not a source build.
-A successful installer exit alone is not accepted. `verify` uses temporary
-isolated stores: it proves a marker is absent first, writes/indexes it, and then
-requires the reader path to return it. Progress is written atomically to
+A successful installer exit alone is not accepted. `verify` proves a marker is
+absent first, writes/indexes it, and then requires the reader path to return it.
+Every check uses a temporary isolated store except camayoc's, which runs against
+the quipu server at `QUIPU_SERVER` (see
+[what install leaves on your machine](#what-install-leaves-on-your-machine)). Progress is written atomically to
 `.caboodle/state.json`, so rerunning converges and preserves a still-current
 verified result.
 

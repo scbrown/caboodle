@@ -3,6 +3,10 @@
 default:
     @just --list
 
+# Report what would block an install on this host; changes nothing
+doctor plan="caboodle-plan.toml":
+    cargo run -- doctor --plan "{{plan}}"
+
 # Install the stack per a reviewed plan file
 install plan="caboodle-plan.toml":
     cargo run -- install --plan "{{plan}}"

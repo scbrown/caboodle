@@ -135,11 +135,32 @@ enum Commands {
         #[arg(long)]
         check: bool,
     },
-    /// Project one reviewed crew policy through harness-owned settings adapters
+    /// Register the rig crew through shantytown and its Quipu tooling manifest
     ProjectSettings {
-        #[arg(short, long, default_value = "caboodle-plan.toml")]
+        /// Shantytown store root (otherwise st uses its normal discovery)
+        #[arg(long)]
+        root: Option<PathBuf>,
+        /// Equip only this local crew card (default: every local card)
+        #[arg(long)]
+        agent: Option<String>,
+        #[arg(long, value_parser = ["files", "quipu", "toml"], default_value = "files")]
+        registry: String,
+        /// Only export the legacy plan policy summaries; does not register MCP
+        #[arg(long, conflicts_with_all = ["root", "agent"])]
+        policy_only: bool,
+        #[arg(
+            short,
+            long,
+            default_value = "caboodle-plan.toml",
+            requires = "policy_only"
+        )]
         plan: PathBuf,
-        #[arg(short, long, default_value = "caboodle-settings")]
+        #[arg(
+            short,
+            long,
+            default_value = "caboodle-settings",
+            requires = "policy_only"
+        )]
         output: PathBuf,
     },
     /// Execute every anticipated ontology question against the installed Quipu
@@ -373,9 +394,23 @@ fn main() -> Result<()> {
             let tool = serde_json::from_value(serde_json::Value::String(tool))?;
             caboodle::release_update::update(&Plan::read(&plan)?, tool, &state, check)?;
         }
-        Commands::ProjectSettings { plan, output } => {
-            for name in projection::write(&Plan::read(&plan)?, &output)? {
-                println!("settings: {}", output.join(name).display());
+        Commands::ProjectSettings {
+            plan,
+            output,
+            root,
+            agent,
+            registry,
+            policy_only,
+        } => {
+            if policy_only {
+                for name in projection::write(&Plan::read(&plan)?, &output)? {
+                    println!(
+                        "policy summary (not MCP registration): {}",
+                        output.join(name).display()
+                    );
+                }
+            } else {
+                projection::register(root.as_deref(), agent.as_deref(), &registry)?;
             }
         }
         Commands::VerifyQuestions { plan, db } => {

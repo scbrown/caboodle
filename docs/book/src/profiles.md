@@ -31,11 +31,11 @@ caboodle plan --profile crew --crew standalone
 `burst_owner`, and `explicit-handoff` as the only routing mode. This keeps one
 owner per task until the cross-harness handoff contract lands.
 
-The reviewed plan is also the one source for identity, model selection and tool
-policy. Project it through harness-owned adapters:
+The reviewed plan can export policy summaries for review. These summaries do not
+register MCP servers or override the rig crew and its Quipu tooling manifest:
 
 ```console
-caboodle project-settings
+caboodle project-settings --policy-only
 ```
 
 In `both` mode this writes `shantytown.settings.json` and

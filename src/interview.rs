@@ -247,6 +247,7 @@ pub fn guided<R: BufRead, W: Write>(
             seed_intent: draft.seed_intent.take().unwrap(),
             sparql: draft.sparql.take().unwrap(),
             expected,
+            self_test: false,
         });
         draft.write(session_path)?;
     }

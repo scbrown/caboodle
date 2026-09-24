@@ -286,6 +286,11 @@ pub struct QuestionContract {
     pub seed_intent: String,
     pub sparql: String,
     pub expected: String,
+    /// Set only on the built-in self-test contract. An explicit flag, not the
+    /// marker: a user's own question may legitimately use the same marker (CI's
+    /// fixture does), and must never be answered from caboodle's scratch store.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub self_test: bool,
 }
 
 /// Marker the built-in self-test question seeds and expects. Same contract CI's
@@ -309,14 +314,21 @@ impl QuestionContract {
                 "SELECT ?s ?label WHERE {{ ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . FILTER(?label = \"{SELF_TEST_MARKER}\") }}"
             ),
             expected: SELF_TEST_MARKER.to_owned(),
+            self_test: true,
         }
     }
 
-    /// Keyed on the marker, not whole-struct equality: a plan written by an
-    /// earlier caboodle with different prose around the same marker is still the
-    /// self-test, and must still get its scratch store.
+    /// The explicit flag, or (for plans written before the flag existed) an
+    /// exact match on every field of the self-test contract. Never the marker
+    /// alone: that made a user question sharing the marker pass vacuously
+    /// against the seeded scratch store (caught by CI's negative control).
     pub fn is_self_test(&self) -> bool {
-        self.expected == SELF_TEST_MARKER
+        self.self_test
+            || *self
+                == Self {
+                    self_test: false,
+                    ..Self::self_test()
+                }
     }
 }
 
@@ -571,12 +583,29 @@ mod self_test_question_tests {
     use super::QuestionContract;
 
     #[test]
-    fn self_test_is_recognised_by_its_marker_not_its_prose() {
-        let mut reworded = QuestionContract::self_test();
-        reworded.question = "reworded by a later caboodle".to_owned();
-        assert!(reworded.is_self_test());
+    fn self_test_is_the_flag_never_the_marker() {
+        assert!(QuestionContract::self_test().is_self_test());
+        // A user question that shares the marker (CI's fixture does) is NOT the
+        // self-test and must be verified against the user's store.
         let mut users_own = QuestionContract::self_test();
-        users_own.expected = "my-own-marker".to_owned();
+        users_own.self_test = false;
+        users_own.question = "what depends on the service?".to_owned();
         assert!(!users_own.is_self_test());
+        // A plan written before the flag existed: every field equal, flag absent.
+        let legacy = QuestionContract {
+            self_test: false,
+            ..QuestionContract::self_test()
+        };
+        assert!(legacy.is_self_test());
+    }
+
+    #[test]
+    fn the_flag_round_trips_and_is_omitted_for_user_questions() {
+        let toml = toml::to_string(&QuestionContract::self_test()).unwrap();
+        assert!(toml.contains("self_test = true"));
+        let mut user = QuestionContract::self_test();
+        user.self_test = false;
+        user.question = "q".to_owned();
+        assert!(!toml::to_string(&user).unwrap().contains("self_test"));
     }
 }

@@ -166,6 +166,46 @@ fn consume_shares(plan: &Plan, state: &mut State, state_path: &Path) -> Result<(
     Ok(())
 }
 
+/// Refuse to call a tool verified when the copy PATH runs is not the copy that
+/// was verified (aegis-70qlhs). A different file with the same version is a
+/// note, not a failure: it runs the same build.
+fn check_path_resolution(name: crate::model::ToolName) -> Result<()> {
+    let path = std::env::var_os("PATH");
+    for &program in crate::adapter::programs(name) {
+        match crate::adapter::path_resolution(program, path.as_deref()) {
+            crate::adapter::PathResolution::Managed => {}
+            crate::adapter::PathResolution::NotOnPath => println!(
+                "{}: note: `{program}` is not on PATH; add the install directory to PATH to run it",
+                name.as_str()
+            ),
+            crate::adapter::PathResolution::SameBuild { runs, managed } => println!(
+                "{}: note: PATH runs {} rather than {}, but both report the same version",
+                name.as_str(),
+                runs.display(),
+                managed.display()
+            ),
+            crate::adapter::PathResolution::Shadowed {
+                runs,
+                runs_version,
+                managed,
+                managed_version,
+            } => anyhow::bail!(
+                "{program} is SHADOWED: PATH runs {} ({}), not the verified {} ({}). \
+                 Remove the stale copy or put {} earlier on PATH",
+                runs.display(),
+                runs_version.trim(),
+                managed.display(),
+                managed_version.trim(),
+                managed
+                    .parent()
+                    .map(|d| d.display().to_string())
+                    .unwrap_or_default()
+            ),
+        }
+    }
+    Ok(())
+}
+
 pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
@@ -177,6 +217,7 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         adapter
             .verify()
             .with_context(|| format!("{} functional verification", name.as_str()))?;
+        check_path_resolution(name)?;
         state.tools.insert(
             name.as_str().to_owned(),
             ToolState {

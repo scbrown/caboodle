@@ -78,20 +78,51 @@ re-hashes the artifacts on disk).
 
 ## Registering MCP servers
 
-Installation and registration have separate owners. Caboodle installs each tool
-and proves it works. It does not yet register MCP servers with a harness, and
-`caboodle project-settings` only projects settings for a plan with crew
-members. Until registration is automated, register the servers after a green
-install. For Claude Code:
+Caboodle owns binary installation, version convergence, and functional proof.
+Shantytown owns harness registration: it projects the MCP/skill manifest from
+Quipu into the workspaces named by the rig's crew cards. Installing binaries
+alone does not register servers.
+
+After a green install, on a configured Shantytown rig:
+
+```bash
+caboodle project-settings --root /path/to/.shanty
+# Optional: select one crew member or read identities directly from Quipu.
+caboodle project-settings --root /path/to/.shanty --agent ada --registry quipu
+```
+
+This delegates to `st --root /path/to/.shanty ops provision --json`. It reads the
+rig's existing crew, even when the installation plan has no crew profile, and
+requires the configured Quipu tooling manifest (`SHANTY_TOOLING_MANIFEST`).
+Server names, transports, and secret references come from that manifest; Caboodle
+does not maintain another server list. A rig whose manifest names yupana, bobbin,
+forgejo, and homelab registers all four. A missing crew reports
+"no crew on this rig yet - run st fleet init / st agent new first". Missing
+manifest, credentials, or failed read-back refuses registration. This needs a
+Shantytown version exposing `st ops provision`; upgrade st if it rejects the command.
+No agents are launched or restarted. Existing sessions need their next normal
+start to load the new registration.
+
+`--policy-only` retains the old plan-based policy-summary export to
+`caboodle-settings/` (`--plan` and `--output` customize it). Those summaries do
+not register MCP servers. Normal registration does not read the install plan.
+
+For a standalone harness, or until the adapter is available, register explicitly.
+For Claude Code, substitute your deployment's reviewed HTTP MCP endpoints:
 
 ```bash
 claude mcp add bobbin -- bobbin serve
 claude mcp add yupana -- yupana serve
+claude mcp add --transport http forgejo https://forgejo-mcp.example.com/mcp
+claude mcp add --transport http homelab https://homelab-mcp.example.com/mcp
 claude mcp list
 ```
 
-Bobbin's MCP server includes Quipu's knowledge tools. On a Shantytown host,
-`st` projects the crew's MCP manifest from Quipu into each harness instead.
+Homelab MCP exposes the `quipu_*` tools; it is a separately operated proxy, not
+installed by Caboodle. Use your deployment's authentication procedure without
+putting credentials in the plan. Bobbin's knowledge tools are not a replacement
+for Homelab's Quipu tools. HTTP endpoints above are placeholders, not public
+services. For Codex, use the rig adapter to emit its harness-specific settings.
 
 ## Claude Code cloud environments
 

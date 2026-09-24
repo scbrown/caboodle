@@ -93,3 +93,60 @@ fn write_json<T: Serialize>(output: &Path, name: &str, value: &T) -> Result<()> 
     let body = serde_json::to_vec_pretty(value).context("serialize settings projection")?;
     fs::write(&path, body).with_context(|| format!("write projection {}", path.display()))
 }
+
+/// Delegate both crew discovery and registration to the authority that owns them.
+/// Reading plan.crew here would fork the rig's roster and miss non-crew installs.
+pub fn register(root: Option<&Path>, agent: Option<&str>, registry: &str) -> Result<()> {
+    use std::process::{Command, Stdio};
+    let mut command = Command::new("st");
+    if let Some(root) = root {
+        command.arg("--root").arg(root);
+    }
+    command.args(["--registry", registry, "ops", "provision", "--json"]);
+    if let Some(agent) = agent {
+        command.arg("--").arg(agent);
+    }
+    let output = command
+        .stderr(Stdio::inherit())
+        .output()
+        .context("run shantytown registration; install st with ops provision support first")?;
+    if !output.status.success() {
+        bail!("shantytown registration failed ({}); inspect its refusal above; no registration success claimed", output.status);
+    }
+    // A successful process is not a registration proof: demand the owner's
+    // read-back receipt, and never echo a malformed response that could contain secrets.
+    let receipt: serde_json::Value = serde_json::from_slice(&output.stdout)
+        .context("shantytown returned no valid registration receipt")?;
+    let agents = receipt
+        .get("agents")
+        .and_then(|v| v.as_array())
+        .context("shantytown registration receipt has no agents")?;
+    if receipt["version"] != 1 || receipt["owner"] != "shantytown" || agents.is_empty() {
+        bail!("shantytown registration receipt has an unsupported version, owner, or empty crew");
+    }
+    let mut verified = Vec::new();
+    for row in agents {
+        let name = row
+            .get("name")
+            .and_then(|v| v.as_str())
+            .filter(|v| !v.is_empty())
+            .context("registration receipt has no agent name")?;
+        let servers = row
+            .get("servers")
+            .and_then(|v| v.as_array())
+            .filter(|v| !v.is_empty())
+            .context("registration receipt has no MCP servers")?;
+        if servers
+            .iter()
+            .any(|v| v.as_str().map_or(true, str::is_empty))
+        {
+            bail!("registration receipt contains an invalid MCP server name");
+        }
+        verified.push((name, servers.len()));
+    }
+    for (name, count) in verified {
+        println!("registered: {name} ({count} MCP servers; owner: shantytown)");
+    }
+    println!("Existing sessions load registration on their next start.");
+    Ok(())
+}

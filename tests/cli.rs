@@ -1063,7 +1063,7 @@ fn both_settings_share_policy_but_keep_security_adapter_owned() {
         .assert()
         .success();
     command(root.path(), root.path())
-        .arg("project-settings")
+        .args(["project-settings", "--policy-only"])
         .assert()
         .success();
 
@@ -1105,7 +1105,7 @@ fn projection_emits_only_the_selected_harness() {
             .assert()
             .success();
         command(root.path(), root.path())
-            .arg("project-settings")
+            .args(["project-settings", "--policy-only"])
             .assert()
             .success();
         assert!(root
@@ -1818,4 +1818,73 @@ fn verify_refuses_a_stale_binary_that_shadows_the_managed_copy() {
         .stderr(predicate::str::contains("yupana is SHADOWED"))
         .stderr(predicate::str::contains("yupana 0.6.4"))
         .stderr(predicate::str::contains(managed.display().to_string()));
+}
+
+#[test]
+fn project_settings_delegates_to_rig_without_an_install_plan() {
+    let root = tempfile::tempdir().unwrap();
+    fake_tool(
+        root.path(),
+        "st",
+        r#"
+printf '%s\n' "$@" > st-args
+printf '%s\n' '{"version":1,"owner":"shantytown","agents":[{"name":"ada","harness":"claude","servers":["bobbin","yupana","forgejo","homelab"]}]}'
+"#,
+    );
+    command(root.path(), root.path())
+        .args([
+            "project-settings",
+            "--root",
+            "rig with spaces",
+            "--agent",
+            "ada",
+            "--registry",
+            "quipu",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("registered: ada (4 MCP servers"));
+    assert_eq!(
+        fs::read_to_string(root.path().join("st-args")).unwrap(),
+        "--root\nrig with spaces\n--registry\nquipu\nops\nprovision\n--json\n--\nada\n"
+    );
+    assert!(!root.path().join("caboodle-plan.toml").exists());
+    assert!(!root.path().join("caboodle-settings").exists());
+}
+
+#[test]
+fn project_settings_preserves_owner_refusal() {
+    let root = tempfile::tempdir().unwrap();
+    fake_tool(
+        root.path(),
+        "st",
+        "echo 'no crew on this rig yet - run st fleet init / st agent new first' >&2\nexit 1",
+    );
+    command(root.path(), root.path())
+        .arg("project-settings")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("no crew on this rig yet"))
+        .stdout(predicate::str::contains("registered:").not());
+}
+
+#[test]
+fn project_settings_rejects_empty_or_invalid_success_receipts() {
+    for receipt in [
+        "not-json-secret-marker",
+        r#"{"version":1,"owner":"shantytown","agents":[{"name":"ada","servers":["bobbin"]},{"name":"bad","servers":[]}]}"#,
+        r#"{"version":1,"owner":"shantytown","agents":[]}"#,
+        r#"{"version":2,"owner":"shantytown","agents":[{"name":"ada","servers":["bobbin"]}]}"#,
+        r#"{"version":1,"owner":"other","agents":[{"name":"ada","servers":["bobbin"]}]}"#,
+        r#"{"version":1,"owner":"shantytown","agents":[{"name":"ada","servers":[]}]}"#,
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        fake_tool(root.path(), "st", &format!("printf '%s\\n' '{receipt}'"));
+        command(root.path(), root.path())
+            .arg("project-settings")
+            .assert()
+            .failure()
+            .stdout(predicate::str::contains("registered:").not())
+            .stderr(predicate::str::contains("secret-marker").not());
+    }
 }

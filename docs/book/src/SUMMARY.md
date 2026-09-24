@@ -11,4 +11,5 @@
   - [Crew capability contracts](crew-contracts.md)
   - [Emitting to quipu](emission.md)
 - [The corpus](corpus.md)
+- [The stack README standard](stack-standard.md)
 - [Roadmap](roadmap.md)

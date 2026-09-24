@@ -9,11 +9,13 @@
 use std::{
     env,
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
     process::{Command, Stdio},
 };
 
 use anyhow::Result;
+
+use crate::adapter::which_all;
 
 use crate::{
     adapter,
@@ -70,49 +72,9 @@ impl Scope {
     }
 }
 
-/// Every executable named `program` on `path`, in lookup order.
-fn which_all(program: &str, path: Option<&std::ffi::OsStr>) -> Vec<PathBuf> {
-    let Some(path) = path else {
-        return Vec::new();
-    };
-    let mut found: Vec<PathBuf> = Vec::new();
-    let mut targets: Vec<PathBuf> = Vec::new();
-    for candidate in env::split_paths(path).map(|directory| directory.join(program)) {
-        if !is_executable(&candidate) {
-            continue;
-        }
-        // A directory listed twice, or a symlink to a copy already seen, is the
-        // same binary rather than a shadowing one.
-        let target = candidate
-            .canonicalize()
-            .unwrap_or_else(|_| candidate.clone());
-        if !targets.contains(&target) {
-            targets.push(target);
-            found.push(candidate);
-        }
-    }
-    found
-}
-
 /// Versions such as quipu's span several lines; a report line keeps one.
 fn one_line(text: &str) -> String {
     text.split_whitespace().collect::<Vec<_>>().join(" ")
-}
-
-fn is_executable(path: &Path) -> bool {
-    let Ok(metadata) = path.metadata() else {
-        return false;
-    };
-    if !metadata.is_file() {
-        return false;
-    }
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        metadata.permissions().mode() & 0o111 != 0
-    }
-    #[cfg(not(unix))]
-    true
 }
 
 fn crew_prerequisites(mode: CrewMode) -> Vec<&'static str> {
@@ -359,7 +321,7 @@ pub fn report<W: Write>(findings: &[Finding], output: &mut W) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{ffi::OsString, fs};
+    use std::{ffi::OsString, fs, path::PathBuf};
 
     fn executable(dir: &Path, name: &str) -> PathBuf {
         let path = dir.join(name);

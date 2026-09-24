@@ -1655,3 +1655,49 @@ fn missing_plan_points_at_the_interview() {
         .failure()
         .stderr(predicate::str::contains("caboodle init --guided"));
 }
+
+/// aegis-70qlhs: a stale copy earlier on PATH must turn verify RED even when
+/// the managed copy in `$CARGO_HOME/bin` is current. Versions are read from
+/// the managed copy, so without this check verify reported the tool current
+/// while the shell ran something else. A different file with the same version
+/// is only a note.
+#[test]
+fn verify_refuses_a_stale_binary_that_shadows_the_managed_copy() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let managed_dir = root.path().join("cargo-home").join("bin");
+    fs::create_dir_all(&managed_dir).unwrap();
+    let managed = managed_dir.join("yupana");
+    fs::copy(bin.join("yupana"), &managed).unwrap();
+
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "code-intel"])
+        .assert()
+        .success();
+    // Same build at two paths: verified, with a note naming both.
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("yupana: verified"))
+        .stdout(predicate::str::contains("both report the same version"));
+
+    // The PATH copy goes stale; the managed copy stays current.
+    fake_tool(
+        &bin,
+        "yupana",
+        &format!(
+            "if [ \"${{1:-}}\" = --version ]; then echo 'yupana 0.6.4'; exit 0; fi\nexec {} \"$@\"",
+            managed.display()
+        ),
+    );
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("yupana is SHADOWED"))
+        .stderr(predicate::str::contains("yupana 0.6.4"))
+        .stderr(predicate::str::contains(managed.display().to_string()));
+}

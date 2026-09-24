@@ -75,6 +75,103 @@ pub fn programs(name: ToolName) -> &'static [&'static str] {
     }
 }
 
+/// Every executable named `program` on `path`, in lookup order.
+pub fn which_all(program: &str, path: Option<&std::ffi::OsStr>) -> Vec<PathBuf> {
+    let Some(path) = path else {
+        return Vec::new();
+    };
+    let mut found: Vec<PathBuf> = Vec::new();
+    let mut targets: Vec<PathBuf> = Vec::new();
+    for candidate in env::split_paths(path).map(|directory| directory.join(program)) {
+        if !is_executable(&candidate) {
+            continue;
+        }
+        // A directory listed twice, or a symlink to a copy already seen, is the
+        // same binary rather than a shadowing one.
+        let target = candidate
+            .canonicalize()
+            .unwrap_or_else(|_| candidate.clone());
+        if !targets.contains(&target) {
+            targets.push(target);
+            found.push(candidate);
+        }
+    }
+    found
+}
+
+pub(crate) fn is_executable(path: &Path) -> bool {
+    let Ok(metadata) = path.metadata() else {
+        return false;
+    };
+    if !metadata.is_file() {
+        return false;
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        metadata.permissions().mode() & 0o111 != 0
+    }
+    #[cfg(not(unix))]
+    true
+}
+
+/// What a shell actually runs for one managed program (aegis-70qlhs).
+///
+/// Versions are read from the MANAGED copy (`$CARGO_HOME/bin`), so a stale
+/// binary earlier on PATH can make `verify` report a tool current while the
+/// user runs something else. That happened: a fresh `cargo install` exited 0,
+/// the new binary sat on disk, and an older copy in `~/.local/bin` kept
+/// answering. Nothing said which copy ran.
+#[derive(Debug, PartialEq, Eq)]
+pub enum PathResolution {
+    /// PATH runs the managed copy, or there is no managed copy to compare.
+    Managed,
+    /// The program is not on PATH at all.
+    NotOnPath,
+    /// PATH runs a different file that reports the same `--version`.
+    SameBuild { runs: PathBuf, managed: PathBuf },
+    /// PATH runs a different file that reports a different `--version`.
+    Shadowed {
+        runs: PathBuf,
+        runs_version: String,
+        managed: PathBuf,
+        managed_version: String,
+    },
+}
+
+/// Resolve `program` the way a shell would, against the managed copy.
+pub fn path_resolution(program: &str, path: Option<&OsStr>) -> PathResolution {
+    let Some(managed) = managed_bin_dir().map(|dir| dir.join(program)) else {
+        return PathResolution::Managed;
+    };
+    if !is_executable(&managed) {
+        return PathResolution::Managed;
+    }
+    let Some(runs) = which_all(program, path).into_iter().next() else {
+        return PathResolution::NotOnPath;
+    };
+    let canonical = |p: &Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
+    if canonical(&runs) == canonical(&managed) {
+        return PathResolution::Managed;
+    }
+    let version = |p: &Path| {
+        p.to_str()
+            .and_then(|s| read_version(s).ok())
+            .unwrap_or_else(|| "unreadable".to_owned())
+    };
+    let (runs_version, managed_version) = (version(&runs), version(&managed));
+    if runs_version == managed_version {
+        PathResolution::SameBuild { runs, managed }
+    } else {
+        PathResolution::Shadowed {
+            runs,
+            runs_version,
+            managed,
+            managed_version,
+        }
+    }
+}
+
 /// Where the release and cargo installers write binaries.
 pub fn managed_bin_dir() -> Option<PathBuf> {
     env::var_os("CARGO_HOME")

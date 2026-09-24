@@ -130,7 +130,9 @@ send install records to a remote quipu with `flush-episodes`.
 
 ## What install leaves on your machine
 
-- Binaries in `~/.cargo/bin` (or `$CARGO_HOME/bin`). Keep that directory on your PATH.
+- Binaries in `~/.cargo/bin` (or `$CARGO_HOME/bin`). Keep that directory on your
+  PATH, **ahead of** any other directory that holds an older copy of the same tool
+  (`~/.local/bin` is the usual one). The shell runs the first copy it finds.
 - Unpacked releases under `~/.local/share/caboodle/`.
 - One setting, `[quipu.owl] reactive_materialize = true`, merged into
   `~/.config/bobbin/config.toml`. Other settings in that file are kept.
@@ -181,7 +183,10 @@ bobbin index`.
   `export ORT_DYLIB_PATH="$HOME/.local/share/caboodle/bobbin/v0.16.2/lib/libonnxruntime.dylib"`
   (add it to your shell profile) and rerun `caboodle install`.
 - **A new build still behaves like the old one**: another copy earlier on PATH
-  wins. Doctor lists every copy in the order your shell finds them.
+  wins. Doctor lists every copy in the order your shell finds them, and
+  `caboodle verify` fails with `SHADOWED` when the copy PATH runs reports a
+  different version from the one caboodle installed. Remove the stale copy or
+  move `~/.cargo/bin` earlier on PATH.
 - **`no plan at caboodle-plan.toml`**: you are in a different directory from the
   one where you ran `caboodle init --guided`.
 

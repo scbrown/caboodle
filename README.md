@@ -29,7 +29,7 @@ walks through the same workflow.**
 - Review one plan, then resume installation if it is interrupted.
 - Know each tool passed a functional check before you rely on it.
 
-[Why Caboodle, and how it compares to installing by hand](docs/book/src/introduction.md#why-use-it).
+[Why Caboodle, and how it compares to installing by hand](https://scbrown.github.io/caboodle/introduction.html#why-use-it).
 
 ## Install
 
@@ -75,7 +75,7 @@ camayoc: verified
 ```
 
 Each `verified` means a functional round trip passed after proving its marker
-was absent; [the walkthrough](docs/book/src/getting-started.md) covers recovery.
+was absent; [the walkthrough](https://scbrown.github.io/caboodle/getting-started.html) covers recovery.
 
 ## On your own code
 
@@ -87,7 +87,7 @@ was absent; [the walkthrough](docs/book/src/getting-started.md) covers recovery.
 | Recheck the selected tools | `caboodle verify` |
 | Compare against this build's reviewed versions | `caboodle check-updates` |
 
-[Full command and configuration reference](docs/book/src/reference.md).
+[Full command and configuration reference](https://scbrown.github.io/caboodle/reference.html).
 
 ## Wire it into your agent
 
@@ -99,7 +99,7 @@ claude mcp add bobbin -- bobbin serve
 ```
 
 MCP (Model Context Protocol) lets your agent call the installed server.
-[Agent setup](docs/book/src/agents.md) covers indexing, Yupana, other clients
+[Agent setup](https://scbrown.github.io/caboodle/agents.html) covers indexing, Yupana, other clients
 and managed crew registration through `caboodle project-settings`.
 
 ## Before you start
@@ -113,14 +113,14 @@ and managed crew registration through `caboodle project-settings`.
 Have `curl`, `tar`, `git`, `bash`, `python3` and `sha256sum` on PATH
 (`brew install coreutils` supplies `sha256sum` on macOS).
 The `everything` profile also needs Go. No account or remote server is needed.
-[Installation details](docs/book/src/installing.md) cover source builds,
+[Installation details](https://scbrown.github.io/caboodle/installing.html) cover source builds,
 installed files and removal; `caboodle doctor` names missing prerequisites.
 
 ## What's next
 
-- [Read the book](docs/book/src/introduction.md)
-- [Find a topic in the docs map](docs/book/src/docs-map.md)
-- [Choose your profile](docs/book/src/profiles.md)
+- [Read the book](https://scbrown.github.io/caboodle/introduction.html)
+- [Find a topic in the docs map](https://scbrown.github.io/caboodle/docs-map.html)
+- [Choose your profile](https://scbrown.github.io/caboodle/profiles.html)
 
 ## 🧺 The stack
 

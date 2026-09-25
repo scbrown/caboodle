@@ -32,19 +32,18 @@ Nothing yet notices that a cloned repository ships a pack.
 
 ## 1. Discovery and autoload
 
-**The repository declares its packs** in a manifest at a fixed path,
-`.quipu/packs.toml`:
+**Convention, not a manifest.** Caboodle does not parse per-repo manifest
+files ([convention over manifest](conventions.md)), and packs need none. A
+repository ships its packs at one conventional path:
 
-```toml
-[[pack]]
-path = "knowledge/repo.qpack.tar.gz"   # in-repo path
-graph = "https://example.org/repo/scbrown/quipu"
-sha256 = "…"                           # of the archive
-quipu = ">=0.9"                        # the loader version it needs
+```text
+.quipu/packs/*.qpack.tar.gz
 ```
 
-A file at a fixed path is what makes discovery cheap and reliable. Neither
-caboodle nor quipu guesses from file extensions.
+Each pack already describes itself: its own manifest, inside the archive,
+carries the graph IRI, `graph_hash`, `shapes_hash`, `parent_share` and scope.
+Discovery is a directory listing, and nothing in the repository can drift out
+of step with the packs it describes.
 
 **Triggers.** A `post-checkout` and `post-merge` hook, installed by
 `caboodle init` in repositories the user opts in, runs one command:
@@ -53,13 +52,14 @@ caboodle nor quipu guesses from file extensions.
 caboodle packs sync --repo .
 ```
 
-The command is idempotent. It reads the manifest and compares each pack's
-`sha256` with the one it last loaded for that repository. It does nothing when
-they match. For environments without hooks (cloud sessions, CI), the same
-command runs from `setup-environment.sh`.
+The command is idempotent. It fingerprints each archive under
+`.quipu/packs/` and compares it with the one it last loaded for that
+repository, doing nothing when they match. For environments without hooks
+(cloud sessions, CI), the same command runs from `setup-environment.sh`.
 
-**Loading goes through composition, never around it.** caboodle verifies the
-archive hash, then hands the pack to `quipu compose`. The pack lands in its own
+**Loading goes through composition, never around it.** caboodle hands each
+changed pack to `quipu compose`, whose import verifies the pack's own content
+hash. The pack lands in its own
 named graph, keyed by repository, pack path and commit.
 
 **A stable name to query.** Composition deliberately never replaces an earlier
@@ -76,9 +76,9 @@ quipu does not have yet:
    a new snapshot of the same pack is loaded; quipu's composition already
    preserves them within a snapshot.
 
-**Refusals are loud.** A hash mismatch, a manifest naming a missing file, or a
-loader older than `quipu =` all refuse, with a message naming the pack. They
-never load partially.
+**Refusals are loud.** A pack whose content does not match its own hash, or
+that needs a newer quipu than the one installed, is refused with a message
+naming the pack. It never loads partially.
 
 ## 2. Trust
 
@@ -103,9 +103,9 @@ A monorepo ships **one parent share and one derived share per project**.
 - The parent share covers the whole repository. Each project is a derived share
   (`parent_share` set) whose stored CONSTRUCT scope filters by path prefix,
   such as `packages/api/`.
-- `.quipu/packs.toml` lists the derived shares with their `path_prefix`.
-  `caboodle packs sync` reloads only the projects whose paths changed in the
-  checkout, the same idea as yupana's per-file keys, grouped by project.
+- Each derived pack's own manifest records its path scope, so
+  `caboodle packs sync` can reload only the projects whose paths changed in
+  the checkout, the same idea as yupana's per-file keys, grouped by project.
 - **Cross-project edges survive a reload.** Entity IRIs do not depend on the
   commit, so an edge from one project to another still resolves after either
   side reloads.
@@ -121,7 +121,9 @@ Test case: `scbrown/reckoning`, a real pnpm monorepo.
 
 ## 4. Pointers to graphs that are not loaded
 
-A manifest entry can name a graph without shipping it:
+A pack's own manifest can name a graph the pack does not contain, so pointers
+need no repository-level file either. A repository that ships only pointers
+ships a pack with no facts.
 
 ```toml
 [[pointer]]
@@ -134,7 +136,7 @@ endpoint = "https://quipu.example.org/sparql"
   homelab operations graph. `caboodle packs sync` adds it to quipu's declared
   federation list, so `SERVICE` and federated fan-out reach it with no local
   copy. The trust rule of section 2 applies to the endpoint: declaring it in a
-  foreign repository's manifest does not authorise it.
+  foreign pack does not authorise it.
 - **`kind = "pack"`** (with `url` and `sha256`): a pinned, offline-capable
   pack. It is fetched, verified and composed on first use rather than at
   checkout. This also works in the browser build.
@@ -156,9 +158,10 @@ this way.
 
 1. **quipu:** the per-repository current pointer and snapshot retention, with
    retraction carry-forward across snapshots of one pack.
-2. **caboodle:** `.quipu/packs.toml`, `caboodle packs sync`, and the opt-in git
-   hooks.
+2. **caboodle:** the `.quipu/packs/` convention, `caboodle packs sync`, and
+   the opt-in git hooks.
 3. **caboodle:** the trust allow-list for foreign packs and pointer endpoints.
 4. **quipu and caboodle:** monorepo derived shares by path prefix, proven on
    `scbrown/reckoning`.
-5. **quipu:** lazy `kind = "pack"` pointers.
+5. **quipu:** pointer entries in the pack manifest, and lazy `kind = "pack"`
+   pointers.

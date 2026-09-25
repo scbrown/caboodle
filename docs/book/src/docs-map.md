@@ -32,6 +32,3 @@ published book. Every loose document under `docs/` is listed here.
 - [README template](https://github.com/scbrown/caboodle/blob/main/docs/stack/README-TEMPLATE.md): fill-in template implementing the standard.
 - [Design vision](https://github.com/scbrown/caboodle/blob/main/docs/design/vision.md): **Historical** design proposal; use the reference for shipped commands.
 - [txtai gap analysis](https://github.com/scbrown/caboodle/blob/main/docs/design/txtai-gap-analysis.md): **Historical** comparison and design opportunities, not a current capability guarantee.
-- [qpack autoload](https://github.com/scbrown/caboodle/blob/main/docs/design/qpack-autoload.md):
-  **Proposal**, not built. Discovery and trust for repository packs,
-  monorepo derived shares, and pointers to graphs that are not loaded.

@@ -1888,3 +1888,56 @@ fn project_settings_rejects_empty_or_invalid_success_receipts() {
             .stderr(predicate::str::contains("secret-marker").not());
     }
 }
+
+#[test]
+fn install_continues_after_failure_invalidates_old_proof_and_resumes() {
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success();
+    fake_tool(&bin, "quipu", "echo 'broken quipu' >&2; exit 1");
+    fake_tool(&bin, "curl", "echo 'artifact unavailable' >&2; exit 22");
+    let config = root.path().join(".config/bobbin/config.toml");
+    fs::write(&config, "# unchanged after partial apply\n").unwrap();
+    command(root.path(), &bin)
+        .args(["install"])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("bobbin: applied"))
+        .stdout(predicate::str::contains(": verified").not())
+        .stderr(predicate::str::contains("1 tool(s) failed to apply"))
+        .stderr(predicate::str::contains("artifact unavailable"));
+    let state: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap(),
+    )
+    .unwrap();
+    assert!(state["tools"].get("quipu").is_none());
+    assert_eq!(state["tools"]["bobbin"]["applied"], true);
+    assert_eq!(
+        fs::read_to_string(&config).unwrap(),
+        "# unchanged after partial apply\n"
+    );
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quipu: verified"))
+        .stdout(predicate::str::contains("bobbin: verified"));
+}
+
+#[test]
+fn apply_reports_all_version_failures_and_still_applies_later_tools() {
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+    fake_tool(&bin, "quipu", "echo 'broken quipu' >&2; exit 1");
+    fs::write(root.path().join("camayoc/REVISION"), "").unwrap();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("bobbin: applied"))
+        .stderr(predicate::str::contains("2 tool(s) failed to apply"))
+        .stderr(predicate::str::contains("quipu version read-back"))
+        .stderr(predicate::str::contains("camayoc version read-back"));
+}

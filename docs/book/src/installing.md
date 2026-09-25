@@ -68,6 +68,14 @@ answers resume from `.caboodle/interview.toml`; install state resumes from
 `.caboodle/state.json`. A green result means version read-back and functional
 reader-path checks passed, not merely that an installer exited zero.
 
+If a tool cannot install or pass version read-back, `apply` and `install`
+continue attempting the remaining tools, save each success, and exit nonzero
+with all tool failures. Any saved proof for a failed tool is cleared. Stack
+configuration, model provisioning, crew setup, share imports and functional
+verification wait until every selected tool applies successfully. Fix the
+reported gaps, then rerun the same command; already-current tools are reused.
+State-write and evidence-queue failures still stop immediately.
+
 Two plan-level choices extend what the box installs, both documented with
 their proofs in [Profiles](profiles.md): `--quipu-flavor lancedb` builds the
 reviewed Quipu revision with the lancedb feature compiled in (proven by the

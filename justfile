@@ -29,3 +29,7 @@ book:
 # Serve the book locally with live reload
 book-serve:
     mdbook serve docs/book --open
+
+# Check README and rendered book links (requires mdbook and lychee)
+docs-check:
+    scripts/check-docs.sh

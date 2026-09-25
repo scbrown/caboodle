@@ -71,6 +71,7 @@ pub(crate) fn decide_convergence(
 pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
+    let mut failures = Vec::new();
     for &name in &plan.tools {
         let adapter = adapter(name, plan.quipu_flavor);
         let desired = adapter.desired_version();
@@ -84,14 +85,15 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
         // `st doctor` had it right the whole time ("bobbin 0.1.0 installed —
         // 0.17.0 available (STALE)"), which is the tell that this was never a
         // detection problem.
-        let version = match adapter.version() {
-            Ok(installed) if adapter.is_current(&installed) => installed,
+        let version = (|| -> Result<String> {
+            Ok(match adapter.version() {
+                Ok(installed) if adapter.is_current(&installed) => installed,
 
-            // Known-wrong under --skip-install. The flag means "do not install",
-            // not "call it applied anyway", and a MISSING tool already fails
-            // here — a SKEWED one reporting success was the inconsistency.
-            Ok(installed) => {
-                match decide_convergence(&installed, &desired, false, skip_install) {
+                // Known-wrong under --skip-install. The flag means "do not install",
+                // not "call it applied anyway", and a MISSING tool already fails
+                // here — a SKEWED one reporting success was the inconsistency.
+                Ok(installed) => {
+                    match decide_convergence(&installed, &desired, false, skip_install) {
                     Convergence::Current => installed,
                     Convergence::RefuseSkipInstall => bail!(
                         "{} is installed at {installed} but this Caboodle build reviewed {desired}; \
@@ -131,11 +133,11 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
                         after
                     }
                 }
-            }
+                }
 
-            Err(error) if !skip_install => {
-                eprintln!("{}: not installed ({error:#}); installing", name.as_str());
-                adapter
+                Err(error) if !skip_install => {
+                    eprintln!("{}: not installed ({error:#}); installing", name.as_str());
+                    adapter
                     .install()
                     .with_context(|| {
                         format!(
@@ -143,12 +145,25 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
                             name.as_str()
                         )
                     })?;
-                adapter
-                    .version()
-                    .with_context(|| format!("{} version read-back after install", name.as_str()))?
-            }
+                    adapter.version().with_context(|| {
+                        format!("{} version read-back after install", name.as_str())
+                    })?
+                }
+                Err(error) => {
+                    return Err(error).context(format!("{} version read-back", name.as_str()))
+                }
+            })
+        })();
+        let version = match version {
+            Ok(version) => version,
             Err(error) => {
-                return Err(error).context(format!("{} version read-back", name.as_str()))
+                // An earlier successful run is no longer evidence for this tool.
+                // Persist the invalidation before continuing with independent tools.
+                state.tools.remove(name.as_str());
+                state.write(state_path)?;
+                eprintln!("{}: FAILED: {error:#}", name.as_str());
+                failures.push(format!("{}: {error:#}", name.as_str()));
+                continue;
             }
         };
         let remains_verified = state
@@ -171,6 +186,15 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             &state.tools[name.as_str()].version,
         )?;
         println!("{}: applied", name.as_str());
+    }
+    if !failures.is_empty() {
+        bail!(
+            "{} tool(s) failed to apply:\n{}\nSuccessful tools were saved. Fix the failures and rerun the same command. \
+             Stack configuration, model provisioning, crew setup, share imports and verification \
+             have not run; run `caboodle doctor` for preflight guidance.",
+            failures.len(),
+            failures.join("\n")
+        );
     }
     if let Some(config) = &plan.stack_config {
         configuration::apply(config)?;

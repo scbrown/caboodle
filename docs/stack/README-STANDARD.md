@@ -123,10 +123,15 @@ to this standard, made here, and then synced to all six repos.
    harness exists (yupana's pilot does this), it runs in CI. Where it does not
    yet, the PR states how it was verified.
 2. **Every link resolves.** A link checker (lychee or equivalent) runs in
-   pre-commit and in CI. Links into the book point at
-   `docs/book/src/<page>.md` on GitHub **until** that repo's Pages site
-   actually serves, which is checked, not assumed. (yupana's Pages site
-   returned 404 on 2026-09-24.)
+   pre-commit and in CI, and it must cover the book links. Links into the
+   book point at the **live Pages URL**
+   (`https://scbrown.github.io/<repo>/<page>.html`), not at
+   `docs/book/src/<page>.md` GitHub source — now that all six stack books
+   serve on Pages (naf4p4 re-audit, 2026-09-25; aegis-ison65). A repo whose
+   Pages site does not yet serve is the exception, not the rule: point at
+   GitHub source only until Pages is checked to return 200, never assumed.
+   (yupana's Pages site returned 404 on 2026-09-24, which is why this rule
+   used to read the other way around.)
 3. **No internal names.** No hostnames, private IPs, host names or home paths.
    These are public repos. The repos' existing scrub guards apply; the README
    is not exempt.
@@ -170,7 +175,10 @@ All six repos already have a book (`docs/book/book.toml` or `book.toml`) except
 - [ ] No emoji in headings except `🧺 The stack` and `📜 License`
 - [ ] The stack block matches §3 byte for byte, with this repo's row marked
 - [ ] §4 has an exact expected output, and the PR shows it was produced by a clean run
-- [ ] Link check green, with book links resolving
+- [ ] Link check green, with book links resolving to the live Pages URL (§4)
+- [ ] Book's served `custom.css` matches the stack's canonical sha256 prefix
+      (bobbin `docs/book/custom/css/custom.css`, aegis-goouup), or repo-specific
+      rules are isolated in a second `additional-css` file loaded after it
 - [ ] No internal names (scrub guard green)
 - [ ] Every README number links to its measurement page
 - [ ] The book has the §5 pages and a docs map that routes every loose doc

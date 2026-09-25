@@ -1,0 +1,8 @@
+# Check relative files, anchors and public links in README and rendered book.
+include_fragments = "full"
+max_retries = 3
+timeout = 30
+exclude = [
+  # Illustrative endpoint in the architecture; not a public service.
+  '^https?://(localhost|127\.0\.0\.1)(:|/)',
+]

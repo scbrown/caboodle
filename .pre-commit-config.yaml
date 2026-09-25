@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: docs-links
+        name: Build book and check documentation links
+        entry: just docs-check
+        language: system
+        pass_filenames: false
+        files: '^(README\.md|docs/|\.lychee\.toml)'

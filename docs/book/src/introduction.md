@@ -12,3 +12,16 @@ an agent, and a working stack at the end of it.
 Caboodle is that first hour. It is an **AI-installable install wizard**: an LLM
 agent — or a human answering the same interview — drives the install end to end,
 and every claim along the way is a proof, not a banner.
+
+## Why use it?
+
+- Give agents memory and repository context that survive a session.
+- Review one install plan and resume it after interruption.
+- Require functional proof from each installed tool before trusting it.
+
+| Approach | What you own |
+|---|---|
+| Install each tool yourself | Version selection, prerequisites and each functional check. |
+| Caboodle | Review the selection; Caboodle installs pinned artifacts and runs the checks. |
+
+Start with [getting started](getting-started.md), then choose a [profile](profiles.md).

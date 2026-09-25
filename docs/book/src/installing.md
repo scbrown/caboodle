@@ -48,8 +48,8 @@ is a `FAIL`:
 
 It warns, without failing, when a tool differs from the reviewed version, when
 several copies of a tool are on PATH (the first one runs), and when a Quipu
-server is already live at `QUIPU_SERVER`, because Camayoc's verification loads
-its ontology into that server.
+server is already live at `QUIPU_SERVER`. Camayoc verification uses its own
+temporary server and never loads the ontology into that existing server.
 
 ## First proof and resume
 
@@ -250,3 +250,50 @@ requires the new binary's version and `update-release --help` to answer correctl
 Use `update-self --check` to inspect metadata. Bootstrap from a published release
 before scheduling this command; a same-version source build with different bytes
 is deliberately refused rather than silently overwritten.
+
+## Installed files
+
+- Binaries in `~/.cargo/bin` (or `$CARGO_HOME/bin`). Keep that directory on your
+  PATH, **ahead of** any other directory that holds an older copy of the same tool
+  (`~/.local/bin` is the usual one). The shell runs the first copy it finds.
+- Unpacked releases under `~/.local/share/caboodle/`.
+- One setting, `[quipu.owl] reactive_materialize = true`, merged into
+  `~/.config/bobbin/config.toml`. Other settings in that file are kept.
+- In the directory you ran it from: `caboodle-plan.toml` and `.caboodle/` (interview,
+  state, queued install records).
+
+Every verification check uses a throwaway directory, camayoc's included. The camayoc
+check starts its own `quipu-server` on a free localhost port with a temporary store,
+loads camayoc's vocabulary and one marker node into it, and stops it afterwards. It
+never touches the server at `QUIPU_SERVER`. To set camayoc up against your real quipu
+server, run the bundle's bootstrap yourself as a separate step:
+`QUIPU_SERVER=<your server> bash ~/.local/share/caboodle/camayoc/<revision>/scripts/bootstrap.sh`.
+
+To remove caboodle, delete `~/.cargo/bin/caboodle` and the `.caboodle/`
+directory. Installed tools stay, because other workflows may use them. The
+[install guide](installing.md) covers release pins, source
+installs, and updates.
+
+## Platform prerequisites
+
+**Platforms.** Linux x86_64 needs no Rust toolchain: each tool comes from a
+checksummed release or source archive, and Go builds desire-path. On other
+platforms quipu and yupana have no release yet, so you build them once with
+Rust; `caboodle doctor` prints the exact command.
+
+| | Linux x86_64 | macOS arm64 | macOS x86_64 | Linux arm64 |
+|---|---|---|---|---|
+| caboodle | release | release | release | build with `cargo install --git` |
+| quipu | release | build with cargo | build with cargo | build with cargo |
+| camayoc | source archive | source archive | source archive | source archive |
+| bobbin | release | release | release | release |
+| yupana | release | build with cargo | build with cargo | build with cargo |
+| desire-path | built with Go | built with Go | built with Go | built with Go |
+
+**Commands on PATH.** `curl`, `tar`, `git`, `bash`, `python3`, and `sha256sum`
+(recent macOS ships it; otherwise `brew install coreutils`). The `everything`
+profile also needs Go 1.22+. Rust is only needed for the source builds above.
+
+**Accounts and servers.** None. Nothing talks to a private network, and no
+token is needed to install. A token (`QUIPU_AUTH_TOKEN`) matters only when you
+send install records to a remote quipu with `flush-episodes`.

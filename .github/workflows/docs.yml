@@ -11,10 +11,25 @@ jobs:
   book-and-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: peaceiris/actions-mdbook@v2
-        with:
-          mdbook-version: '0.5.4'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # A pinned action TAG is not a pinned ARTIFACT, and the mdbook action fetched
+      # its release asset without checking it. The asset is written to disk and
+      # checked against a pinned sha256 (it matches the digest GitHub records for
+      # this asset) BEFORE anything is extracted or run. Bump version and digest
+      # together.
+      - name: Install mdbook (pinned asset, sha256-verified)
+        env:
+          MDBOOK_VERSION: "0.5.4"
+          MDBOOK_SHA256: 3f28de05dafca9d0f2eab99c662116b0e37b89b1d96a08f8f430b9eeae958cd7
+        run: |
+          set -euo pipefail
+          asset="mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$asset" \
+            "https://github.com/rust-lang/mdBook/releases/download/v${MDBOOK_VERSION}/$asset"
+          echo "${MDBOOK_SHA256}  $RUNNER_TEMP/$asset" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/mdbook"
+          tar -xzf "$RUNNER_TEMP/$asset" -C "$RUNNER_TEMP/mdbook"
+          echo "$RUNNER_TEMP/mdbook" >> "$GITHUB_PATH"
       - name: Install lychee
         env:
           GH_TOKEN: ${{ github.token }}
@@ -25,6 +40,9 @@ jobs:
             --pattern lychee-x86_64-unknown-linux-gnu.tar.gz \
             --pattern lychee-x86_64-unknown-linux-gnu.tar.gz.sha256
           sha256sum -c lychee-x86_64-unknown-linux-gnu.tar.gz.sha256
+          # The .sha256 file comes from the same release as the asset, so it only
+          # catches corruption. The pinned digest also catches a replaced asset.
+          echo "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a  lychee-x86_64-unknown-linux-gnu.tar.gz" | sha256sum -c -
           tar -xzf lychee-x86_64-unknown-linux-gnu.tar.gz
           echo "$RUNNER_TEMP/lychee/lychee-x86_64-unknown-linux-gnu" >> "$GITHUB_PATH"
       - name: Build book and check links
@@ -36,5 +54,5 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - run: scripts/test-readme.sh

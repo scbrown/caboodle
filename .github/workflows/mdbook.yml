@@ -19,12 +19,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: peaceiris/actions-mdbook@v2
-        with:
-          mdbook-version: '0.5.4'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # A pinned action TAG is not a pinned ARTIFACT, and the mdbook action fetched
+      # its release asset without checking it. The asset is written to disk and
+      # checked against a pinned sha256 (it matches the digest GitHub records for
+      # this asset) BEFORE anything is extracted or run. Bump version and digest
+      # together.
+      - name: Install mdbook (pinned asset, sha256-verified)
+        env:
+          MDBOOK_VERSION: "0.5.4"
+          MDBOOK_SHA256: 3f28de05dafca9d0f2eab99c662116b0e37b89b1d96a08f8f430b9eeae958cd7
+        run: |
+          set -euo pipefail
+          asset="mdbook-v${MDBOOK_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$asset" \
+            "https://github.com/rust-lang/mdBook/releases/download/v${MDBOOK_VERSION}/$asset"
+          echo "${MDBOOK_SHA256}  $RUNNER_TEMP/$asset" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/mdbook"
+          tar -xzf "$RUNNER_TEMP/$asset" -C "$RUNNER_TEMP/mdbook"
+          echo "$RUNNER_TEMP/mdbook" >> "$GITHUB_PATH"
       - run: mdbook build docs/book
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: docs/book/book
 
@@ -40,4 +55,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

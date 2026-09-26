@@ -1296,21 +1296,87 @@ fn curl_json_request(url: &str, body: Option<String>) -> Result<Value> {
 }
 
 pub(crate) fn download_https(url: &str, destination: &Path) -> Result<()> {
-    checked(
-        "curl",
-        [
-            OsStr::new("--fail"),
-            OsStr::new("--location"),
-            OsStr::new("--proto"),
-            OsStr::new("=https"),
-            OsStr::new("--tlsv1.2"),
-            OsStr::new("--output"),
-            destination.as_os_str(),
-            OsStr::new(url),
-        ],
-        None,
-    )?;
-    Ok(())
+    // Retry only the GET, never its checksum or installation step. A blanket
+    // curl --retry-all-errors would also retry a missing asset or bad local path.
+    const ATTEMPTS: u32 = 3;
+    for attempt in 1..=ATTEMPTS {
+        // A failed/partial response must not become the next attempt's input,
+        // or replace a previously downloaded artifact when retries run out.
+        let pending = tempfile::NamedTempFile::new_in(
+            destination
+                .parent()
+                .filter(|p| !p.as_os_str().is_empty())
+                .unwrap_or(Path::new(".")),
+        )
+        .context("create pending download")?;
+        let result = output(
+            "curl",
+            [
+                OsStr::new("--disable"),
+                OsStr::new("--fail"),
+                OsStr::new("--location"),
+                OsStr::new("--silent"),
+                OsStr::new("--show-error"),
+                OsStr::new("--proto"),
+                OsStr::new("=https"),
+                OsStr::new("--tlsv1.2"),
+                OsStr::new("--connect-timeout"),
+                OsStr::new("10"),
+                OsStr::new("--max-time"),
+                OsStr::new("120"),
+                OsStr::new("--write-out"),
+                OsStr::new("%{http_code}"),
+                OsStr::new("--output"),
+                pending.path().as_os_str(),
+                OsStr::new(url),
+            ],
+            None,
+        )?;
+        if result.status.success() {
+            pending
+                .persist(destination)
+                .context("publish downloaded artifact")?;
+            if attempt > 1 {
+                eprintln!("download {url}: succeeded on attempt {attempt}/{ATTEMPTS}");
+            }
+            return Ok(());
+        }
+        let http = String::from_utf8_lossy(&result.stdout)
+            .trim()
+            .parse::<u16>()
+            .unwrap_or(0);
+        let detail = format!(
+            "download {url}: attempt {attempt}/{ATTEMPTS}, curl {}, HTTP {http:03}: {}",
+            result.status,
+            String::from_utf8_lossy(&result.stderr).trim()
+        );
+        if !retryable_download(result.status.code(), http) {
+            bail!("{detail}; terminal failure (not retried)");
+        }
+        if attempt == ATTEMPTS {
+            bail!("{detail}; retry limit exhausted");
+        }
+        let delay = 1 << (attempt - 1);
+        eprintln!("{detail}; retrying in {delay}s");
+        drop(pending);
+        std::thread::sleep(std::time::Duration::from_secs(delay));
+    }
+    unreachable!("every final attempt returns")
+}
+
+fn retryable_download(code: Option<i32>, http: u16) -> bool {
+    // An observed client error wins even when reading its body timed out.
+    if (400..500).contains(&http) {
+        return false;
+    }
+    match code {
+        Some(22) => (500..600).contains(&http),
+        // curl transport errors: proxy/DNS resolution, connect, partial body,
+        // timeout, empty reply, send/receive and HTTP/2 stream failures.
+        Some(5 | 6 | 7 | 18 | 28 | 52 | 55 | 56 | 92) => true,
+        // Certificate, local I/O, invocation and unknown errors stay fatal.
+        _ => false,
+    }
 }
 
 fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {

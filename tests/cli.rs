@@ -1941,3 +1941,160 @@ fn apply_reports_all_version_failures_and_still_applies_later_tools() {
         .stderr(predicate::str::contains("quipu version read-back"))
         .stderr(predicate::str::contains("camayoc version read-back"));
 }
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn retrying_release_fixture(root: &Path, bin: &Path, bad_checksum: bool) {
+    release_fixture(root, bin, false, bad_checksum);
+    fs::rename(bin.join("curl"), bin.join("curl.fixture")).unwrap();
+    fake_tool(
+        bin,
+        "curl",
+        r#"
+url=''; out=''; previous=''
+for arg do
+  if [ "$previous" = --output ]; then out=$arg; fi
+  case "$arg" in https://*) url=$arg ;; esac
+  previous=$arg
+done
+if [ -n "$out" ]; then
+  case "$*" in *'--connect-timeout 10 --max-time 120'*) ;; *) exit 99 ;; esac
+  asset=${url##*/}
+  printf '%s\n' "$asset" >> "$HOME/fetches"
+  case "$asset" in
+    *"$FAKE_RETRY_ASSET"*)
+      count=0
+      [ ! -f "$HOME/attempts" ] || count=$(cat "$HOME/attempts")
+      count=$((count + 1))
+      printf '%s' "$count" > "$HOME/attempts"
+      if [ "$count" -le "$FAKE_RETRY_FAILURES" ]; then
+        # A partial body from the failed transfer must never reach unpacking.
+        printf '%s' 'partial error response' > "$out"
+        printf '%s' "$FAKE_RETRY_HTTP"
+        echo 'fixture fetch failure' >&2
+        exit "$FAKE_RETRY_CODE"
+      fi
+      ;;
+  esac
+fi
+exec "$HOME/bin/curl.fixture" "$@"
+"#,
+    );
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn release_download_recovers_visibly_from_server_and_transport_errors() {
+    for (code, http, asset) in [
+        (22, "500", ".tar.gz"),
+        (22, "504", "SHA256SUMS.txt"),
+        (7, "000", ".tar.gz"),
+        (18, "200", ".tar.gz"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        retrying_release_fixture(root.path(), &bin, false);
+        command(root.path(), &bin)
+            .env("FAKE_RETRY_ASSET", asset)
+            .env("FAKE_RETRY_CODE", code.to_string())
+            .env("FAKE_RETRY_HTTP", http)
+            .env("FAKE_RETRY_FAILURES", "1")
+            .args(["update-release", "--tool", "bobbin"])
+            .assert()
+            .success()
+            .stderr(
+                predicate::str::contains("attempt 1/3")
+                    .and(predicate::str::contains("retrying in 1s"))
+                    .and(predicate::str::contains("succeeded on attempt 2/3")),
+            )
+            .stdout(predicate::str::contains("installed and verified v0.16.3"));
+        assert_eq!(
+            fs::read_to_string(root.path().join("attempts")).unwrap(),
+            "2"
+        );
+        assert_eq!(
+            fs::read_to_string(root.path().join("fetches"))
+                .unwrap()
+                .lines()
+                .count(),
+            3
+        );
+    }
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn release_download_exhaustion_and_terminal_errors_preserve_installed_binary() {
+    for (code, http, attempts, message) in [
+        (22, "503", "3", "retry limit exhausted"),
+        (28, "000", "3", "retry limit exhausted"),
+        (22, "404", "1", "terminal failure"),
+        (22, "403", "1", "terminal failure"),
+        (60, "000", "1", "terminal failure"),
+        (23, "200", "1", "terminal failure"),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        retrying_release_fixture(root.path(), &bin, false);
+        let before = fs::read(bin.join("bobbin")).unwrap();
+        let result = command(root.path(), &bin)
+            .env("FAKE_RETRY_ASSET", ".tar.gz")
+            .env("FAKE_RETRY_CODE", code.to_string())
+            .env("FAKE_RETRY_HTTP", http)
+            .env("FAKE_RETRY_FAILURES", "9")
+            .args(["update-release", "--tool", "bobbin"])
+            .assert()
+            .failure()
+            .stderr(
+                predicate::str::contains(message)
+                    .and(predicate::str::contains("fixture fetch failure")),
+            );
+        if attempts == "1" {
+            result.stderr(predicate::str::contains("retrying").not());
+        } else {
+            result.stderr(predicate::str::contains("retrying in 2s"));
+        }
+        assert_eq!(
+            fs::read_to_string(root.path().join("attempts")).unwrap(),
+            attempts
+        );
+        assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+    }
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn release_download_recovery_never_retries_a_checksum_mismatch() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    retrying_release_fixture(root.path(), &bin, true);
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    command(root.path(), &bin)
+        .env("FAKE_RETRY_ASSET", "SHA256SUMS.txt")
+        .env("FAKE_RETRY_CODE", "22")
+        .env("FAKE_RETRY_HTTP", "504")
+        .env("FAKE_RETRY_FAILURES", "1")
+        .args(["update-release", "--tool", "bobbin"])
+        .assert()
+        .failure()
+        .stderr(
+            predicate::str::contains("succeeded on attempt 2/3")
+                .and(predicate::str::contains("SHA256 mismatch")),
+        );
+    assert_eq!(
+        fs::read_to_string(root.path().join("fetches"))
+            .unwrap()
+            .lines()
+            .count(),
+        3
+    );
+    assert_eq!(
+        fs::read_to_string(root.path().join("attempts")).unwrap(),
+        "2"
+    );
+    assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+    assert!(!root.path().join(".caboodle/state.json").exists());
+}

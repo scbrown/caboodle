@@ -931,12 +931,24 @@ fn camayoc_verification_uses_its_own_scratch_server_and_stops_it() {
     );
     let pids = fs::read_to_string(root.path().join("camayoc-server-pids.log")).unwrap();
     for pid in pids.lines() {
-        let alive = std::process::Command::new("kill")
-            .args(["-0", pid])
-            .status()
-            .unwrap()
-            .success();
-        assert!(!alive, "scratch quipu-server {pid} was left running");
+        // SIGTERM delivery and reaping are asynchronous. Keep the strict
+        // disappearance assertion, but allow the child a bounded exit window.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(2);
+        loop {
+            let alive = std::process::Command::new("kill")
+                .args(["-0", pid])
+                .status()
+                .unwrap()
+                .success();
+            if !alive {
+                break;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "scratch quipu-server {pid} was left running"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
     }
 }
 

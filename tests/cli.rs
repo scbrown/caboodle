@@ -48,6 +48,8 @@ expected = "fixture-result"
     command
         .current_dir(root)
         .env("HOME", root)
+        .env_remove("QUIPU_AUTH_TOKEN")
+        .env_remove("QUIPU_AUTH_TOKEN_FILE")
         .env("PATH", path_with(bin))
         .env("CARGO_HOME", root.join("cargo-home"))
         .env("CABOODLE_CAMAYOC_ROOT", root.join("camayoc"))

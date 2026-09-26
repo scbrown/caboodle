@@ -69,7 +69,8 @@ See [emission](emission.md) and [proofs](proofs.md) for those boundaries.
 | `PATH` | Must find the installed binaries before stale copies. |
 | `CABOODLE_CAMAYOC_ROOT` | Override the Camayoc distribution root. |
 | `QUIPU_SERVER` | Existing Quipu server for operations that need one; temporary functional checks remain isolated. |
-| `QUIPU_AUTH_TOKEN` | Environment-only bearer used by episode delivery. |
+| `QUIPU_AUTH_TOKEN` | Nonempty bearer override for Quipu requests. |
+| `QUIPU_AUTH_TOKEN_FILE` | Request-time token file; defaults to `~/.config/quipu/token`. |
 | `CABOODLE_HOLD_FILE` | Override the release-update hold marker, default `~/.caboodle/hold`. |
 | `SHANTY_TOOLING_MANIFEST` | Shantytown's managed rig registration manifest; see [agent setup](installing.md#registering-mcp-servers). |
 
@@ -77,3 +78,29 @@ The shell release installer also accepts `CABOODLE_VERSION`,
 `CABOODLE_INSTALL_DIR`, `CABOODLE_TARGET`, `CABOODLE_REPOSITORY` and
 `CABOODLE_RELEASE_BASE_URL`. The last two select the download authority; keep
 them unset for official releases. These are installer inputs, not plan keys.
+
+## Quipu credentials
+
+Obtain an accepted credential from the target server administrator through your
+approved secret distribution channel. The administrator activates the shared
+bearer or registers an issued named credential before distributing it. Locally
+installing a random token does not grant access.
+
+```sh
+install -d -m 700 "$HOME/.config/quipu" && install -m 400 /secure/issued-token "$HOME/.config/quipu/token"
+caboodle doctor
+```
+
+A nonempty `QUIPU_AUTH_TOKEN` takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
+then the default `~/.config/quipu/token`. Files are read on every request so
+rotation reaches running sessions. An explicit file does not fall back to the
+default if missing. Existing deployments can retain their file override until
+provisioning and rotation move together; avoid independent copies of secrets.
+Token contents must never enter command arguments, logs or version control.
+
+Doctor checks the protected `/episode` route with `{}`. The server authorizes
+before rejecting the incomplete episode, so no graph data is written. It reports
+accepted authorization, missing token, rejected token, read-only server, or an
+unknown write path (including no HTTP response). This is authorization evidence,
+not a successful storage commit. `caboodle verify` separately exercises installed
+tools in isolated scratch stores.

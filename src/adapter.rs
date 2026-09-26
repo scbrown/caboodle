@@ -303,7 +303,7 @@ struct Quipu {
     flavor: QuipuFlavor,
 }
 
-const QUIPU_VERSION: &str = "0.3.27";
+const QUIPU_VERSION: &str = "0.9.0";
 
 /// The reviewed feature set per flavor. Both flavors build the identical
 /// pinned revision — only the feature list differs — so choosing `lancedb`
@@ -422,36 +422,55 @@ impl Adapter for Quipu {
 }
 
 fn quipu_release_target() -> Result<&'static str> {
-    match (env::consts::ARCH, env::consts::OS) {
+    quipu_release_target_for(env::consts::ARCH, env::consts::OS)
+}
+
+fn quipu_release_target_for(arch: &str, os: &str) -> Result<&'static str> {
+    match (arch, os) {
         ("x86_64", "linux") => Ok("x86_64-unknown-linux-gnu"),
+        ("aarch64", "linux") => Ok("aarch64-unknown-linux-gnu"),
+        ("x86_64", "macos") => Ok("x86_64-apple-darwin"),
+        ("aarch64", "macos") => Ok("aarch64-apple-darwin"),
         (arch, os) => bail!("Quipu has no checksummed CABOODLE release for {arch}-{os}"),
     }
 }
 
-fn install_quipu_release() -> Result<()> {
-    let target = quipu_release_target()?;
-    let archive_name = format!("quipu-v{QUIPU_VERSION}-{target}.tar.gz");
-    let base = format!("https://github.com/scbrown/quipu/releases/download/v{QUIPU_VERSION}");
-    let download = tempfile::tempdir().context("create Quipu download directory")?;
-    let archive = download.path().join(&archive_name);
-    let checksum = download.path().join(format!("{archive_name}.sha256"));
+fn fetch_quipu_release(target: &str, download: &Path) -> Result<PathBuf> {
+    // release-please tags the crate package; the release workflow prefixes
+    // that complete tag again for both the asset and its top-level directory.
+    let tag = format!("quipu-ai-v{QUIPU_VERSION}");
+    let directory = format!("quipu-{tag}-{target}");
+    let archive_name = format!("{directory}.tar.gz");
+    let base = format!("https://github.com/scbrown/quipu/releases/download/{tag}");
+    let archive = download.join(&archive_name);
+    let checksum = download.join(format!("{archive_name}.sha256"));
     download_https(&format!("{base}/{archive_name}"), &archive)?;
     download_https(&format!("{base}/{archive_name}.sha256"), &checksum)?;
     verify_checksum(&archive, &checksum)?;
 
-    let unpacked = download
-        .path()
-        .join(format!("quipu-v{QUIPU_VERSION}-{target}"));
+    let unpacked = download.join(directory);
     checked(
         "tar",
         [
             OsStr::new("-xzf"),
             archive.as_os_str(),
             OsStr::new("-C"),
-            download.path().as_os_str(),
+            download.as_os_str(),
         ],
         None,
     )?;
+    for program in ["quipu", "quipu-server"] {
+        if !unpacked.join(program).is_file() {
+            bail!("Quipu release archive omitted {program}");
+        }
+    }
+    Ok(unpacked)
+}
+
+fn install_quipu_release() -> Result<()> {
+    let target = quipu_release_target()?;
+    let download = tempfile::tempdir().context("create Quipu download directory")?;
+    let unpacked = fetch_quipu_release(target, download.path())?;
     let home = env::var_os("HOME").context("HOME is required to install Quipu")?;
     let bin = env::var_os("CARGO_HOME")
         .map(PathBuf::from)
@@ -1323,7 +1342,10 @@ fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {
 
 #[cfg(test)]
 mod flavor_tests {
-    use super::{quipu_install_args, quipu_release_target, require_compiled_feature};
+    use super::{
+        fetch_quipu_release, quipu_install_args, quipu_release_target, quipu_release_target_for,
+        require_compiled_feature,
+    };
     use crate::model::QuipuFlavor;
     use serde_json::json;
 
@@ -1344,6 +1366,32 @@ mod flavor_tests {
     fn default_quipu_release_has_a_supported_host_artifact() {
         if (std::env::consts::ARCH, std::env::consts::OS) == ("x86_64", "linux") {
             assert_eq!(quipu_release_target().unwrap(), "x86_64-unknown-linux-gnu");
+        }
+    }
+
+    #[test]
+    fn quipu_release_supports_published_linux_and_macos_architectures() {
+        for (arch, os, target) in [
+            ("x86_64", "linux", "x86_64-unknown-linux-gnu"),
+            ("aarch64", "linux", "aarch64-unknown-linux-gnu"),
+            ("x86_64", "macos", "x86_64-apple-darwin"),
+            ("aarch64", "macos", "aarch64-apple-darwin"),
+        ] {
+            assert_eq!(quipu_release_target_for(arch, os).unwrap(), target);
+        }
+        assert!(quipu_release_target_for("x86_64", "windows").is_err());
+    }
+
+    #[test]
+    #[ignore = "downloads published artifacts; explicit release acceptance only"]
+    fn real_aarch64_quipu_release_resolves_and_verifies() {
+        for os in ["macos", "linux"] {
+            let target = quipu_release_target_for("aarch64", os).unwrap();
+            let download = tempfile::tempdir().unwrap();
+            let unpacked = fetch_quipu_release(target, download.path()).unwrap();
+            assert!(unpacked.join("quipu").is_file());
+            assert!(unpacked.join("quipu-server").is_file());
+            eprintln!("verified published Quipu checksums and both binaries for {target}");
         }
     }
 

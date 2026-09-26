@@ -4,6 +4,17 @@ Caboodle publishes a release only when a `vVERSION` tag exactly matches the
 version in `Cargo.toml`. Each supported archive has a sibling `.sha256` file;
 the installer verifies that checksum before replacing the binary.
 
+Caboodle's built-in HTTPS asset downloads make at most three attempts. Server
+errors (HTTP 5xx) and transient resolution, connection, timeout, partial-transfer,
+send/receive or HTTP/2 stream errors are retried after one and then two seconds.
+Each attempt has a 10-second connection timeout and a 120-second transfer limit.
+Retry logs identify the URL, attempt, curl status, HTTP status and delay; recovery
+logs name the successful attempt. Failed attempts use disposable files.
+HTTP 4xx (including missing assets), certificate and local file errors fail
+immediately. Checksum verification happens after downloading and is never
+retried or bypassed. This policy covers downloads made by the Caboodle binary,
+not the bootstrap shell installer above it or external package managers.
+
 ## Release install
 
 Review the installer first, then run the same file you reviewed:

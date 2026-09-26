@@ -214,20 +214,26 @@ fn check_mcp(scope: &Scope) -> Vec<Finding> {
 /// What the no-op write probe's answer means. Quipu authorizes before parsing.
 pub(crate) fn classify_write_probe(code: u16, body: &str, token_set: bool) -> Finding {
     let token = if token_set {
-        "token from QUIPU_AUTH_TOKEN"
+        "token from environment or configured file"
     } else {
-        "no token (QUIPU_AUTH_TOKEN unset)"
+        "no token (environment/file empty or absent)"
     };
+    let data: serde_json::Value = serde_json::from_str(body).unwrap_or(serde_json::Value::Null);
+    let error = data["error"].as_str().unwrap_or("");
     match code {
-        400 | 422 if body.contains("episode") || body.contains("missing field") => Finding::new(
+        403 if data["reason"] == "server_is_read_only" => Finding::new(
+            Level::Warn, "quipu write",
+            "READ-ONLY: no credential can authorize writes; use the intended writable server",
+        ),
+        400 if error.starts_with("invalid episode JSON:") && error.contains("missing field") => Finding::new(
             Level::Ok,
             "quipu write",
             format!("authorized ({token}); the probe was refused as an empty episode, nothing written"),
         ),
-        401 | 403 => Finding::new(
+        401 => Finding::new(
             Level::Warn,
             "quipu write",
-            format!("REFUSED with HTTP {code} ({token}): reads work but every write will fail. Set QUIPU_AUTH_TOKEN to a token this server accepts"),
+            format!("{}: REFUSED with HTTP {code} ({token}). Obtain an accepted credential from the server administrator; install at ~/.config/quipu/token (mode 0400), or set QUIPU_AUTH_TOKEN_FILE. QUIPU_AUTH_TOKEN overrides the file", if token_set { "BAD-TOKEN" } else { "NO-TOKEN" }),
         ),
         0 => Finding::new(Level::Warn, "quipu write", "write probe got no HTTP answer; write path unknown"),
         other => Finding::new(
@@ -297,9 +303,7 @@ fn check_graph() -> Vec<Finding> {
         )),
     }
     findings.push(match adapter::quipu_write_probe(base) {
-        Ok((code, body)) => {
-            classify_write_probe(code, &body, env::var_os("QUIPU_AUTH_TOKEN").is_some())
-        }
+        Ok((code, body, token_set)) => classify_write_probe(code, &body, token_set),
         Err(error) => Finding::new(
             Level::Warn,
             "quipu write",
@@ -555,10 +559,20 @@ yupana: yupana serve - ✗ Failed to connect\n";
 
         let refused = classify_write_probe(401, r#"{"error":"unauthorized"}"#, false);
         assert_eq!(refused.level, Level::Warn);
-        assert!(
-            refused.detail.contains("REFUSED") && refused.detail.contains("QUIPU_AUTH_TOKEN unset")
-        );
+        assert!(refused.detail.contains("REFUSED") && refused.detail.contains("NO-TOKEN"));
 
+        assert!(classify_write_probe(401, "{}", true)
+            .detail
+            .contains("BAD-TOKEN"));
+        assert!(
+            classify_write_probe(403, r#"{"reason":"server_is_read_only"}"#, true)
+                .detail
+                .contains("READ-ONLY")
+        );
+        assert_eq!(
+            classify_write_probe(400, r#"{"error":"episode failed"}"#, true).level,
+            Level::Warn
+        );
         // A 400 for some other reason is not proof of authorization.
         assert_eq!(
             classify_write_probe(400, "bad gateway html", true).level,

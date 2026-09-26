@@ -1207,13 +1207,7 @@ fn curl_get_json(url: &str) -> Result<Value> {
 /// escapes, so `\` and `"` are escaped; a newline would end the line and let
 /// the token inject a second directive, so it is refused rather than escaped.
 fn quipu_auth_config() -> Result<Option<tempfile::NamedTempFile>> {
-    let Ok(token) = env::var("QUIPU_AUTH_TOKEN") else {
-        return Ok(None);
-    };
-    let file = tempfile::NamedTempFile::new().context("create temporary Quipu auth config")?;
-    fs::write(file.path(), curl_auth_header_line(&token)?)
-        .context("write temporary Quipu auth config")?;
-    Ok(Some(file))
+    crate::quipu_auth::config()
 }
 
 pub(crate) fn curl_auth_header_line(token: &str) -> Result<String> {
@@ -1230,7 +1224,7 @@ pub(crate) fn curl_auth_header_line(token: &str) -> Result<String> {
 /// missing or rejected token yields 401. That makes it an authenticated no-op:
 /// the only way to prove the write path without writing (aegis-0c1qdi). The
 /// token travels in a curl config file, never on the command line.
-pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String)> {
+pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String, bool)> {
     let body_file = tempfile::NamedTempFile::new().context("create write-probe body file")?;
     let auth = quipu_auth_config()?;
     let mut args: Vec<OsString> = [
@@ -1265,7 +1259,7 @@ pub(crate) fn quipu_write_probe(server: &str) -> Result<(u16, String)> {
         .parse::<u16>()
         .unwrap_or(0);
     let body = fs::read_to_string(body_file.path()).unwrap_or_default();
-    Ok((code, body))
+    Ok((code, body, auth.is_some()))
 }
 
 fn curl_json_request(url: &str, body: Option<String>) -> Result<Value> {

@@ -1,0 +1,5 @@
+{"schema":"st.hook-bundle/1","name":"yupana","version":"0.10.5","owner":"caboodle","roles":["*"],
+ "hooks":[
+  {"event":"PostToolUse","matcher":".*","command":"out=$(yupana hook post-edit) || exit 0; printf %s \"$out\"","harnesses":["claude"]},
+  {"event":"PostToolUse","matcher":"Bash","command":"yupana hook post-bash || exit 0","harnesses":["claude"]},
+  {"event":"PostToolUseFailure","matcher":"Bash","command":"yupana hook post-bash || exit 0","harnesses":["claude"]}]}

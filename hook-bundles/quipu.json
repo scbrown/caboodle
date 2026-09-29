@@ -1,0 +1,3 @@
+{"schema":"st.hook-bundle/1","name":"quipu","version":"session-capture","owner":"caboodle","roles":["*"],
+ "hooks":[
+  {"event":"Stop","command":"$HOME/.gt/hooks/quipu-session-capture.sh","harnesses":["claude"]}]}

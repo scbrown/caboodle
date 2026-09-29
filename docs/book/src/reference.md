@@ -91,7 +91,7 @@ version and functional checks still run.
 
 Yupana installs from its checksum-pinned v0.7.0 release and proves `callers` on
 an isolated fixture repository. Desire Path publishes no release archive, so
-CABOODLE builds it from the revision its `v0.3.0` tag names (`7f2dabe`), stamps
+CABOODLE builds it from the revision its `v0.3.1` tag names (`9a3a9af`), stamps
 that identity into `dp version`, and proves an isolated ingest/list round trip. Neither
 verification can write into the user's normal Yupana state or Desire Path DB.
 

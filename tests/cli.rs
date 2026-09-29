@@ -143,7 +143,7 @@ exit 2
         bin,
         "dp",
         r#"
-if [ "${1:-}" = "version" ]; then echo 'dp v0.3.0 (7f2dabe)'; exit 0; fi
+if [ "${1:-}" = "version" ]; then echo 'dp v0.3.1 (9a3a9af)'; exit 0; fi
 db=''
 while [ "$#" -gt 0 ]; do
   if [ "$1" = "--db" ]; then shift; db=$1; fi
@@ -539,7 +539,7 @@ fn check_updates_rejects_stale_path_despite_current_cargo_copy() {
     fake_tool(
         &cargo_bin,
         "dp",
-        "if [ \"${1:-}\" = version ]; then echo 'dp v0.3.0 (7f2dabe)'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.3.1 (9a3a9af)'; exit 0; fi\nexit 2",
     );
 
     command(root.path(), &bin)
@@ -568,7 +568,7 @@ fn check_updates_accepts_current_path_despite_stale_cargo_copy() {
     fake_tool(
         &bin,
         "dp",
-        "if [ \"${1:-}\" = version ]; then echo 'dp 0.3.0 (7f2dabe)'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = version ]; then echo 'dp 0.3.1 (9a3a9af)'; exit 0; fi\nexit 2",
     );
     fake_tool(
         &cargo_bin,
@@ -587,7 +587,7 @@ fn check_updates_accepts_current_path_despite_stale_cargo_copy() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "desire-path: current (dp 0.3.0 (7f2dabe))",
+            "desire-path: current (dp 0.3.1 (9a3a9af))",
         ));
 }
 
@@ -641,7 +641,7 @@ fn expanded_adapter_negative_controls_turn_verification_red() {
     fake_tool(
         &dp_bin,
         "dp",
-        "if [ \"${1:-}\" = version ]; then echo 'dp v0.3.0 (7f2dabe)'; exit 0; fi\necho '[{\"tool_name\":\"caboodle_desire_path_marker\"}]'",
+        "if [ \"${1:-}\" = version ]; then echo 'dp v0.3.1 (9a3a9af)'; exit 0; fi\necho '[{\"tool_name\":\"caboodle_desire_path_marker\"}]'",
     );
     command(dp_root.path(), &dp_bin)
         .args(["plan", "--profile", "everything"])

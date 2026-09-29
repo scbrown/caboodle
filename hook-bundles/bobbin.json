@@ -1,0 +1,6 @@
+{"schema":"st.hook-bundle/1","name":"bobbin","version":"0.21.0","owner":"caboodle","roles":["*"],
+ "hooks":[
+  {"event":"UserPromptSubmit","command":"bobbin hook inject-context --budget 60 || true","timeout":10},
+  {"event":"SessionStart","matcher":"compact","command":"bobbin hook session-context || true","timeout":10,"harnesses":["claude"]},
+  {"event":"PostToolUse","matcher":"Write|Edit|Bash|Grep|Glob|Read","command":"bobbin hook post-tool-use || true","timeout":10},
+  {"event":"PostToolUseFailure","command":"bobbin hook post-tool-use-failure || true","timeout":10,"harnesses":["claude"]}]}

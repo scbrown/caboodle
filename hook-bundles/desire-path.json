@@ -1,0 +1,8 @@
+{"schema":"st.hook-bundle/1","name":"desire-path","version":"0.3.2","owner":"caboodle","roles":["*"],
+ "hooks":[
+  {"event":"PostToolUse","matcher":".*","command":"dp ingest --source claude-code","harnesses":["claude"]},
+  {"event":"PostToolUseFailure","matcher":".*","command":"dp ingest --source claude-code","harnesses":["claude"]},
+  {"event":"PostToolUse","matcher":"Bash","command":"dp signpost","harnesses":["claude"]},
+  {"event":"PostToolUseFailure","matcher":"Bash","command":"dp signpost","harnesses":["claude"]},
+  {"event":"PostToolUseFailure","matcher":".*","command":"dp pave-correct","harnesses":["claude"]},
+  {"event":"PreToolUse","matcher":"Bash","command":"dp signpost-prefetch","harnesses":["claude"]}]}

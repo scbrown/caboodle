@@ -5,6 +5,7 @@ pub mod doctor;
 pub mod embedding;
 pub mod emission;
 pub mod engine;
+pub mod hook_bundles;
 pub mod interview;
 pub mod model;
 pub mod observability;

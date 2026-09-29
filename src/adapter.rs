@@ -855,8 +855,8 @@ fn desire_path_program() -> Result<PathBuf> {
     Ok(PathBuf::from(home).join(".local/bin/dp"))
 }
 
-const DESIRE_PATH_REVISION: &str = "6c5840f4037afff62494a010ddef8cac6acdc8f2";
-const DESIRE_PATH_VERSION: &str = "v0.2.1";
+const DESIRE_PATH_REVISION: &str = "7f2dabe167bf452a08dff7dbf78e4613a4ba25d7";
+const DESIRE_PATH_VERSION: &str = "v0.3.0";
 
 impl Adapter for DesirePath {
     fn name(&self) -> ToolName {

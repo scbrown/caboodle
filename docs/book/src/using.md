@@ -40,7 +40,7 @@ version and functional checks still run.
 
 `code-intel` adds checksum-pinned Yupana and proves a caller edge in a temporary
 repository with isolated HOME/state. `everything` additionally installs Desire
-Path from the revision its `v0.2.1` tag names (upstream publishes no release
+Path from the revision its `v0.3.0` tag names (upstream publishes no release
 archive, so CABOODLE builds that revision), reads it back from `dp version`, and
 proves ingest/list against a temporary database. These checks never use the user's normal evidence stores.
 

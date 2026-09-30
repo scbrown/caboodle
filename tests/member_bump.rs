@@ -1,5 +1,6 @@
 //! `caboodle bump-member` against a fake release (wu M2, aegis-1i5h1j).
-#![cfg(unix)]
+// Bump proves the host target, and the fixture pins only x86_64 Linux.
+#![cfg(all(target_os = "linux", target_arch = "x86_64"))]
 
 use std::{fs, os::unix::fs::PermissionsExt, path::Path, process::Command as StdCommand};
 
@@ -45,7 +46,7 @@ esac
             fake.manifest(),
         )
         .unwrap();
-        fake.publish(tag, b"fixture-demo 0.2.0 release bytes");
+        fake.publish(tag, &good_program(tag));
         fake
     }
 
@@ -57,10 +58,25 @@ esac
         self.path("fixture-demo.toml")
     }
 
-    /// Publish `tag` with an asset of `bytes` and a sums file that is correct for it.
-    fn publish(&self, tag: &str, bytes: &[u8]) {
+    /// Publish `tag`: a release tarball whose `fixture-demo` runs `program`,
+    /// and a sums file that is correct for it.
+    fn publish(&self, tag: &str, program: &str) {
         let asset = format!("fixture-demo-{tag}-x86_64-unknown-linux-gnu.tar.gz");
-        fs::write(self.path("served").join(&asset), bytes).unwrap();
+        let stage = self.path("stage");
+        let _ = fs::remove_dir_all(&stage);
+        fs::create_dir_all(stage.join("fixture-demo")).unwrap();
+        let exe = stage.join("fixture-demo/fixture-demo");
+        fs::write(&exe, format!("#!/bin/sh\n{program}\n")).unwrap();
+        fs::set_permissions(&exe, fs::Permissions::from_mode(0o755)).unwrap();
+        let status = StdCommand::new("tar")
+            .arg("-czf")
+            .arg(self.path("served").join(&asset))
+            .arg("-C")
+            .arg(&stage)
+            .arg("fixture-demo")
+            .status()
+            .unwrap();
+        assert!(status.success());
         fs::write(
             self.path("served/SHA256SUMS.txt"),
             format!("{}  {asset}\n", sha256(&self.path("served").join(&asset))),
@@ -95,6 +111,15 @@ esac
     fn log(&self) -> String {
         fs::read_to_string(self.path("curl.log")).unwrap_or_default()
     }
+}
+
+/// A release program that answers the fixture's identity and `tag`'s version.
+fn good_program(tag: &str) -> String {
+    format!(
+        "case \"$1\" in --help) echo 'fixture-demo is the caboodle fixture stack member' ;; \
+         --version) echo 'fixture-demo {}' ;; esac",
+        tag.trim_start_matches('v')
+    )
 }
 
 fn sha256(path: &Path) -> String {
@@ -160,6 +185,35 @@ fn an_older_release_or_a_missing_target_line_is_refused() {
         "SHA256SUMS.txt for x86_64-unknown-linux-gnu",
     ));
     assert_eq!(fs::read_to_string(fake.manifest()).unwrap(), before);
+}
+
+#[test]
+fn a_release_that_is_not_the_member_is_refused_before_anything_is_recorded() {
+    // malcolm S1: a release that dropped its identity text must not bump green.
+    let fake = Fake::new("v0.2.0");
+    let before = fs::read_to_string(fake.manifest()).unwrap();
+    fake.publish(
+        "v0.2.0",
+        "case \"$1\" in --help) echo 'a find and replace tool' ;; --version) echo 'fixture-demo 0.2.0' ;; esac",
+    );
+    fake.bump(&[]).failure().stderr(predicate::str::contains(
+        "does not answer its manifest identity",
+    ));
+    assert_eq!(fs::read_to_string(fake.manifest()).unwrap(), before);
+
+    // A release tagged 0.2.0 whose program reports another version is refused.
+    fake.publish(
+        "v0.2.0",
+        "case \"$1\" in --help) echo 'fixture-demo is the caboodle fixture stack member' ;; --version) echo 'fixture-demo 0.1.0' ;; esac",
+    );
+    fake.bump(&[])
+        .failure()
+        .stderr(predicate::str::contains("reports version"));
+    assert_eq!(fs::read_to_string(fake.manifest()).unwrap(), before);
+
+    // Control: the same release with its identity and version intact bumps.
+    fake.publish("v0.2.0", &good_program("v0.2.0"));
+    fake.bump(&[]).success();
 }
 
 #[test]

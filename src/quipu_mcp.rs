@@ -167,15 +167,41 @@ pub fn redact(entry: &Value) -> Value {
     }
     if let Some(url) = entry.get_mut("url") {
         if let Some(text) = url.as_str() {
-            if let Some((scheme, rest)) = text.split_once("://") {
-                let (authority, path) = rest.split_once('/').map_or((rest, ""), |(a, p)| (a, p));
-                if let Some((_, host)) = authority.rsplit_once('@') {
-                    *url = Value::String(format!("{scheme}://<redacted>@{host}/{path}"));
-                }
-            }
+            *url = Value::String(redact_url(text));
         }
     }
     entry
+}
+
+/// Drop URL userinfo and any query string or fragment, where credentials
+/// (`?token=`) can also live. Scheme, host and path stay readable.
+fn redact_url(text: &str) -> String {
+    let (base, hidden_tail) = match text.find(['?', '#']) {
+        Some(i) => (&text[..i], true),
+        None => (text, false),
+    };
+    let base = match base.split_once("://") {
+        Some((scheme, rest)) => {
+            let (authority, path) = rest
+                .split_once('/')
+                .map_or((rest, None), |(a, p)| (a, Some(p)));
+            let authority = authority
+                .rsplit_once('@')
+                .map_or(authority.to_owned(), |(_, host)| {
+                    format!("<redacted>@{host}")
+                });
+            match path {
+                Some(path) => format!("{scheme}://{authority}/{path}"),
+                None => format!("{scheme}://{authority}"),
+            }
+        }
+        None => base.to_owned(),
+    };
+    if hidden_tail {
+        format!("{base}?<redacted>")
+    } else {
+        base
+    }
 }
 
 /// Redact any argument that is a JSON object (the `add-json` entry).
@@ -615,6 +641,13 @@ mod tests {
             "env": {"QUIPU_AUTH_TOKEN": "s3cr3t-token"}
         });
         let shown = redact(&entry).to_string();
+        let query = redact(&json!({"url": "https://quipu.example/mcp?token=q-s3cr3t#frag"}));
+        assert_eq!(query["url"], "https://quipu.example/mcp?<redacted>");
+        assert_eq!(redact_url("http://quipu.example"), "http://quipu.example");
+        assert_eq!(
+            redact_url("http://u:p@quipu.example"),
+            "http://<redacted>@quipu.example"
+        );
         for secret in ["s3cr3t-token", "hunter2", "user:"] {
             assert!(!shown.contains(secret), "{shown}");
         }

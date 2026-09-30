@@ -18,7 +18,9 @@ To move a pin to a new release:
 
 This downloads the release's `sums_asset` and every pinned target's asset. It
 refuses unless each asset hashes to its published line, and refuses a
-downgrade. It then rewrites only `version` and the `[sha256]` values. Review
+downgrade. It also unpacks the asset for the host it runs on and refuses unless
+the programs answer `identity_contains` and report the new version. Run it on a
+pinned target. It then rewrites only `version` and the `[sha256]` values. Review
 the diff and open a PR; the new pin reaches users with the next caboodle
 release.
 

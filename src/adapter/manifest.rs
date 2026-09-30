@@ -229,9 +229,7 @@ impl Adapter for ManifestAdapter {
     }
 
     fn is_current(&self, installed: &str) -> bool {
-        installed
-            .split_whitespace()
-            .any(|word| word.trim_start_matches('v') == self.0.version)
+        reports_version(installed, &self.0.version)
     }
 
     fn verify(&self) -> Result<()> {
@@ -283,6 +281,62 @@ impl Adapter for ManifestAdapter {
         }
         Ok(())
     }
+}
+
+/// Does a version line report `version`, as a whole word (`v` optional)?
+fn reports_version(line: &str, version: &str) -> bool {
+    line.split_whitespace()
+        .any(|word| word.trim_start_matches('v') == version)
+}
+
+/// Prove a release asset IS `manifest` before its digest is recorded (malcolm
+/// S1): unpack it, and require every program to answer its identity and the
+/// first to report `manifest.version`. A release that dropped its identity text
+/// would otherwise bump green and then fail every fleet version/verify with a
+/// foreign-program refusal that points at the wrong cause.
+pub(crate) fn prove_release(manifest: &Manifest, archive: &Path) -> Result<()> {
+    let unpack = tempfile::tempdir().context("create release proof directory")?;
+    checked(
+        "tar",
+        [
+            OsStr::new("-xzf"),
+            archive.as_os_str(),
+            OsStr::new("-C"),
+            unpack.path().as_os_str(),
+        ],
+        None,
+    )?;
+    for program in &manifest.programs {
+        let path = find_program(unpack.path(), &program.name).with_context(|| {
+            format!(
+                "{} release does not contain `{}`",
+                manifest.name, program.name
+            )
+        })?;
+        identify(&path, program).with_context(|| {
+            format!(
+                "{} {} does not answer its manifest identity; fix identity_contains in review \
+                 (it must still match the oldest installed release) before bumping",
+                manifest.name, manifest.version
+            )
+        })?;
+    }
+    let first = find_program(unpack.path(), &manifest.programs[0].name)
+        .context("release program vanished")?;
+    let out = checked(
+        first.as_os_str(),
+        manifest.version_argv.iter().map(String::as_str),
+        None,
+    )?;
+    let reported = String::from_utf8_lossy(&out.stdout).trim().to_owned();
+    if !reports_version(&reported, &manifest.version) {
+        bail!(
+            "{} release tagged {} reports version {reported:?}; refusing to pin it",
+            manifest.name,
+            manifest.version
+        );
+    }
+    Ok(())
 }
 
 fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {

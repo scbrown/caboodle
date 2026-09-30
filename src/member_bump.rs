@@ -5,7 +5,9 @@
 //! that change: it reads the release, downloads the published sums file AND
 //! every reviewed target's asset, requires each asset's bytes to hash to its
 //! published line, and rewrites only `version` and the `[sha256]` values of the
-//! manifest (comments and layout kept) for a human to review and merge. It
+//! manifest (comments and layout kept) for a human to review and merge.
+//! Before recording anything it unpacks the host target's asset and requires
+//! the programs to answer their identity and the new version (malcolm S1). It
 //! never installs anything and never runs at a user's install time.
 
 use std::{fs, path::Path};
@@ -144,6 +146,11 @@ pub fn bump(path: &Path, tag: Option<&str>) -> Result<Outcome> {
     let sums = fs::read_to_string(&sums_path).context("read published sums")?;
     // The reviewed target set is the one already pinned: a bump never adds or
     // silently drops a platform.
+    // S1: the host's own asset is unpacked and run before anything is
+    // recorded, so the bump fails here rather than on every fleet host.
+    let host = crate::adapter::release_target(&current)
+        .context("bump-member must run on a pinned target so it can prove the release")?;
+    let mut proved = false;
     let mut digests = Vec::new();
     for target in current.sha256.keys() {
         let asset = next.asset_for(target);
@@ -166,9 +173,19 @@ pub fn bump(path: &Path, tag: Option<&str>) -> Result<Outcome> {
                 next.sums_asset
             );
         }
+        if target == host {
+            crate::adapter::prove_release(&next, &local)?;
+            proved = true;
+        }
         digests.push((target.clone(), published));
     }
 
+    if !proved {
+        bail!(
+            "{}: the {host} release was not proved; refusing to record",
+            next.name
+        );
+    }
     let mut document: toml_edit::DocumentMut =
         original.parse().context("parse manifest for editing")?;
     document["version"] = toml_edit::value(version.clone());

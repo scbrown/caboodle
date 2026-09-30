@@ -109,7 +109,7 @@ fn release(manifest: &Manifest, tag: Option<&str>) -> Result<Release> {
 }
 
 /// Bump the manifest at `path` to the latest published release, or to `tag`.
-pub fn bump(path: &Path, tag: Option<&str>) -> Result<Outcome> {
+pub fn bump(path: &Path, tag: Option<&str>, probe_wrapper: Option<&Path>) -> Result<Outcome> {
     let original = fs::read_to_string(path).with_context(|| format!("read {}", path.display()))?;
     let current = Manifest::parse(&original)?;
     let release = release(&current, tag)?;
@@ -179,7 +179,7 @@ pub fn bump(path: &Path, tag: Option<&str>) -> Result<Outcome> {
             );
         }
         if target == host {
-            crate::adapter::prove_release(&next, &local)?;
+            crate::adapter::prove_release(&next, &local, probe_wrapper)?;
             proved = true;
         }
         digests.push((target.clone(), published));

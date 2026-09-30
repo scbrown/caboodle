@@ -72,8 +72,13 @@ fn same_file(a: &Path, b: &Path) -> bool {
 /// Probes run in a throwaway HOME, so reading an identity never touches the
 /// user's own config or store (wu, #46).
 fn identify(path: &Path, program: &Program) -> Result<()> {
+    identify_via(path, program, None)
+}
+
+/// `identify`, with the probe run through `wrapper` when one is given.
+fn identify_via(path: &Path, program: &Program, wrapper: Option<&Path>) -> Result<()> {
     let root = tempfile::tempdir().context("create identity probe root")?;
-    let out = hermetic_command(root.path(), path)?
+    let out = hermetic_command(root.path(), wrapper, path)?
         .args(&program.identity_argv)
         .output()
         .with_context(|| format!("cannot run {} to read its identity", path.display()))?;
@@ -297,7 +302,16 @@ fn reports_version(line: &str, version: &str) -> bool {
 /// first to report `manifest.version`. A release that dropped its identity text
 /// would otherwise bump green and then fail every fleet version/verify with a
 /// foreign-program refusal that points at the wrong cause.
-pub(crate) fn prove_release(manifest: &Manifest, archive: &Path) -> Result<()> {
+///
+/// This EXECUTES an unreviewed release. `wrapper`, when given, is run as
+/// `<wrapper> <program> <args...>` for every such execution, so the caller can
+/// confine it (the unattended bump cron uses a no-network, no-home sandbox,
+/// aegis-uy26l7). caboodle itself stays platform-neutral.
+pub(crate) fn prove_release(
+    manifest: &Manifest,
+    archive: &Path,
+    wrapper: Option<&Path>,
+) -> Result<()> {
     let unpack = tempfile::tempdir().context("create release proof directory")?;
     checked(
         "tar",
@@ -316,7 +330,7 @@ pub(crate) fn prove_release(manifest: &Manifest, archive: &Path) -> Result<()> {
                 manifest.name, program.name
             )
         })?;
-        identify(&path, program).with_context(|| {
+        identify_via(&path, program, wrapper).with_context(|| {
             format!(
                 "{} {} does not answer its manifest identity; fix identity_contains in review \
                  (it must still match the oldest installed release) before bumping",
@@ -328,7 +342,7 @@ pub(crate) fn prove_release(manifest: &Manifest, archive: &Path) -> Result<()> {
         .context("release program vanished")?;
     let mut argv = vec![first.to_string_lossy().into_owned()];
     argv.extend(manifest.version_argv.iter().cloned());
-    let out = hermetic(unpack.path(), &argv).context("read the release's version")?;
+    let out = hermetic_via(unpack.path(), wrapper, &argv).context("read the release's version")?;
     let reported = String::from_utf8_lossy(&out.stdout).trim().to_owned();
     if !reports_version(&reported, &manifest.version) {
         bail!(
@@ -363,8 +377,16 @@ fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
 /// member that reads its store location from the environment would otherwise
 /// write the verify marker into the user's live store (malcolm B2).
 fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
+    hermetic_via(root, None, argv)
+}
+
+fn hermetic_via(
+    root: &Path,
+    wrapper: Option<&Path>,
+    argv: &[String],
+) -> Result<std::process::Output> {
     let (program, args) = argv.split_first().context("empty verify step")?;
-    let out = hermetic_command(root, program)?
+    let out = hermetic_command(root, wrapper, program)?
         .args(args)
         .output()
         .with_context(|| format!("run {program}"))?;
@@ -380,8 +402,19 @@ fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
 
 /// `program` with a CLEARED environment rooted at `root`: HOME and the XDG dirs
 /// inside it, PATH and the locale passed through, nothing else.
-fn hermetic_command(root: &Path, program: impl AsRef<OsStr>) -> Result<Command> {
-    let mut command = Command::new(program);
+fn hermetic_command(
+    root: &Path,
+    wrapper: Option<&Path>,
+    program: impl AsRef<OsStr>,
+) -> Result<Command> {
+    let mut command = match wrapper {
+        Some(wrapper) => {
+            let mut c = Command::new(wrapper);
+            c.arg(program);
+            c
+        }
+        None => Command::new(program),
+    };
     command.current_dir(root).env_clear();
     for var in ["PATH", "LANG", "LC_ALL", "TERM"] {
         if let Some(value) = env::var_os(var) {

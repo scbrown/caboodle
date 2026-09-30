@@ -17,6 +17,6 @@
 - [The stack](stack.md)
   - [The corpus](corpus.md)
 - [Roadmap](roadmap.md)
-  - [Proposal: qpack autoload](qpack-autoload.md)
+  - [Proposal: pendant autoload](pendant-autoload.md)
 - [The stack README standard](stack-standard.md)
 - [Docs map](docs-map.md)

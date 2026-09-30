@@ -174,7 +174,7 @@ Python producers (which currently hand-roll HTTP).
   composition, which is the governed version of the same need. Replication
   stays 🔜 until a workload demands it.
 - **Cloud index sync.** Bobbin indexes are rebuildable from source; quipu has
-  qpack + share lineage + Garage cold copies. Different mechanism, need met.
+  pendant + share lineage + Garage cold copies. Different mechanism, need met.
 - **SQL-with-`similar()` surface.** `hybrid_search` (SPARQL ∩ vector) covers
   the use case in our query language; adding SQL would be a second dialect.
 - **MLflow-style per-component tracing.** Bobbin's feedback lineage and the

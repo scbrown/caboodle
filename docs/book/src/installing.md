@@ -171,10 +171,15 @@ The normal setup path never compiles Quipu from source.
 
 `packs/` carries quipu knowledge packs for working with the stack:
 
-- `stack-map.qpack.db` — what each tool is, where it lives, and how the
+- `stack-map.pendant.db` — what each tool is, where it lives, and how the
   pieces relate.
-- `stack-operations.qpack.db` — how each repo builds, tests, and proves
+- `stack-operations.pendant.db` — how each repo builds, tests, and proves
   itself, and the git discipline that binds them.
+
+A pendant is the artifact once called a qpack (named for the khipu's pendant
+cords, each a self-contained record hanging from the primary cord). The old
+`packs/stack-map.qpack.db` and `packs/stack-operations.qpack.db` paths remain
+as symlinks to the `.pendant.db` files for one release, then go away.
 
 Each pack is an ordinary quipu SQLite store with a one-row manifest. Attach
 one to any quipu database with `quipu unpack`, or prove one with
@@ -186,14 +191,14 @@ so a rebuild without a source change is hash churn, not content).
 ### Shipping a pack from a repository
 
 Each repository can publish its graph beside its release binaries as a Quipu
-share. A `.qpack.tar.gz` release asset is a deterministic archive of the same
+share. A `.pendant.tar.gz` release asset is a deterministic archive of the same
 text bundle, not a SQLite database:
 
 ```bash
 quipu share --graph https://example.org/knowledge/repository/example \
   --db .bobbin/quipu/quipu.db --out repository-share
 tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
-  -czf repository.qpack.tar.gz -C repository-share .
+  -czf repository.pendant.tar.gz -C repository-share .
 ```
 
 Publish the archive as an immutable release asset. A clone points Quipu at the
@@ -204,6 +209,10 @@ a fresh in-memory store without a local download step:
 quipu import \
   https://github.com/scbrown/quipu/releases/download/quipu-ai-v0.3.29/quipu-quipu-ai-v0.3.29-repository.qpack.tar.gz
 ```
+
+That URL keeps its old name on purpose: releases cut before the rename publish
+the asset as `*-repository.qpack.tar.gz`. Newer releases publish
+`*-repository.pendant.tar.gz`, and for one release both names.
 
 For a modified graph, `quipu share --since <parent-share> --out <delta-dir>`
 writes a parent-bound SPARQL 1.1 Update delta. Import rejects a wrong parent,

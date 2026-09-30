@@ -42,4 +42,46 @@ fn main() {
         .or_else(|| own_checkout().and_then(|()| git(&["rev-parse", "--short=12", "HEAD"])))
         .unwrap_or_else(|| "unknown".to_owned());
     println!("cargo:rustc-env=CABOODLE_GIT_SHA={sha}");
+    embed_members();
+}
+
+/// Embed every stack-member manifest (aegis-1i5h1j C1). A member is DATA: adding
+/// one is a reviewed `members/<name>.toml`, never a Rust match arm. Embedded at
+/// build time so the pinned version and digests are those this caboodle build
+/// was reviewed with, not whatever a runtime directory holds.
+fn embed_members() {
+    let root = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    let mut dirs = vec![root.join("members")];
+    if std::env::var_os("CARGO_FEATURE_FIXTURE_MEMBERS").is_some() {
+        // A test-only member must never reach a user's machine, e.g. through
+        // `cargo install --all-features`.
+        assert!(
+            std::env::var("PROFILE").as_deref() != Ok("release"),
+            "the fixture-members feature is for tests only and refuses a release build"
+        );
+        dirs.push(root.join("tests/fixtures/members"));
+    }
+    let mut entries = Vec::new();
+    for dir in &dirs {
+        println!("cargo:rerun-if-changed={}", dir.display());
+        let Ok(read) = std::fs::read_dir(dir) else {
+            continue;
+        };
+        let mut files: Vec<_> = read
+            .filter_map(Result::ok)
+            .map(|e| e.path())
+            .filter(|p| p.extension().is_some_and(|x| x == "toml"))
+            .collect();
+        files.sort();
+        for f in files {
+            println!("cargo:rerun-if-changed={}", f.display());
+            entries.push(format!(
+                "    include_str!({:?}),\n",
+                f.display().to_string()
+            ));
+        }
+    }
+    let out =
+        std::path::PathBuf::from(std::env::var("OUT_DIR").unwrap()).join("members_embedded.rs");
+    std::fs::write(out, format!("&[\n{}]", entries.concat())).unwrap();
 }

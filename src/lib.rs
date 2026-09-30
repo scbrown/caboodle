@@ -7,6 +7,7 @@ pub mod emission;
 pub mod engine;
 pub mod hook_bundles;
 pub mod interview;
+pub mod members;
 pub mod model;
 pub mod observability;
 pub mod projection;

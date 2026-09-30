@@ -48,6 +48,7 @@ fn contract(tool: ToolName) -> Contract<'static> {
             "desire-path",
             "no metrics endpoint in the pinned source revision",
         ),
+        ToolName::Member(name) => unavailable(name, "a stack member declares no metrics contract"),
     }
 }
 

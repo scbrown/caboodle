@@ -62,6 +62,11 @@ expected = "fixture-result"
 }
 
 fn install_fakes(root: &Path, bin: &Path) {
+    // The fixture stack member (fixture-members feature, aegis-1i5h1j) joins the
+    // everything profile. Put its REAL program from the committed release on
+    // PATH, so profile tests run its real hermetic verify.
+    #[cfg(feature = "fixture-members")]
+    install_fixture_member(bin);
     fake_tool(
         bin,
         "quipu",
@@ -1066,6 +1071,25 @@ tools = ["quipu", "camayoc", "bobbin"]
         .failure()
         .stderr(predicate::str::contains(
             "declared ownership/routing contract",
+        ));
+}
+
+#[test]
+fn a_plan_naming_an_unknown_member_is_refused_by_name() {
+    // wu M1: a member a later caboodle removed must refuse with a named message.
+    let root = tempfile::tempdir().unwrap();
+    fs::write(
+        root.path().join("removed.toml"),
+        "schema_version = 1\nprofile = \"everything\"\ntools = [\"quipu\", \"retired-member\"]\n",
+    )
+    .unwrap();
+    command(root.path(), root.path())
+        .args(["apply", "--plan", "removed.toml", "--skip-install"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("unknown tool 'retired-member'"))
+        .stderr(predicate::str::contains(
+            "stack member of this caboodle build",
         ));
 }
 
@@ -2540,4 +2564,26 @@ fn version_names_the_commit() {
         .split_once(" (")
         .expect("version carries a commit");
     assert!(rest.ends_with(')') && rest.len() > 1, "{text}");
+}
+
+/// The fixture member's program, extracted from the committed, digest-pinned
+/// release tarball, onto `bin`.
+#[cfg(feature = "fixture-members")]
+fn install_fixture_member(bin: &Path) {
+    let archive = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/releases/fixture-demo-v0.1.0-x86_64-unknown-linux-gnu.tar.gz");
+    let unpack = tempfile::tempdir().unwrap();
+    let status = std::process::Command::new("tar")
+        .arg("-xzf")
+        .arg(&archive)
+        .arg("-C")
+        .arg(unpack.path())
+        .status()
+        .unwrap();
+    assert!(status.success());
+    std::fs::copy(
+        unpack.path().join("fixture-demo-0.1.0/fixture-demo"),
+        bin.join("fixture-demo"),
+    )
+    .unwrap();
 }

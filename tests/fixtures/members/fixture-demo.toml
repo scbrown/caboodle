@@ -1,0 +1,29 @@
+# Test-only stack member (compiled in only with the fixture-members feature).
+# Its release asset is the committed tests/fixtures/releases tarball, pinned here.
+name = "fixture-demo"
+kind = "rust-release"
+repo = "caboodle-fixtures/fixture-demo"
+version = "0.1.0"
+tag = "v{version}"
+asset = "fixture-demo-{tag}-{target}.tar.gz"
+version_argv = ["--version"]
+profiles = ["everything"]
+
+[sha256]
+x86_64-unknown-linux-gnu = "fed1b561c5010139a3049641c980b26f3e2da8d743e71c086913731bf3dc342c"
+
+[[programs]]
+name = "fixture-demo"
+identity_argv = ["--help"]
+identity_contains = "fixture-demo is the caboodle fixture stack member"
+
+[[verify]]
+argv = ["fixture-demo", "list"]
+absent = "{marker}"
+
+[[verify]]
+argv = ["fixture-demo", "add", "{marker}"]
+
+[[verify]]
+argv = ["fixture-demo", "list"]
+present = "{marker}"

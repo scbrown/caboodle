@@ -235,7 +235,7 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     }
     #[cfg(unix)]
     if let Some(mcp) = &plan.quipu_mcp {
-        let outcome = crate::quipu_mcp::provision(&mcp.url)
+        let outcome = crate::quipu_mcp::provision(&mcp.url, mcp.token_file.as_deref())
             .context("quipu MCP registration step (headersHelper)")?;
         println!("quipu mcp: {outcome}");
     }
@@ -409,8 +409,11 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     }
     #[cfg(unix)]
     if let Some(mcp) = &plan.quipu_mcp {
-        crate::quipu_mcp::verify(&mcp.url)
+        let notes = crate::quipu_mcp::verify(&mcp.url)
             .context("quipu MCP authenticated-write probe (headersHelper)")?;
+        for note in notes {
+            println!("quipu mcp: {note}");
+        }
         println!("quipu mcp: authenticated MCP write reached Quipu's parser; unauthenticated control was refused");
     }
     if let Some(selection) = &plan.crew {

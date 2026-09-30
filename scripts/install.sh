@@ -53,3 +53,12 @@ chmod 0755 "$staged"
 mv "$staged" "$install_dir/caboodle"
 "$install_dir/caboodle" --version
 printf '%s\n' "installed $install_dir/caboodle"
+
+# A different caboodle earlier on PATH keeps running instead of this one, and a
+# same-version string cannot tell the two apart (aegis-nvw6ye.1). Say so.
+resolved=$(command -v caboodle 2>/dev/null || true)
+if [ -n "$resolved" ] && ! [ "$resolved" -ef "$install_dir/caboodle" ]; then
+    printf '%s\n' "WARNING: \`caboodle\` on PATH is $resolved ($("$resolved" --version 2>&1 | head -n 1)), not the copy just installed at $install_dir/caboodle. Remove the stale copy or put $install_dir earlier on PATH." >&2
+elif [ -z "$resolved" ]; then
+    printf '%s\n' "note: $install_dir is not on PATH; add it to run \`caboodle\`" >&2
+fi

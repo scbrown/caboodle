@@ -119,8 +119,16 @@ it at connect time. It reads the token with the precedence above and prints the
 `claude mcp add-json`. The secret is written into neither the helper nor the
 Claude configuration. Re-running is a no-op. A differing user-scope `quipu`
 entry, including one without a `headersHelper`, is replaced, and the output says
-so. A running Claude Code session keeps its old connection until `/mcp`
-reconnects it.
+so. If registering the new entry fails after the old one was removed, the old
+entry is put back. A running Claude Code session keeps its old connection until
+`/mcp` reconnects it.
+
+Claude Code runs the helper in its own environment, which may not carry the
+token variables. If this host's token file is not `~/.config/quipu/token`, give
+its path with `--quipu-mcp-token-file`. `plan` also takes it from
+`QUIPU_AUTH_TOKEN_FILE` when that is set. The path, never the token, is recorded
+in the plan and becomes the helper's default. `QUIPU_AUTH_TOKEN` and
+`QUIPU_AUTH_TOKEN_FILE` still take precedence when Claude Code has them.
 
 `verify` fails if the user-scope entry is missing, differs from the plan or has
 no `headersHelper`. It also fails if a local-scope `quipu` entry without one
@@ -128,4 +136,7 @@ shadows it. It then sends an invalid-Turtle `quipu_knot` call to `/mcp`, first
 without a credential as a control, which must be refused. It sends it again
 with the helper's header, which must reach Quipu's parser. Nothing is written.
 A server that accepts the unauthenticated control reports UNKNOWN, because it
-cannot show that the helper works.
+cannot show that the helper works. Verify runs in your shell, not in Claude
+Code. If the helper finds a token only through a variable set in that shell, it
+warns that Claude Code must see the same variable. Re-plan with
+`--quipu-mcp-token-file` if Claude Code will not see it.

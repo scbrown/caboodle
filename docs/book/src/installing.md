@@ -31,6 +31,13 @@ Supported release targets are Linux x86_64, macOS x86_64, and macOS arm64.
 The default destination is `${CARGO_HOME:-$HOME/.cargo}/bin/caboodle`; override
 it with `CABOODLE_INSTALL_DIR` when that directory is managed elsewhere.
 
+`caboodle --version` prints the release version and the commit it was built
+from, for example `caboodle 0.2.3 (1a2b3c4d5e6f)`. Two builds of one release
+can then be told apart. The installer warns when a different `caboodle` comes
+earlier on PATH than the one it just installed, and `caboodle doctor` warns when
+PATH runs a different build from the one you invoked. Remove the stale copy or
+reorder PATH.
+
 ## Source install
 
 A Rust toolchain can install the reviewed revision directly:
@@ -268,7 +275,9 @@ interruption-recovery controls to Caboodle itself. Its post-install contract
 requires the new binary's version and `update-release --help` to answer correctly.
 Use `update-self --check` to inspect metadata. Bootstrap from a published release
 before scheduling this command; a same-version source build with different bytes
-is deliberately refused rather than silently overwritten.
+is deliberately refused rather than silently overwritten. It replaces the copy
+PATH runs; when you invoke a different copy by its full path, it says that copy
+was not changed.
 
 ## Installed files
 

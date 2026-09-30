@@ -427,6 +427,20 @@ fn update_binary(
         release.tag_name,
         backup.display()
     );
+    // Self-update replaces the copy PATH runs. If this process is a different
+    // copy (run by full path), it stays at its old build: say so (aegis-nvw6ye.1).
+    if tool.is_none() {
+        if let Ok(current) = env::current_exe() {
+            let canonical = |p: &Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
+            if canonical(&current) != canonical(&destination) {
+                println!(
+                    "caboodle: note: updated {} (the copy PATH runs); this binary {} was NOT changed",
+                    destination.display(),
+                    current.display()
+                );
+            }
+        }
+    }
     Ok(())
 }
 

@@ -228,6 +228,36 @@ pub struct Plan {
     pub intent: Option<InstallIntent>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub embedding_model: Option<crate::embedding::EmbeddingModel>,
+    /// Register Quipu's MCP endpoint with Claude Code through a headersHelper
+    /// that reads the token at connect time (aegis-nvw6ye). Opt-in because it
+    /// changes the user's Claude configuration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub quipu_mcp: Option<QuipuMcp>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct QuipuMcp {
+    /// The Quipu server (or its `/mcp` endpoint). Never a credential.
+    pub url: String,
+}
+
+impl QuipuMcp {
+    fn validate(&self) -> Result<()> {
+        require_safe_text("quipu_mcp.url", &self.url)?;
+        let rest = self
+            .url
+            .strip_prefix("https://")
+            .or_else(|| self.url.strip_prefix("http://"))
+            .ok_or_else(|| anyhow::anyhow!("quipu_mcp.url must be an http:// or https:// URL"))?;
+        let authority = rest.split('/').next().unwrap_or("");
+        if authority.is_empty() || authority.contains('@') || self.url.contains(['?', '#', ' ']) {
+            bail!(
+                "quipu_mcp.url must be a plain server URL with no credentials, query or fragment"
+            );
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -424,6 +454,7 @@ impl Plan {
             crew: None,
             intent: None,
             embedding_model: None,
+            quipu_mcp: None,
         }
     }
 
@@ -484,6 +515,12 @@ impl Plan {
         }
         if let Some(model) = &self.embedding_model {
             model.validate()?;
+        }
+        if let Some(mcp) = &self.quipu_mcp {
+            if !self.tools.contains(&ToolName::Quipu) {
+                bail!("[quipu_mcp] requires a profile that installs quipu");
+            }
+            mcp.validate()?;
         }
         match (self.profile, &self.crew) {
             (Profile::Crew, Some(crew)) => crew.validate()?,

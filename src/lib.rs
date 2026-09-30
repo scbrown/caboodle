@@ -15,3 +15,5 @@ pub mod projection;
 pub mod release_update;
 
 mod quipu_auth;
+#[cfg(unix)]
+pub mod quipu_mcp;

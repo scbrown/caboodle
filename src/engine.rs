@@ -233,6 +233,12 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             println!("embedding-model {}: {outcome}", artifact.name);
         }
     }
+    #[cfg(unix)]
+    if let Some(mcp) = &plan.quipu_mcp {
+        let outcome = crate::quipu_mcp::provision(&mcp.url)
+            .context("quipu MCP registration step (headersHelper)")?;
+        println!("quipu mcp: {outcome}");
+    }
     if let Some(selection) = &plan.crew {
         crew::apply(selection, &mut state, skip_install)?;
         state.write(state_path)?;
@@ -400,6 +406,12 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
             )?;
             println!("embedding-model {}: digest re-checked", artifact.name);
         }
+    }
+    #[cfg(unix)]
+    if let Some(mcp) = &plan.quipu_mcp {
+        crate::quipu_mcp::verify(&mcp.url)
+            .context("quipu MCP authenticated-write probe (headersHelper)")?;
+        println!("quipu mcp: authenticated MCP write reached Quipu's parser; unauthenticated control was refused");
     }
     if let Some(selection) = &plan.crew {
         crew::verify(selection, evidence, &mut state)?;

@@ -104,3 +104,28 @@ accepted authorization, missing token, rejected token, read-only server, or an
 unknown write path (including no HTTP response). This is authorization evidence,
 not a successful storage commit. `caboodle verify` separately exercises installed
 tools in isolated scratch stores.
+
+## Quipu MCP for Claude Code
+
+A Claude Code MCP entry for Quipu that holds only a URL sends no bearer. Reads
+work and every MCP write is refused with `missing_or_invalid_bearer_token`.
+`caboodle plan --quipu-mcp-url <server>` adds a reviewable `[quipu_mcp]` step.
+That step changes your Claude Code configuration, so it is opt-in.
+
+`apply` installs `~/.local/bin/quipu-mcp-headers` (mode 0755). Claude Code runs
+it at connect time. It reads the token with the precedence above and prints the
+`Authorization` header. `apply` then registers the user-scope entry
+`{"type":"http","url":"<server>/mcp","headersHelper":"<helper>"}` through
+`claude mcp add-json`. The secret is written into neither the helper nor the
+Claude configuration. Re-running is a no-op. A differing user-scope `quipu`
+entry, including one without a `headersHelper`, is replaced, and the output says
+so. A running Claude Code session keeps its old connection until `/mcp`
+reconnects it.
+
+`verify` fails if the user-scope entry is missing, differs from the plan or has
+no `headersHelper`. It also fails if a local-scope `quipu` entry without one
+shadows it. It then sends an invalid-Turtle `quipu_knot` call to `/mcp`, first
+without a credential as a control, which must be refused. It sends it again
+with the helper's header, which must reach Quipu's parser. Nothing is written.
+A server that accepts the unauthenticated control reports UNKNOWN, because it
+cannot show that the helper works.

@@ -2112,3 +2112,241 @@ fn release_download_recovery_never_retries_a_checksum_mismatch() {
     assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
     assert!(!root.path().join(".caboodle/state.json").exists());
 }
+
+/// aegis-nvw6ye: Quipu MCP writes must carry a bearer supplied by a
+/// headersHelper, never a secret stored in the Claude configuration.
+fn quipu_mcp_fixture(root: &Path, bin: &Path) {
+    install_fakes(root, bin);
+    fs::rename(bin.join("curl"), bin.join("curl.fixture")).unwrap();
+    fake_tool(
+        bin,
+        "curl",
+        r#"
+case "$*" in *"/mcp"*) ;; *) exec "$(dirname "$0")/curl.fixture" "$@" ;; esac
+out=''; config=''; previous=''
+for arg do
+  if [ "$previous" = --output ]; then out=$arg; fi
+  if [ "$previous" = --config ]; then config=$arg; fi
+  previous=$arg
+done
+refused='data: {"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","text":"{\"error\":\"unauthorized\",\"reason\":\"missing_or_invalid_bearer_token\"}"}],"isError":true}}'
+parsed='data: {"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","text":"{\"error\":\"RDF parse error: fixture\"}"}],"isError":true}}'
+if [ "${FAKE_MCP_OPEN:-}" = 1 ]; then printf '%s\n' "$parsed" > "$out"
+elif [ -n "$config" ] && grep -q 'Bearer good-token"' "$config"; then printf '%s\n' "$parsed" > "$out"
+else printf '%s\n' "$refused" > "$out"; fi
+"#,
+    );
+    fake_tool(
+        bin,
+        "claude",
+        r#"
+printf '%s\n' "$*" >> "$HOME/claude.log"
+if [ "$1 $2" = "mcp add-json" ]; then printf '{"mcpServers":{"%s":%s}}\n' "$3" "$4" > "$HOME/.claude.json"; exit 0; fi
+if [ "$1 $2" = "mcp remove" ]; then printf '{"mcpServers":{}}\n' > "$HOME/.claude.json"; exit 0; fi
+exit 2
+"#,
+    );
+    fs::create_dir_all(root.join(".config/quipu")).unwrap();
+    fs::write(root.join(".config/quipu/token"), "good-token\n").unwrap();
+}
+
+#[test]
+fn quipu_mcp_install_provisions_a_headers_helper_and_verify_proves_the_write() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    // The Mac's broken state: a direct entry with no headersHelper.
+    fs::write(
+        root.path().join(".claude.json"),
+        r#"{"mcpServers":{"quipu":{"type":"http","url":"http://quipu.example/mcp"}}}"#,
+    )
+    .unwrap();
+
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains("[quipu_mcp]"), "{plan}");
+
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("had no headersHelper"))
+        .stdout(predicate::str::contains(
+            "quipu mcp: authenticated MCP write reached",
+        ));
+
+    let helper = root.path().join(".local/bin/quipu-mcp-headers");
+    let mode = fs::metadata(&helper).unwrap().permissions().mode() & 0o777;
+    assert_eq!(mode, 0o755);
+    let config: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(root.path().join(".claude.json")).unwrap())
+            .unwrap();
+    assert_eq!(
+        config["mcpServers"]["quipu"]["url"],
+        "http://quipu.example/mcp"
+    );
+    assert_eq!(
+        config["mcpServers"]["quipu"]["headersHelper"],
+        helper.to_str().unwrap()
+    );
+    // The secret is in neither file.
+    for path in [
+        &helper,
+        &root.path().join(".claude.json"),
+        &root.path().join("caboodle-plan.toml"),
+    ] {
+        assert!(
+            !fs::read_to_string(path).unwrap().contains("good-token"),
+            "{}",
+            path.display()
+        );
+    }
+
+    // Idempotent: a second apply registers nothing.
+    let adds = |root: &Path| {
+        fs::read_to_string(root.join("claude.log"))
+            .unwrap()
+            .lines()
+            .filter(|l| l.starts_with("mcp add-json"))
+            .count()
+    };
+    assert_eq!(adds(root.path()), 1);
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("quipu mcp: already provisioned"));
+    assert_eq!(adds(root.path()), 1);
+}
+
+#[test]
+fn quipu_mcp_verify_fails_when_the_headers_helper_is_removed() {
+    // The bead's success metric: verify must go red, not stay green, when the
+    // entry reverts to a bare URL.
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success();
+    fs::write(
+        root.path().join(".claude.json"),
+        r#"{"mcpServers":{"quipu":{"type":"http","url":"http://quipu.example/mcp"}}}"#,
+    )
+    .unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "FAIL: the user-scope quipu MCP entry has no headersHelper",
+        ));
+
+    // A shadowing local-scope entry without the helper is also red.
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success();
+    let mut config: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(root.path().join(".claude.json")).unwrap())
+            .unwrap();
+    config["projects"] = serde_json::json!({"/work": {"mcpServers": {"quipu": {"type": "http", "url": "http://quipu.example/mcp"}}}});
+    fs::write(root.path().join(".claude.json"), config.to_string()).unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "local scope for /work has no headersHelper",
+        ));
+}
+
+#[test]
+fn quipu_mcp_verify_fails_on_a_refused_token_and_is_unknown_without_a_control() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success();
+
+    fs::write(root.path().join(".config/quipu/token"), "wrong-token\n").unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .failure()
+        .stderr(
+            predicate::str::contains("FAIL:").and(predicate::str::contains(
+                "refused the headersHelper's bearer",
+            )),
+        );
+
+    fs::write(root.path().join(".config/quipu/token"), "good-token\n").unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .env("FAKE_MCP_OPEN", "1")
+        .assert()
+        .failure()
+        .stderr(
+            predicate::str::contains("UNKNOWN:").and(predicate::str::contains("NO credential")),
+        );
+
+    fs::remove_file(root.path().join(".config/quipu/token")).unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("FAIL:").and(predicate::str::contains("no Quipu token")));
+}
+
+#[test]
+fn quipu_mcp_plan_refuses_credentials_in_the_url() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    for bad in [
+        "http://user:secret@quipu.example",
+        "quipu.example",
+        "http://quipu.example/mcp?token=x",
+    ] {
+        command(root.path(), &bin)
+            .args(["plan", "--profile", "retrieval", "--quipu-mcp-url", bad])
+            .assert()
+            .failure();
+    }
+}

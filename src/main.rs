@@ -61,6 +61,10 @@ enum Commands {
         /// Checksum-pinned embedding-model artifact spec copied into the plan
         #[arg(long)]
         embedding_model: Option<PathBuf>,
+        /// Register this Quipu server's MCP endpoint with Claude Code through a
+        /// headersHelper that reads the token at connect time (no secret in config)
+        #[arg(long)]
+        quipu_mcp_url: Option<String>,
     },
     /// Converge installed tools and prove each binary by version read-back
     Apply {
@@ -297,6 +301,7 @@ fn main() -> Result<()> {
             quipu_db,
             quipu_flavor,
             embedding_model,
+            quipu_mcp_url,
         } => {
             let profile = Profile::from(profile);
             let crew: CrewMode = crew.into();
@@ -315,6 +320,7 @@ fn main() -> Result<()> {
             if let Some(spec) = embedding_model {
                 plan.embedding_model = Some(EmbeddingModel::read(&spec)?);
             }
+            plan.quipu_mcp = quipu_mcp_url.map(|url| caboodle::model::QuipuMcp { url });
             plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());

@@ -121,7 +121,7 @@ The table covers the current source tree; published binaries may lag new command
 |---|---|
 | `doctor` | Read-only preflight; `--plan`. |
 | `init` | Interview; `--guided`, `--output`, `--session`. |
-| `plan` | Write selection; `--profile`, `--crew`, `--intent`, `--output`, `--share`, `--quipu-db`, `--quipu-flavor`, `--embedding-model`. |
+| `plan` | Write selection; `--profile`, `--crew`, `--intent`, `--output`, `--share`, `--quipu-db`, `--quipu-flavor`, `--embedding-model`, `--quipu-mcp-url`. |
 | `apply` | Install; `--plan`, `--state`, `--skip-install`. |
 | `verify` | Functional proof; `--plan`, `--state`, `--creel-doctor`, `--creel-admission`. |
 | `install` | Apply then verify; all apply and verify options. |

@@ -138,6 +138,17 @@ enum Commands {
         #[arg(long)]
         check: bool,
     },
+    /// Maintainers: re-pin a stack member manifest to its published release,
+    /// recording the digests the release publishes after hashing each asset
+    /// (review and merge the result; installs never read the release's sums)
+    #[cfg(unix)]
+    BumpMember {
+        /// The manifest to rewrite, e.g. members/seeds.toml
+        manifest: PathBuf,
+        /// Release tag to pin instead of the latest stable release
+        #[arg(long)]
+        tag: Option<String>,
+    },
     /// Track a published binary release for one tool in an existing reviewed plan
     #[cfg(unix)]
     UpdateRelease {
@@ -409,6 +420,26 @@ fn main() -> Result<()> {
         #[cfg(unix)]
         Commands::UpdateSelf { state, check } => {
             caboodle::release_update::update_self(&state, check)?;
+        }
+        #[cfg(unix)]
+        Commands::BumpMember { manifest, tag } => {
+            match caboodle::member_bump::bump(&manifest, tag.as_deref())? {
+                caboodle::member_bump::Outcome::Current { version } => {
+                    println!(
+                        "{}: already pins {version}; nothing written",
+                        manifest.display()
+                    );
+                }
+                caboodle::member_bump::Outcome::Bumped { from, to, digests } => {
+                    println!("{}: {from} -> {to}", manifest.display());
+                    for (target, digest) in digests {
+                        println!("  {target} {digest}");
+                    }
+                    println!(
+                        "review the diff and open a PR; it ships in the next caboodle release"
+                    );
+                }
+            }
         }
         #[cfg(unix)]
         Commands::UpdateRelease {

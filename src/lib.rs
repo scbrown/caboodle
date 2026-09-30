@@ -7,6 +7,8 @@ pub mod emission;
 pub mod engine;
 pub mod hook_bundles;
 pub mod interview;
+#[cfg(unix)]
+pub mod member_bump;
 pub mod members;
 pub mod model;
 pub mod observability;

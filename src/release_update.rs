@@ -30,7 +30,7 @@ struct Asset {
     name: String,
 }
 
-fn stable_version(raw: &str) -> Result<(u64, u64, u64)> {
+pub(crate) fn stable_version(raw: &str) -> Result<(u64, u64, u64)> {
     let raw = raw.strip_prefix('v').unwrap_or(raw);
     let values: Vec<_> = raw.split('.').collect();
     if values.len() != 3
@@ -116,20 +116,20 @@ fn names(
     })
 }
 
-fn text(program: &str, args: &[&str]) -> Result<String> {
+pub(crate) fn text(program: &str, args: &[&str]) -> Result<String> {
     Ok(String::from_utf8(checked(program, args, None)?.stdout)?
         .trim()
         .to_owned())
 }
 
-fn hash(path: &Path) -> Result<String> {
+pub(crate) fn hash(path: &Path) -> Result<String> {
     let mut file = fs::File::open(path)?;
     let mut hasher = Sha256::new();
     std::io::copy(&mut file, &mut hasher)?;
     Ok(format!("{:x}", hasher.finalize()))
 }
 
-fn checksum(body: &str, archive: &str) -> Result<String> {
+pub(crate) fn checksum(body: &str, archive: &str) -> Result<String> {
     let candidates: Vec<_> = body
         .lines()
         .filter_map(|line| {

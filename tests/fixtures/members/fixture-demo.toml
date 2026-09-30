@@ -7,6 +7,7 @@ version = "0.1.0"
 tag = "v{version}"
 asset = "fixture-demo-{tag}-{target}.tar.gz"
 version_argv = ["--version"]
+sums_asset = "SHA256SUMS.txt"
 profiles = ["everything"]
 
 [sha256]

@@ -68,6 +68,10 @@ pub struct Manifest {
     /// Recorded lowercase-hex SHA-256 of the asset, per target triple. Install
     /// verifies against THIS, never against a checksum file fetched at install.
     pub sha256: BTreeMap<String, String>,
+    /// The release asset listing every asset's SHA-256, e.g. `SHA256SUMS.txt`.
+    /// Read only by `bump-member`, which records its digests here for review;
+    /// install never trusts it (wu M2).
+    pub sums_asset: String,
     pub programs: Vec<Program>,
     /// Arguments printing the installed version.
     pub version_argv: Vec<String>,
@@ -94,6 +98,13 @@ impl Manifest {
         self.tag.replace("{version}", &self.version)
     }
 
+    /// Parse and validate one manifest's text.
+    pub fn parse(text: &str) -> Result<Self> {
+        let m: Manifest = toml::from_str(text).context("invalid member manifest")?;
+        m.validate()?;
+        Ok(m)
+    }
+
     fn validate(&self) -> Result<()> {
         let safe = |s: &str| {
             !s.is_empty()
@@ -109,6 +120,13 @@ impl Manifest {
         // Both are substituted into the download URL (malcolm N4).
         if !safe(&self.version) || !safe(&self.tag.replace("{version}", &self.version)) {
             bail!("{}: version and tag must be safe names", self.name);
+        }
+        // bump-member recovers the version from a release tag through this.
+        if self.tag.matches("{version}").count() != 1 {
+            bail!("{}: tag must contain {{version}} exactly once", self.name);
+        }
+        if !safe(&self.sums_asset) {
+            bail!("{}: sums_asset must be a safe name", self.name);
         }
         if self.repo.split('/').count() != 2 || !self.repo.split('/').all(safe) {
             bail!("{}: repo must be owner/name", self.name);
@@ -190,8 +208,7 @@ const EMBEDDED: &[&str] = include!(concat!(env!("OUT_DIR"), "/members_embedded.r
 fn parse_all() -> Result<Vec<Manifest>> {
     let mut out: Vec<Manifest> = Vec::new();
     for text in EMBEDDED {
-        let m: Manifest = toml::from_str(text).context("invalid member manifest")?;
-        m.validate()?;
+        let m = Manifest::parse(text)?;
         if out.iter().any(|o| o.name == m.name) {
             bail!("duplicate member '{}'", m.name);
         }
@@ -270,6 +287,7 @@ version = "1.2.3"
 tag = "demo-v{{version}}"
 asset = "demo-{{tag}}-{{target}}.tar.gz"
 version_argv = ["--version"]
+sums_asset = "SHA256SUMS.txt"
 [sha256]
 x86_64-unknown-linux-gnu = "{}"
 [[programs]]

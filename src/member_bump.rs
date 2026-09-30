@@ -60,6 +60,11 @@ fn version_of(manifest: &Manifest, tag: &str) -> Result<String> {
                 manifest.tag
             )
         })?;
+    // A tag `vv1.2.3` under `v{version}` would otherwise record `v1.2.3`
+    // (malcolm N2): the recovered version must itself start with a digit.
+    if !version.starts_with(|c: char| c.is_ascii_digit()) {
+        bail!("release tag {tag:?} carries version {version:?}, which does not start with a digit");
+    }
     stable_version(version)?;
     Ok(version.to_owned())
 }
@@ -210,6 +215,8 @@ pub fn bump(path: &Path, tag: Option<&str>) -> Result<Outcome> {
         .unwrap_or(Path::new("."));
     let staged = tempfile::NamedTempFile::new_in(dir)?;
     fs::write(staged.path(), &written)?;
+    // NamedTempFile is 0600; keep the reviewed file's own mode (malcolm N1).
+    fs::set_permissions(staged.path(), fs::metadata(path)?.permissions())?;
     staged
         .persist(path)
         .map_err(|e| e.error)
@@ -262,6 +269,7 @@ present = "{{marker}}"
         assert_eq!(version_of(&m, "seeds-ai-v0.0.3").unwrap(), "0.0.3");
         assert!(version_of(&m, "v0.0.3").is_err());
         assert!(version_of(&m, "seeds-ai-v0.0.3-rc1").is_err());
+        assert!(version_of(&manifest("v{version}"), "vv1.2.3").is_err());
         assert_eq!(
             version_of(&manifest("v{version}"), "v2.0.0").unwrap(),
             "2.0.0"

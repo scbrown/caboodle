@@ -1,0 +1,41 @@
+# seeds: the beads-compatible work tracker for the quipu stack (`sd`), aegis-1i5h1j.
+# Digests are the published SHA256SUMS.txt lines for seeds-ai-v0.0.2, each
+# re-derived by downloading and hashing the asset (all four matched). Bump with
+# `caboodle bump-member members/seeds.toml`; never edit a digest by hand.
+name = "seeds"
+kind = "rust-release"
+repo = "scbrown/seeds"
+version = "0.0.2"
+tag = "seeds-ai-v{version}"
+asset = "sd-{tag}-{target}.tar.gz"
+version_argv = ["--version"]
+sums_asset = "SHA256SUMS.txt"
+profiles = ["crew", "everything"]
+
+[sha256]
+aarch64-apple-darwin = "eb7280d35a9fd301df8c17ea12e2455e9bb1fcfd0e2d4d3c9196b76ecfdf0bbb"
+aarch64-unknown-linux-gnu = "5f085133ddfecbfe575022c51db779e09727962be1775c3959fbf3672c46cb8b"
+x86_64-apple-darwin = "eaacf0e9998f51bfaf51ab1114f1fb22d56101928ead792c67f68480335084a9"
+x86_64-unknown-linux-gnu = "22d51da8cd0faaf5d36936050039dd269e680aa10f3a8a96a11920223be5b67e"
+
+# `sd` also names chmln/sd (find and replace). Identity is the --help text, which
+# every released seeds carries ("seeds is the beads-compatible tracker ..."),
+# not the "(seeds)" version suffix, which only releases after 0.0.2 print: the
+# identity must match the OLDEST installed seeds or its first upgrade is refused.
+[[programs]]
+name = "sd"
+identity_argv = ["--help"]
+identity_contains = "seeds is the beads-compatible tracker"
+
+# In the hermetic root, sd uses a local store at ./.seeds/seeds.db (created on
+# the first write), so nothing touches the user's ledger or config.
+[[verify]]
+argv = ["sd", "list", "--all"]
+absent = "{marker}"
+
+[[verify]]
+argv = ["sd", "create", "{marker}"]
+
+[[verify]]
+argv = ["sd", "list", "--all"]
+present = "{marker}"

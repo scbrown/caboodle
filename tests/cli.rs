@@ -162,6 +162,23 @@ done
 exit 2
 "#,
     );
+    // seeds (members/seeds.toml): the crew and everything profiles select it,
+    // so every plan for them installs and verifies `sd`. Identity comes from
+    // --help and the version from --version, exactly as the manifest reads them;
+    // list/create keep the verify marker in a file in the hermetic root.
+    fake_tool(
+        bin,
+        "sd",
+        r#"
+case "${1:-}" in
+  --help) echo 'seeds is the beads-compatible tracker for the quipu stack (test)'; exit 0 ;;
+  --version) echo 'sd 0.0.2'; exit 0 ;;
+  create) printf '%s\n' "$2" >> .sd-fake-seeds; echo "created $2"; exit 0 ;;
+  list) cat .sd-fake-seeds 2>/dev/null || echo 'no matching seeds'; exit 0 ;;
+esac
+exit 2
+"#,
+    );
     fake_tool(
         bin,
         "curl",

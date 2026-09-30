@@ -3,7 +3,7 @@
 # Rebuild the stack knowledge packs in packs/ from their Turtle sources in
 # packs/src/.
 #
-# A .qpack.db is an ordinary quipu SQLite store with a one-row pack_manifest
+# A .pendant.db is an ordinary quipu SQLite store with a one-row pack_manifest
 # table — the checked-in packs are the built artifact, this script is what
 # makes them regenerable rather than hand-blessed. The Turtle sources are the
 # review surface; the packs are what `quipu unpack` consumes.
@@ -35,7 +35,7 @@ build_pack() {
     name=$1
     graph="https://caboodle.dev/graph/$name"
     src="$src_dir/$name.ttl"
-    out="$out_dir/$name.qpack.db"
+    out="$out_dir/$name.pendant.db"
     test -f "$src" || { printf '%s\n' "missing source: $src" >&2; exit 1; }
 
     # knot writes to the scratch store's ROOT; graph import lifts that ROOT

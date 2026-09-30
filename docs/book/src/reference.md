@@ -129,6 +129,7 @@ The table covers the current source tree; published binaries may lag new command
 | `update` | Converge reviewed pins; `--plan`, `--state`, `--creel-doctor`, `--creel-admission`. |
 | `update-release` | Unix published release update; `--tool`, `--check`, `--plan`, `--state`. |
 | `update-self` | Unix self-update; `--check`, `--state`. |
+| `bump-member` | Maintainers: re-pin a `members/*.toml` to its published release; manifest argument, `--tag`. |
 | `project-settings` | Rig registration; `--root`, `--agent`, `--registry`; or `--policy-only` with `--plan`, `--output`. |
 | `verify-questions` | Execute intent questions; `--plan`, `--db`. |
 | `render-observability` | Generate reviewable artifacts; `--plan`, `--targets`, `--output`. |

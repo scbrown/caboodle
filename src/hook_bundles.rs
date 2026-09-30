@@ -191,6 +191,43 @@ mod tests {
     /// Against the host's real st (`cargo test -- --ignored live_`): prints the
     /// verdict so an operator can see what `caboodle verify` would say.
     #[test]
+    fn evidence_is_well_formed_and_fails_closed_without_its_source() {
+        let mut seen = 0;
+        for (name, json) in BUNDLES {
+            let v: Value = serde_json::from_str(json).unwrap();
+            for hook in v["hooks"].as_array().unwrap() {
+                let Some(ev) = hook.get("evidence") else {
+                    continue;
+                };
+                seen += 1;
+                let cmd = ev["command"].as_str().expect("evidence.command");
+                assert!(!cmd.trim().is_empty(), "{name}");
+                assert!(
+                    ev["max_age_seconds"].as_u64().is_some_and(|n| n > 0),
+                    "{name}"
+                );
+                // Fail closed: with HOME pointing at an empty dir the source is
+                // absent, so the command must exit non-zero, never print a ts.
+                let empty = tempfile::tempdir().unwrap();
+                let out = std::process::Command::new("sh")
+                    .args(["-c", cmd])
+                    .env("HOME", empty.path())
+                    .output()
+                    .unwrap();
+                assert!(
+                    !out.status.success(),
+                    "{name}: evidence succeeded without its source"
+                );
+                assert!(out.stdout.is_empty(), "{name}: printed without its source");
+            }
+        }
+        assert!(
+            seen >= 6,
+            "expected evidence on at least 6 hooks, saw {seen}"
+        );
+    }
+
+    #[test]
     #[ignore = "needs a live st with a registry"]
     fn live_verify_against_host_st() {
         match verify() {

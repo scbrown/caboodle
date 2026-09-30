@@ -21,6 +21,24 @@ CABOODLE_INSTALL_DIR="$fixture/bin" \
 "$fixture/bin/caboodle" --version | grep -F "caboodle $version"
 test -x "$fixture/bin/caboodle"
 
+# A stale copy earlier on PATH must be named, and the installed one must not.
+mkdir -p "$fixture/stale"
+printf '#!/bin/sh\necho "caboodle 0.0.1 (stale)"\n' > "$fixture/stale/caboodle"
+chmod 0755 "$fixture/stale/caboodle"
+shadow_err=$(PATH="$fixture/stale:$fixture/bin:$PATH" \
+    CABOODLE_VERSION="v$version" CABOODLE_TARGET="$target" \
+    CABOODLE_RELEASE_BASE_URL="file://$fixture" CABOODLE_INSTALL_DIR="$fixture/bin" \
+    "$repo_root/scripts/install.sh" 2>&1 >/dev/null)
+printf '%s\n' "$shadow_err" | grep -F "WARNING: \`caboodle\` on PATH is $fixture/stale/caboodle (caboodle 0.0.1 (stale))"
+clean_err=$(PATH="$fixture/bin:$fixture/stale:$PATH" \
+    CABOODLE_VERSION="v$version" CABOODLE_TARGET="$target" \
+    CABOODLE_RELEASE_BASE_URL="file://$fixture" CABOODLE_INSTALL_DIR="$fixture/bin" \
+    "$repo_root/scripts/install.sh" 2>&1 >/dev/null)
+if printf '%s\n' "$clean_err" | grep -q WARNING; then
+    printf '%s\n' 'installer warned although PATH runs the installed copy' >&2
+    exit 1
+fi
+
 printf 'corrupt' >> "$fixture/$archive"
 if CABOODLE_VERSION="v$version" \
    CABOODLE_TARGET="$target" \

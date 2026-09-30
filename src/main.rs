@@ -11,8 +11,16 @@ use caboodle::{
 };
 use clap::{Parser, Subcommand, ValueEnum};
 
+/// `0.2.2 (1a2b3c4d5e6f)`: the release version and the commit it was built from.
+const VERSION: &str = concat!(
+    env!("CARGO_PKG_VERSION"),
+    " (",
+    env!("CABOODLE_GIT_SHA"),
+    ")"
+);
+
 #[derive(Parser)]
-#[command(version, about)]
+#[command(version = VERSION, about)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,

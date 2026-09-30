@@ -153,6 +153,40 @@ fn write_helper(path: &Path, script: &str) -> Result<bool> {
     Ok(true)
 }
 
+/// An MCP entry safe to print: header and env VALUES are replaced and any
+/// userinfo is dropped from the URL. A hand-made entry can carry a static
+/// bearer, and error text reaches terminals and logs.
+pub fn redact(entry: &Value) -> Value {
+    let mut entry = entry.clone();
+    for key in ["headers", "env"] {
+        if let Some(map) = entry.get_mut(key).and_then(Value::as_object_mut) {
+            for value in map.values_mut() {
+                *value = Value::String("<redacted>".to_owned());
+            }
+        }
+    }
+    if let Some(url) = entry.get_mut("url") {
+        if let Some(text) = url.as_str() {
+            if let Some((scheme, rest)) = text.split_once("://") {
+                let (authority, path) = rest.split_once('/').map_or((rest, ""), |(a, p)| (a, p));
+                if let Some((_, host)) = authority.rsplit_once('@') {
+                    *url = Value::String(format!("{scheme}://<redacted>@{host}/{path}"));
+                }
+            }
+        }
+    }
+    entry
+}
+
+/// Redact any argument that is a JSON object (the `add-json` entry).
+fn printable(arg: &OsString) -> String {
+    let text = arg.to_string_lossy();
+    match serde_json::from_str::<Value>(&text) {
+        Ok(value) if value.is_object() => redact(&value).to_string(),
+        _ => text.into_owned(),
+    }
+}
+
 fn claude(args: &[OsString]) -> Result<()> {
     let out = Command::new("claude")
         .args(args)
@@ -162,10 +196,7 @@ fn claude(args: &[OsString]) -> Result<()> {
     if !out.status.success() {
         bail!(
             "`claude {}` failed ({}): {}",
-            args.iter()
-                .map(|a| a.to_string_lossy().into_owned())
-                .collect::<Vec<_>>()
-                .join(" "),
+            args.iter().map(printable).collect::<Vec<_>>().join(" "),
             out.status,
             String::from_utf8_lossy(&out.stderr).trim()
         );
@@ -201,7 +232,7 @@ pub fn provision(url: &str, token_file: Option<&str>) -> Result<String> {
                 return Err(match add(&entry) {
                     Ok(()) => error.context("registering the planned quipu entry failed; the previous entry was restored"),
                     Err(restore) => error.context(format!(
-                        "registering the planned quipu entry failed AND restoring the previous entry failed ({restore:#}); re-add it with `claude mcp add-json quipu '{entry}' -s user`"
+                        "registering the planned quipu entry failed AND restoring the previous entry failed ({restore:#}); re-add it by hand; it was (secret values redacted) {}", redact(&entry)
                     )),
                 });
             }
@@ -387,7 +418,8 @@ pub fn verify(url: &str) -> Result<Vec<String>> {
             "FAIL: the user-scope quipu MCP entry has no headersHelper, so MCP writes carry no bearer; run `caboodle apply`"
         ),
         Some((_, entry)) if entry != &desired => bail!(
-            "FAIL: the user-scope quipu MCP entry differs from the plan (expected {desired}, found {entry}); run `caboodle apply`"
+            "FAIL: the user-scope quipu MCP entry differs from the plan (expected {desired}, found {}); run `caboodle apply`",
+            redact(entry)
         ),
         Some(_) => {}
     }
@@ -572,6 +604,28 @@ mod tests {
         );
         assert_eq!(entry["type"], "http");
         assert_eq!(entry["headersHelper"], "/h/.local/bin/quipu-mcp-headers");
+    }
+
+    #[test]
+    fn redact_hides_static_bearers_and_url_credentials() {
+        let entry = json!({
+            "type": "http",
+            "url": "https://user:hunter2@quipu.example/mcp",
+            "headers": {"Authorization": "Bearer s3cr3t-token"},
+            "env": {"QUIPU_AUTH_TOKEN": "s3cr3t-token"}
+        });
+        let shown = redact(&entry).to_string();
+        for secret in ["s3cr3t-token", "hunter2", "user:"] {
+            assert!(!shown.contains(secret), "{shown}");
+        }
+        assert!(shown.contains("quipu.example/mcp") && shown.contains("Authorization"));
+        // the add-json argument is redacted in claude()'s own error text
+        let arg = OsString::from(entry.to_string());
+        assert!(!printable(&arg).contains("s3cr3t-token"));
+        assert_eq!(printable(&OsString::from("add-json")), "add-json");
+        // an entry with nothing secret is unchanged
+        let plain = desired_entry("http://quipu.example", Path::new("/h/helper"));
+        assert_eq!(redact(&plain), plain);
     }
 
     #[test]

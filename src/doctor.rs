@@ -101,6 +101,62 @@ fn prerequisite_hint(command: &str) -> &'static str {
     }
 }
 
+/// This build, as `caboodle --version` prints it.
+pub const SELF_VERSION: &str = concat!(
+    "caboodle ",
+    env!("CARGO_PKG_VERSION"),
+    " (",
+    env!("CABOODLE_GIT_SHA"),
+    ")"
+);
+
+/// Is the `caboodle` that PATH runs this one? A different copy earlier on PATH
+/// keeps answering plain `caboodle` commands (aegis-nvw6ye.1: an older copy
+/// shadowed a fresh install, and both reported the same release version).
+fn check_self_on_path(path: Option<&std::ffi::OsStr>) -> Option<Finding> {
+    let current = env::current_exe().ok()?;
+    let runs = which_all("caboodle", path).into_iter().next()?;
+    let canonical = |p: &Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
+    if canonical(&runs) == canonical(&current) {
+        return None;
+    }
+    let runs_version = Command::new(&runs)
+        .arg("--version")
+        .stdin(Stdio::null())
+        .output()
+        .ok()
+        .map(|out| {
+            String::from_utf8_lossy(&out.stdout)
+                .lines()
+                .next()
+                .unwrap_or("")
+                .trim()
+                .to_owned()
+        })
+        .filter(|v| !v.is_empty())
+        .unwrap_or_else(|| "version unreadable".to_owned());
+    Some(if runs_version == SELF_VERSION {
+        Finding::new(
+            Level::Ok,
+            "caboodle on PATH",
+            format!(
+                "{} is a copy of this build ({SELF_VERSION})",
+                runs.display()
+            ),
+        )
+    } else {
+        Finding::new(
+            Level::Warn,
+            "caboodle on PATH",
+            format!(
+                "PATH runs {} ({runs_version}), NOT this caboodle {} ({SELF_VERSION}). Remove the stale copy or reorder PATH",
+                runs.display(),
+                current.display()
+            ),
+        )
+    })
+}
+
 /// Run every check against the live environment.
 pub fn diagnose(scope: &Scope) -> Vec<Finding> {
     let path = env::var_os("PATH");
@@ -113,6 +169,7 @@ pub fn diagnose(scope: &Scope) -> Vec<Finding> {
         adapter::managed_bin_dir().as_deref(),
         path.as_deref(),
     ));
+    findings.extend(check_self_on_path(path.as_deref()));
     findings.extend(check_prerequisites(scope, path.as_deref()));
     for &tool in &scope.tools {
         findings.extend(check_tool(tool, scope.quipu_flavor, path.as_deref()));

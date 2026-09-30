@@ -2142,6 +2142,7 @@ else printf '%s\n' "$refused" > "$out"; fi
         r#"
 printf '%s\n' "$*" >> "$HOME/claude.log"
 if [ "$1 $2" = "mcp add-json" ]; then
+  if [ "${FAKE_CLAUDE_ADD_FAIL:-}" = all ]; then echo 'add refused' >&2; exit 1; fi
   case "$4" in *headersHelper*) if [ "${FAKE_CLAUDE_ADD_FAIL:-}" = 1 ]; then echo 'add refused' >&2; exit 1; fi ;; esac
   printf '{"mcpServers":{"%s":%s}}\n' "$3" "$4" > "$HOME/.claude.json"; exit 0
 fi
@@ -2453,4 +2454,90 @@ fn quipu_mcp_bakes_the_planned_token_file_and_warns_on_shell_only_tokens() {
         .stdout(predicate::str::contains(
             "WARNING: the helper found a token only through QUIPU_AUTH_TOKEN_FILE",
         ));
+}
+
+#[test]
+fn quipu_mcp_errors_never_print_a_static_bearer() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    let secret = "static-s3cr3t";
+    let hand_made = format!(
+        r#"{{"mcpServers":{{"quipu":{{"type":"http","url":"http://quipu.example/mcp","headers":{{"Authorization":"Bearer {secret}"}}}}}}}}"#
+    );
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+
+    // Both the planned add and the restore fail: the error names the entry.
+    fs::write(root.path().join(".claude.json"), &hand_made).unwrap();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .env("FAKE_CLAUDE_ADD_FAIL", "all")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "restoring the previous entry failed",
+        ))
+        .stderr(predicate::str::contains("<redacted>"))
+        .stderr(predicate::str::contains(secret).not());
+
+    // verify's "differs" message shows the found entry.
+    let differs = format!(
+        r#"{{"mcpServers":{{"quipu":{{"type":"http","url":"http://quipu.example/mcp","headersHelper":"/elsewhere","headers":{{"Authorization":"Bearer {secret}"}}}}}}}}"#
+    );
+    fs::write(root.path().join(".claude.json"), differs).unwrap();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("differs from the plan"))
+        .stderr(predicate::str::contains(secret).not());
+}
+
+#[test]
+fn doctor_warns_when_path_runs_a_different_caboodle() {
+    // aegis-nvw6ye.1: an older copy earlier on PATH answered plain `caboodle`.
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    fake_tool(&bin, "caboodle", "echo 'caboodle 0.2.2 (stale0000000)'");
+    command(root.path(), &bin)
+        .arg("doctor")
+        .assert()
+        .stdout(predicate::str::contains("warn caboodle on PATH: PATH runs"))
+        .stdout(predicate::str::contains("caboodle 0.2.2 (stale0000000)"));
+
+    // The same build on PATH is fine.
+    let real = assert_cmd::cargo::cargo_bin("caboodle");
+    fs::remove_file(bin.join("caboodle")).unwrap();
+    std::os::unix::fs::symlink(&real, bin.join("caboodle")).unwrap();
+    command(root.path(), &bin)
+        .arg("doctor")
+        .assert()
+        .stdout(predicate::str::contains("caboodle on PATH").not());
+}
+
+#[test]
+fn version_names_the_commit() {
+    let out = Command::cargo_bin("caboodle")
+        .unwrap()
+        .arg("--version")
+        .output()
+        .unwrap();
+    let text = String::from_utf8_lossy(&out.stdout);
+    let (_, rest) = text
+        .trim()
+        .split_once(" (")
+        .expect("version carries a commit");
+    assert!(rest.ends_with(')') && rest.len() > 1, "{text}");
 }

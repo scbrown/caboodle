@@ -34,6 +34,13 @@ pub fn assess(bundles: &[(&str, &str)], report: &Value) -> Result<Vec<String>> {
     if report.get("schema").and_then(Value::as_str) != Some("st.hook-check/1") {
         bail!("st hook check returned an unrecognised report schema");
     }
+    if let Some(errors) = report
+        .get("registry_errors")
+        .and_then(Value::as_array)
+        .filter(|e| !e.is_empty())
+    {
+        bail!("st cannot read its hook-bundle registry: {errors:?}");
+    }
     let items = report
         .get("items")
         .and_then(Value::as_array)
@@ -107,16 +114,20 @@ pub fn assess(bundles: &[(&str, &str)], report: &Value) -> Result<Vec<String>> {
 /// Run st's check and assess the shipped bundles against it.
 pub fn verify() -> Result<Vec<String>> {
     // Not `checked`: st exits 1 for drift (including live staleness) and 2 when
-    // it cannot tell. The JSON is the evidence either way; `assess` decides.
+    // it cannot tell. Exit 2 is also what st returns when it cannot read what
+    // ONE running agent carries, with every item configured ok (aegis-331f7p,
+    // measured 2026-09-30). The JSON is the evidence either way; `assess`
+    // decides, so an item st could not judge still fails on `configured`.
     let output = Command::new("st")
         .args(["ops", "hooks", "check", "--json"])
         .output()
         .context("run st ops hooks check --json")?;
-    if output.status.code() == Some(2) {
-        bail!("st cannot tell whether the hook bundles are rendered (exit 2)");
-    }
-    let report: Value =
-        serde_json::from_slice(&output.stdout).context("parse st ops hooks check --json")?;
+    let report: Value = serde_json::from_slice(&output.stdout).with_context(|| {
+        format!(
+            "st ops hooks check --json gave no readable report (exit {:?})",
+            output.status.code()
+        )
+    })?;
     assess(BUNDLES, &report)
 }
 
@@ -167,6 +178,24 @@ mod tests {
             .unwrap_err()
             .to_string()
             .contains("differs"));
+    }
+
+    /// st exits 2 when it cannot read one running agent, even with every item
+    /// configured ok. That is a liveness unknown and is reported, not failed;
+    /// a broken registry is still refused.
+    #[test]
+    fn live_unknown_is_reported_and_registry_errors_fail() {
+        let r = report(json!([
+            {"bundle": "demo", "version": "1.0", "event": "Stop", "role": "worker", "configured": "ok", "live": "unknown"}
+        ]));
+        let lines = assess(ONE, &r).unwrap();
+        assert!(lines[0].contains("not yet live"), "{lines:?}");
+        let mut broken = r.clone();
+        broken["registry_errors"] = json!(["demo.json: bad schema"]);
+        assert!(assess(ONE, &broken)
+            .unwrap_err()
+            .to_string()
+            .contains("registry"));
     }
 
     #[test]

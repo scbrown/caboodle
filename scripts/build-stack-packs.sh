@@ -31,6 +31,16 @@ trap 'rm -rf "$work"' EXIT HUP INT TERM
 
 version=${PACK_VERSION:-0.1.0}
 
+# Outward packs are refused unless a block-tier identifier-policy catalogue is
+# loaded in the producing store (quipu >= 0.9.1). The catalogue lives in its own
+# named graph, so it gates the pack without travelling in it. Idempotent: the
+# assembly store is shared by both packs.
+policy_dir="$root/packs/policy"
+load_identifier_policy() {
+    "$quipu" shapes load identifier-policy "$policy_dir/identifier-policy.shapes.ttl" --db "$1" >/dev/null
+    "$quipu" knot "$policy_dir/identifier-policy.ttl" --graph urn:caboodle:identifier-policy --db "$1" >/dev/null
+}
+
 build_pack() {
     name=$1
     graph="https://caboodle.dev/graph/$name"
@@ -42,6 +52,7 @@ build_pack() {
     # into a named graph in the assembly store, which is what pack exports.
     "$quipu" knot "$src" --db "$work/$name-scratch.db"
     "$quipu" graph import "$work/$name-scratch.db" --as "$graph" --db "$work/asm.db"
+    load_identifier_policy "$work/asm.db"
     rm -f "$out"
     "$quipu" pack "$graph" --out "$out" \
         --name "caboodle-$name" --version "$version" --db "$work/asm.db"

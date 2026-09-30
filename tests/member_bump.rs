@@ -239,6 +239,44 @@ fn a_bump_keeps_the_file_mode_and_runs_the_release_in_a_throwaway_home() {
 }
 
 #[test]
+fn every_execution_of_the_new_release_goes_through_the_probe_wrapper() {
+    // aegis-uy26l7: the unattended cron confines the unreviewed release by
+    // passing a sandbox as --probe-wrapper. Nothing may run around it.
+    let fake = Fake::new("v0.2.0");
+    let log = fake.path("wrapper.log");
+    let wrapper = fake.path("wrapper");
+    fs::write(
+        &wrapper,
+        format!(
+            "#!/bin/sh\necho \"$1\" >> '{}'\nexec \"$@\"\n",
+            log.display()
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(&wrapper, fs::Permissions::from_mode(0o755)).unwrap();
+    fake.bump(&["--probe-wrapper", wrapper.to_str().unwrap()])
+        .success();
+    let calls = fs::read_to_string(&log).unwrap();
+    // One identity probe (one program) and one version read, both of the
+    // unpacked release program.
+    assert_eq!(calls.lines().count(), 2, "{calls}");
+    assert!(
+        calls.lines().all(|l| l.ends_with("/fixture-demo")),
+        "{calls}"
+    );
+
+    // A wrapper that refuses to run the release fails the bump; nothing is written.
+    let fake = Fake::new("v0.2.0");
+    let before = fs::read_to_string(fake.manifest()).unwrap();
+    let refuse = fake.path("refuse");
+    fs::write(&refuse, "#!/bin/sh\necho sandbox refused >&2\nexit 1\n").unwrap();
+    fs::set_permissions(&refuse, fs::Permissions::from_mode(0o755)).unwrap();
+    fake.bump(&["--probe-wrapper", refuse.to_str().unwrap()])
+        .failure();
+    assert_eq!(fs::read_to_string(fake.manifest()).unwrap(), before);
+}
+
+#[test]
 fn an_explicit_tag_is_fetched_by_tag() {
     let fake = Fake::new("v0.2.0");
     fake.bump(&["--tag", "v0.2.0"])

@@ -148,6 +148,10 @@ enum Commands {
         /// Release tag to pin instead of the latest stable release
         #[arg(long)]
         tag: Option<String>,
+        /// Run every execution of the new, unreviewed release as
+        /// `<wrapper> <program> <args...>`, e.g. a sandbox (aegis-uy26l7)
+        #[arg(long)]
+        probe_wrapper: Option<PathBuf>,
     },
     /// Track a published binary release for one tool in an existing reviewed plan
     #[cfg(unix)]
@@ -422,8 +426,13 @@ fn main() -> Result<()> {
             caboodle::release_update::update_self(&state, check)?;
         }
         #[cfg(unix)]
-        Commands::BumpMember { manifest, tag } => {
-            match caboodle::member_bump::bump(&manifest, tag.as_deref())? {
+        Commands::BumpMember {
+            manifest,
+            tag,
+            probe_wrapper,
+        } => {
+            match caboodle::member_bump::bump(&manifest, tag.as_deref(), probe_wrapper.as_deref())?
+            {
                 caboodle::member_bump::Outcome::Current { version } => {
                     println!(
                         "{}: already pins {version}; nothing written",

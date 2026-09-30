@@ -20,7 +20,12 @@ This downloads the release's `sums_asset` and every pinned target's asset. It
 refuses unless each asset hashes to its published line, and refuses a
 downgrade. It also unpacks the asset for the host it runs on and refuses unless
 the programs answer `identity_contains` and report the new version. Run it on a
-pinned target. It then rewrites only `version` and the `[sha256]` values. Review
+pinned target.
+
+That proof EXECUTES a release nobody has reviewed yet. To confine it, pass
+`--probe-wrapper <exe>`: every execution of the new release then runs as
+`<exe> <program> <args...>`. The unattended bump job passes a sandbox with no
+network and no home directory (aegis-uy26l7). It then rewrites only `version` and the `[sha256]` values. Review
 the diff and open a PR; the new pin reaches users with the next caboodle
 release.
 

@@ -36,3 +36,9 @@ toml_edit = "0.22"
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.1"
+
+[features]
+# Compiles tests/fixtures/members/*.toml into the member registry beside the
+# shipped members/*.toml. CI runs --all-features, so the CLI tests exercise a
+# fixture member through the real binary; a release build never carries it.
+fixture-members = []

@@ -184,19 +184,23 @@ fn held() -> bool {
 /// Guard the older reviewed-pin updater after a release-tracking install.
 /// An unreadable installed identity is never evidence that replacement is safe.
 pub fn guard_reviewed_update(tool: ToolName, desired: &str) -> Result<()> {
-    let binary = match tool {
-        ToolName::Bobbin => "bobbin",
-        ToolName::Yupana => "yupana",
-        ToolName::DesirePath => "dp",
-        _ => return Ok(()),
+    // Every variant is NAMED: a wildcard here once let any new tool pass this
+    // guard silently (malcolm, aegis-1i5h1j).
+    let (binary, args): (&str, Vec<&str>) = match tool {
+        ToolName::Bobbin => ("bobbin", vec!["--version"]),
+        ToolName::Yupana => ("yupana", vec!["--version"]),
+        ToolName::DesirePath => ("dp", vec!["version"]),
+        ToolName::Member(name) => {
+            let m = crate::members::get(name).context("unknown stack member")?;
+            (
+                m.programs[0].name.as_str(),
+                m.version_argv.iter().map(String::as_str).collect(),
+            )
+        }
+        ToolName::Quipu | ToolName::Camayoc => return Ok(()),
     };
     let path = selected_path(binary)?;
-    let arg = if tool == ToolName::DesirePath {
-        "version"
-    } else {
-        "--version"
-    };
-    let installed = text(path.to_str().context("binary path is not UTF-8")?, &[arg])?;
+    let installed = text(path.to_str().context("binary path is not UTF-8")?, &args)?;
     if installed_version(&installed)? >= installed_version(desired)? {
         bail!("refusing reviewed-pin downgrade or ambiguous replacement: installed {installed}, reviewed {desired}; use update-release for published upgrades");
     }

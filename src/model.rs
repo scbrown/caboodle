@@ -20,7 +20,38 @@ pub enum Profile {
 }
 
 impl Profile {
+    /// Every tool a NEW plan for this profile selects: the built-ins, then the
+    /// embedded stack members that declare this profile, in name order.
     pub fn tools(self) -> Vec<ToolName> {
+        let mut tools = self.builtin_tools();
+        tools.extend(self.members());
+        tools
+    }
+
+    /// Whether `tools` is a valid selection for this profile: the built-ins
+    /// exactly, then any members of this profile in name order. A selection
+    /// saved before a member existed stays valid after an upgrade adds one
+    /// (wu M1, aegis-1i5h1j); an undeclared, duplicate or out-of-order member
+    /// is refused.
+    pub fn accepts(self, tools: &[ToolName]) -> bool {
+        let builtins = self.builtin_tools();
+        let members = self.members();
+        let (head, tail) = tools.split_at(tools.len().min(builtins.len()));
+        let mut allowed = members.iter();
+        head == builtins.as_slice() && tail.iter().all(|t| allowed.any(|m| m == t))
+    }
+
+    /// Members declaring this profile, in name order.
+    pub fn members(self) -> Vec<ToolName> {
+        crate::members::all()
+            .iter()
+            .filter(|m| m.profiles.contains(&self))
+            .map(|m| ToolName::Member(m.name.as_str()))
+            .collect()
+    }
+
+    /// The built-in tools of this profile, which every plan for it must list.
+    pub fn builtin_tools(self) -> Vec<ToolName> {
         match self {
             Self::Kg => vec![ToolName::Quipu, ToolName::Camayoc],
             Self::Retrieval => vec![ToolName::Quipu, ToolName::Camayoc, ToolName::Bobbin],
@@ -99,7 +130,7 @@ impl CrewPolicy {
     }
 
     fn validate(&self) -> Result<()> {
-        if self.tools != Profile::Crew.tools() {
+        if !Profile::Crew.accepts(&self.tools) {
             bail!("crew policy tools must match the crew profile conventions");
         }
         if self
@@ -162,15 +193,17 @@ impl CrewSelection {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ToolName {
     Quipu,
     Camayoc,
     Bobbin,
     Yupana,
-    #[serde(rename = "desire-path")]
     DesirePath,
+    /// A stack member declared as data (`members/<name>.toml`, aegis-1i5h1j).
+    /// Only names embedded in this build exist: deserialising any other name
+    /// is refused, exactly as an unknown built-in always was.
+    Member(&'static str),
 }
 
 impl ToolName {
@@ -181,7 +214,33 @@ impl ToolName {
             Self::Bobbin => "bobbin",
             Self::Yupana => "yupana",
             Self::DesirePath => "desire-path",
+            Self::Member(name) => name,
         }
+    }
+
+    /// The tool called `name`: a built-in, or a member embedded in this build.
+    pub fn parse(name: &str) -> Option<Self> {
+        Some(match name {
+            "quipu" => Self::Quipu,
+            "camayoc" => Self::Camayoc,
+            "bobbin" => Self::Bobbin,
+            "yupana" => Self::Yupana,
+            "desire-path" => Self::DesirePath,
+            other => Self::Member(crate::members::get(other)?.name.as_str()),
+        })
+    }
+}
+
+impl Serialize for ToolName {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_str(self.as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for ToolName {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        let name = String::deserialize(d)?;
+        Self::parse(&name).ok_or_else(|| serde::de::Error::custom(format!("unknown tool '{name}'")))
     }
 }
 
@@ -511,7 +570,7 @@ impl Plan {
         if self.tools.is_empty() {
             bail!("plan selects no tools");
         }
-        if self.tools != self.profile.tools() {
+        if !self.profile.accepts(&self.tools) {
             bail!(
                 "tools do not match the {:?} profile conventions",
                 self.profile

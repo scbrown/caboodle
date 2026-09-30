@@ -62,6 +62,11 @@ expected = "fixture-result"
 }
 
 fn install_fakes(root: &Path, bin: &Path) {
+    // The fixture stack member (fixture-members feature, aegis-1i5h1j) joins the
+    // everything profile. Put its REAL program from the committed release on
+    // PATH, so profile tests run its real hermetic verify.
+    #[cfg(feature = "fixture-members")]
+    install_fixture_member(bin);
     fake_tool(
         bin,
         "quipu",
@@ -2540,4 +2545,26 @@ fn version_names_the_commit() {
         .split_once(" (")
         .expect("version carries a commit");
     assert!(rest.ends_with(')') && rest.len() > 1, "{text}");
+}
+
+/// The fixture member's program, extracted from the committed, digest-pinned
+/// release tarball, onto `bin`.
+#[cfg(feature = "fixture-members")]
+fn install_fixture_member(bin: &Path) {
+    let archive = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/releases/fixture-demo-v0.1.0-x86_64-unknown-linux-gnu.tar.gz");
+    let unpack = tempfile::tempdir().unwrap();
+    let status = std::process::Command::new("tar")
+        .arg("-xzf")
+        .arg(&archive)
+        .arg("-C")
+        .arg(unpack.path())
+        .status()
+        .unwrap();
+    assert!(status.success());
+    std::fs::copy(
+        unpack.path().join("fixture-demo-0.1.0/fixture-demo"),
+        bin.join("fixture-demo"),
+    )
+    .unwrap();
 }

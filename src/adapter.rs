@@ -12,6 +12,8 @@ use serde_json::{json, Value};
 
 use crate::model::{QuipuFlavor, ToolName};
 
+mod manifest;
+
 pub trait Adapter {
     fn name(&self) -> ToolName;
     /// Release identity reviewed and pinned by this Caboodle build.
@@ -33,9 +35,14 @@ pub fn release_blocker(name: ToolName, quipu_flavor: QuipuFlavor) -> Option<Stri
         ToolName::Quipu if quipu_flavor == QuipuFlavor::Release => quipu_release_target(),
         ToolName::Bobbin => bobbin_release_target(),
         ToolName::Yupana => yupana_release_target(),
+        ToolName::Member(name) => match crate::members::get(name) {
+            Some(m) => manifest::release_target(m),
+            None => return Some(format!("unknown stack member {name}")),
+        },
         // Camayoc is a source archive, Desire Path and the lancedb Quipu
         // flavor are source builds: their blockers are missing prerequisites.
-        _ => return None,
+        // Named, never a wildcard: a new variant must decide (aegis-1i5h1j).
+        ToolName::Quipu | ToolName::Camayoc | ToolName::DesirePath => return None,
     };
     result.err().map(|error| format!("{error:#}"))
 }
@@ -50,6 +57,7 @@ pub fn prerequisites(name: ToolName, quipu_flavor: QuipuFlavor) -> &'static [&'s
         ToolName::Bobbin => &["curl", "tar", "git"],
         ToolName::Yupana => &["curl", "tar", "sha256sum"],
         ToolName::DesirePath => &["go"],
+        ToolName::Member(name) => crate::members::prerequisites(name),
     }
 }
 
@@ -60,7 +68,8 @@ pub fn source_install_command(name: ToolName) -> Option<String> {
         ToolName::Yupana => Some(format!(
             "cargo install --git https://github.com/scbrown/yupana --tag v{YUPANA_VERSION} --locked --features mcp"
         )),
-        _ => None,
+        // A member installs only its reviewed release; there is no source path.
+        ToolName::Camayoc | ToolName::Bobbin | ToolName::DesirePath | ToolName::Member(_) => None,
     }
 }
 
@@ -72,6 +81,7 @@ pub fn programs(name: ToolName) -> &'static [&'static str] {
         ToolName::Bobbin => &["bobbin"],
         ToolName::Yupana => &["yupana"],
         ToolName::DesirePath => &["dp"],
+        ToolName::Member(name) => crate::members::programs(name),
     }
 }
 
@@ -189,6 +199,10 @@ pub fn adapter(name: ToolName, quipu_flavor: QuipuFlavor) -> Box<dyn Adapter> {
         ToolName::Bobbin => Box::new(Bobbin),
         ToolName::Yupana => Box::new(Yupana),
         ToolName::DesirePath => Box::new(DesirePath),
+        ToolName::Member(name) => Box::new(manifest::ManifestAdapter(
+            crate::members::get(name)
+                .expect("a Member name is only minted for an embedded manifest"),
+        )),
     }
 }
 

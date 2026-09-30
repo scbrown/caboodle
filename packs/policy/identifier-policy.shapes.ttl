@@ -1,0 +1,8 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix aegis: <http://aegis.gastown.local/ontology/> .
+
+# Shape for the identifier-policy rules below. Loaded into the assembly store
+# only; the catalogue graph is separate from the packed graph and never ships.
+<urn:caboodle:IdentifierPolicyShape> a sh:NodeShape ;
+    sh:targetClass aegis:InternalIdentifierPattern ;
+    sh:nodeKind sh:IRI .

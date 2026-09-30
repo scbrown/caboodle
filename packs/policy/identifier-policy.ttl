@@ -1,0 +1,22 @@
+@prefix aegis: <http://aegis.gastown.local/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Identifier policy for the published stack packs. `quipu pack` checks every
+# outward pack against these block-tier rules and refuses on a match. The rules
+# are generic on purpose: this repository is public, so a rule must not itself
+# name a private host.
+
+<urn:caboodle:policy:private-ipv4> a aegis:InternalIdentifierPattern ;
+    rdfs:label "RFC 1918 private IPv4 address" ;
+    aegis:regex "\\b(10[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}|192[.]168[.][0-9]{1,3}[.][0-9]{1,3}|172[.](1[6-9]|2[0-9]|3[01])[.][0-9]{1,3}[.][0-9]{1,3})\\b" ;
+    aegis:enforcementTier "block" .
+
+<urn:caboodle:policy:lan-hostname> a aegis:InternalIdentifierPattern ;
+    rdfs:label "LAN-only hostname (.lan or .svc)" ;
+    aegis:regex "\\b[a-z0-9-]+[.](lan|svc)\\b" ;
+    aegis:enforcementTier "block" .
+
+<urn:caboodle:policy:home-path> a aegis:InternalIdentifierPattern ;
+    rdfs:label "Absolute home directory path" ;
+    aegis:regex "/(home|Users)/[A-Za-z0-9._-]+/" ;
+    aegis:enforcementTier "block" .

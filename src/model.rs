@@ -207,6 +207,17 @@ pub enum ToolName {
 }
 
 impl ToolName {
+    /// Every built-in tool. `parse` resolves built-in names from this list and
+    /// member validation reserves them from it, so a built-in missing here is
+    /// unparseable (its tests fail) rather than silently shadowable (malcolm N2).
+    pub const BUILTINS: [ToolName; 5] = [
+        Self::Quipu,
+        Self::Camayoc,
+        Self::Bobbin,
+        Self::Yupana,
+        Self::DesirePath,
+    ];
+
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Quipu => "quipu",
@@ -220,14 +231,10 @@ impl ToolName {
 
     /// The tool called `name`: a built-in, or a member embedded in this build.
     pub fn parse(name: &str) -> Option<Self> {
-        Some(match name {
-            "quipu" => Self::Quipu,
-            "camayoc" => Self::Camayoc,
-            "bobbin" => Self::Bobbin,
-            "yupana" => Self::Yupana,
-            "desire-path" => Self::DesirePath,
-            other => Self::Member(crate::members::get(other)?.name.as_str()),
-        })
+        if let Some(builtin) = Self::BUILTINS.into_iter().find(|t| t.as_str() == name) {
+            return Some(builtin);
+        }
+        Some(Self::Member(crate::members::get(name)?.name.as_str()))
     }
 }
 
@@ -240,7 +247,13 @@ impl Serialize for ToolName {
 impl<'de> Deserialize<'de> for ToolName {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let name = String::deserialize(d)?;
-        Self::parse(&name).ok_or_else(|| serde::de::Error::custom(format!("unknown tool '{name}'")))
+        Self::parse(&name).ok_or_else(|| {
+            serde::de::Error::custom(format!(
+                "unknown tool '{name}': neither a built-in tool nor a stack member of this \
+                 caboodle build (a member removed since the plan was written, or a plan from \
+                 a newer caboodle); re-plan or use the caboodle that wrote it"
+            ))
+        })
     }
 }
 

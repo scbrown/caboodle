@@ -1075,6 +1075,25 @@ tools = ["quipu", "camayoc", "bobbin"]
 }
 
 #[test]
+fn a_plan_naming_an_unknown_member_is_refused_by_name() {
+    // wu M1: a member a later caboodle removed must refuse with a named message.
+    let root = tempfile::tempdir().unwrap();
+    fs::write(
+        root.path().join("removed.toml"),
+        "schema_version = 1\nprofile = \"everything\"\ntools = [\"quipu\", \"retired-member\"]\n",
+    )
+    .unwrap();
+    command(root.path(), root.path())
+        .args(["apply", "--plan", "removed.toml", "--skip-install"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("unknown tool 'retired-member'"))
+        .stderr(predicate::str::contains(
+            "stack member of this caboodle build",
+        ));
+}
+
+#[test]
 fn both_settings_share_policy_but_keep_security_adapter_owned() {
     let root = tempfile::tempdir().unwrap();
     command(root.path(), root.path())

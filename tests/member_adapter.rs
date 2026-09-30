@@ -91,6 +91,18 @@ printf 200"#,
         "verify must run in a hermetic HOME, never the user's"
     );
 
+    // B2 (A3): verify runs with a CLEARED environment. The fixture reads its
+    // store from FIXTURE_DB, as bead stores read theirs from the environment;
+    // the user's store must not receive the verify marker.
+    let live_store = root.path().join("live-store");
+    env::set_var("FIXTURE_DB", &live_store);
+    demo.verify().expect("verify with a store variable set");
+    assert!(
+        !live_store.exists(),
+        "verify wrote into the store named by the caller's environment"
+    );
+    env::remove_var("FIXTURE_DB");
+
     // 2. A tampered asset is refused on the RECORDED digest and installs nothing.
     fs::remove_file(&installed).unwrap();
     let tampered = root.path().join("tampered.tar.gz");
@@ -102,26 +114,62 @@ printf 200"#,
     assert!(!installed.exists());
     env::set_var("FAKE_RELEASE", &release);
 
-    // 3. A different program of the same name on PATH is not replaced (A2).
+    // 3. wu F1 / A2: a same-named program earlier on PATH whose VERSION line has
+    //    this member's shape (seeds `sd 0.0.2` vs chmln/sd `sd 1.0.0`) is still
+    //    refused: identity is text only the member prints, not a version prefix.
     let foreign = root.path().join("foreign");
-    script(&foreign, "fixture-demo", "echo 'sd 1.0.0'");
+    script(
+        &foreign,
+        "fixture-demo",
+        r#"case "$1" in --version) echo 'fixture-demo 1.0.0' ;; *) echo 'find and replace' ;; esac"#,
+    );
     set_path(&system, &[&fakes, &foreign, &cargo_home.join("bin")]);
-    assert!(err(demo.install()).contains("a different `fixture-demo` is already on PATH"));
+    let shadow = err(demo.install());
+    assert!(shadow.contains("a different `fixture-demo`"), "{shadow}");
+    assert!(shadow.contains("would shadow"), "{shadow}");
     assert!(!installed.exists());
+    assert!(err(demo.verify()).contains("a different `fixture-demo`"));
 
-    // 4. Verify is red when the created marker never appears. (Its absent-first
+    // 4. malcolm B1 / wu F2: a foreign program AT THE DESTINATION is refused
+    //    even when the managed directory is not on PATH, and is left untouched.
+    fs::create_dir_all(cargo_home.join("bin")).unwrap();
+    script(
+        &cargo_home.join("bin"),
+        "fixture-demo",
+        r#"echo 'fixture-demo 1.0.0 (someone else)'"#,
+    );
+    let before = fs::read(&installed).unwrap();
+    set_path(&system, &[&fakes]);
+    let overwrite = err(demo.install());
+    assert!(overwrite.contains("refusing to overwrite"), "{overwrite}");
+    assert_eq!(
+        fs::read(&installed).unwrap(),
+        before,
+        "the foreign program was modified"
+    );
+    // Control: with the destination cleared, the same PATH installs.
+    fs::remove_file(&installed).unwrap();
+    demo.install()
+        .expect("install once the destination is clear");
+    // version and verify use the managed install even though it is off PATH.
+    assert_eq!(demo.version().unwrap(), "fixture-demo 0.1.0");
+    demo.verify().expect("verify the managed install off PATH");
+    fs::remove_file(&installed).unwrap();
+
+    // 5. Verify is red when the created marker never appears. (Its absent-first
     //    control cannot be tripped end to end, since the marker is fresh per run;
-    //    the schema requiring it is unit-tested in members.rs.)
+    //    the schema requiring it, and refusing a present check on the step that
+    //    is handed the marker (B3), are unit-tested in members.rs.)
     let lossy = root.path().join("lossy");
     script(
         &lossy,
         "fixture-demo",
-        r#"case "$1" in --version) echo 'fixture-demo 0.1.0' ;; *) exit 0 ;; esac"#,
+        r#"case "$1" in --help) echo 'fixture-demo is the caboodle fixture stack member' ;; *) exit 0 ;; esac"#,
     );
     set_path(&system, &[&lossy]);
     assert!(err(demo.verify()).contains("not present after it was created"));
 
-    // 5. The reviewed-update guard refuses an installed member at or ahead of
+    // 6. The reviewed-update guard refuses an installed member at or ahead of
     //    the pin (malcolm C1), and passes one behind it (control).
     let ahead = root.path().join("ahead");
     script(

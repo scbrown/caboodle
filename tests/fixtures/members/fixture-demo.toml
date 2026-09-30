@@ -10,12 +10,12 @@ version_argv = ["--version"]
 profiles = ["everything"]
 
 [sha256]
-x86_64-unknown-linux-gnu = "3a6bf0e8b149b8fed0e81d0f16ff61a15ef85dabeda91db9b01fecc61f28dbc6"
+x86_64-unknown-linux-gnu = "fed1b561c5010139a3049641c980b26f3e2da8d743e71c086913731bf3dc342c"
 
 [[programs]]
 name = "fixture-demo"
-identity_argv = ["--version"]
-identity_prefix = "fixture-demo "
+identity_argv = ["--help"]
+identity_contains = "fixture-demo is the caboodle fixture stack member"
 
 [[verify]]
 argv = ["fixture-demo", "list"]

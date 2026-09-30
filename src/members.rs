@@ -15,7 +15,7 @@ use std::sync::OnceLock;
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 
-use crate::model::Profile;
+use crate::model::{Profile, ToolName};
 
 /// How a member is delivered. A new kind is a code change; a new member is data.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
@@ -27,14 +27,18 @@ pub enum Kind {
 
 /// One program the member puts on PATH, and how to tell it from a program of
 /// the same name that is NOT this member (seeds' `sd` vs chmln/sd, A2).
+///
+/// A version line cannot do that: both print `sd <semver>`. So the identity is
+/// text only this member prints (seeds: a line of its `--help`), and a bare
+/// name or name-plus-version identity is refused (wu F1).
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Program {
     pub name: String,
-    /// Arguments that print the identity line, e.g. `["--version"]`.
+    /// Arguments that print the identity text, e.g. `["--help"]`.
     pub identity_argv: Vec<String>,
-    /// The identity output must START WITH this. A literal prefix, not a regex.
-    pub identity_prefix: String,
+    /// The identity output (stdout, then stderr) must CONTAIN this literal text.
+    pub identity_contains: String,
 }
 
 /// One verify step. It must exit 0; `absent` / `present` then test its stdout
@@ -96,16 +100,15 @@ impl Manifest {
                 && s.chars()
                     .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'))
         };
-        if !safe(&self.name)
-            || matches!(
-                self.name.as_str(),
-                "quipu" | "camayoc" | "bobbin" | "yupana" | "desire-path"
-            )
-        {
+        if !safe(&self.name) || ToolName::BUILTINS.iter().any(|t| t.as_str() == self.name) {
             bail!(
                 "member name '{}' is unsafe or shadows a built-in tool",
                 self.name
             );
+        }
+        // Both are substituted into the download URL (malcolm N4).
+        if !safe(&self.version) || !safe(&self.tag.replace("{version}", &self.version)) {
+            bail!("{}: version and tag must be safe names", self.name);
         }
         if self.repo.split('/').count() != 2 || !self.repo.split('/').all(safe) {
             bail!("{}: repo must be owner/name", self.name);
@@ -129,8 +132,28 @@ impl Manifest {
         if self.programs.is_empty() || !self.programs.iter().all(|p| safe(&p.name)) {
             bail!("{}: programs must be non-empty safe names", self.name);
         }
-        if self.programs.iter().any(|p| p.identity_prefix.is_empty()) {
-            bail!("{}: every program needs an identity_prefix (A2)", self.name);
+        for p in &self.programs {
+            // After the program's own name, the identity must still say
+            // something a same-named program would not: a word, not a version.
+            let rest = p.identity_contains.replace(&p.name, "");
+            let is_version = |w: &str| {
+                w.trim_start_matches('v')
+                    .starts_with(|c: char| c.is_ascii_digit())
+            };
+            if !rest
+                .split_whitespace()
+                .filter(|w| !is_version(w))
+                .any(|w| w.chars().any(char::is_alphabetic))
+            {
+                bail!(
+                    "{}: identity_contains {:?} for `{}` is only its name and a version, which a \
+                     different `{}` also prints (F1); use text only this member prints",
+                    self.name,
+                    p.identity_contains,
+                    p.name,
+                    p.name
+                );
+            }
         }
         // A4: a verify that only ever sees the marker PRESENT would pass for a
         // program that prints everything. Require an absent-then-present pair.
@@ -145,6 +168,18 @@ impl Manifest {
         }
         if self.verify.iter().any(|s| s.argv.is_empty()) {
             bail!("{}: every verify step needs argv", self.name);
+        }
+        // B3: a step handed the marker can pass `present` by echoing its
+        // arguments, storing nothing. The read-back must be a separate step.
+        if self
+            .verify
+            .iter()
+            .any(|s| s.present.is_some() && s.argv.iter().any(|a| a.contains("{marker}")))
+        {
+            bail!(
+                "{}: a verify step asserting the marker PRESENT must not be given it in argv (B3)",
+                self.name
+            );
         }
         Ok(())
     }
@@ -205,8 +240,9 @@ pub fn prerequisites(name: &str) -> &'static [&'static str] {
             all()
                 .iter()
                 .map(|m| {
-                    // What ManifestAdapter::install itself shells out to, then the member's own.
-                    let mut all: Vec<&'static str> = vec!["curl", "tar", "sha256sum"];
+                    // What ManifestAdapter::install itself shells out to (the digest
+                    // is computed in-process), then the member's own.
+                    let mut all: Vec<&'static str> = vec!["curl", "tar"];
                     all.extend(m.prerequisites.iter().map(String::as_str));
                     (m.name.clone(), all)
                 })
@@ -238,8 +274,8 @@ version_argv = ["--version"]
 x86_64-unknown-linux-gnu = "{}"
 [[programs]]
 name = "demo"
-identity_argv = ["--version"]
-identity_prefix = "demo "
+identity_argv = ["--help"]
+identity_contains = "demo is the demo member"
 {verify}"#,
             "a".repeat(64)
         );
@@ -286,15 +322,55 @@ absent = "{marker}"
     }
 
     #[test]
+    fn present_on_the_step_that_is_handed_the_marker_is_refused() {
+        // B3: an argument-echoing program would pass this without storing anything.
+        let echo_pass = r#"[[verify]]
+argv = ["demo", "list"]
+absent = "{marker}"
+[[verify]]
+argv = ["demo", "add", "{marker}"]
+present = "{marker}"
+"#;
+        let e = manifest(echo_pass).unwrap_err().to_string();
+        assert!(e.contains("B3"), "{e}");
+        // Control: the same steps with a separate read-back validate.
+        manifest(GOOD).unwrap();
+    }
+
+    #[test]
+    fn an_identity_that_is_only_name_and_version_is_refused() {
+        // F1: seeds `sd 0.0.2` and chmln/sd `sd 1.0.0` share this shape.
+        let mut m = manifest(GOOD).unwrap();
+        for weak in ["demo", "demo ", "demo 1.2.3", "v1.2.3"] {
+            m.programs[0].identity_contains = weak.into();
+            assert!(m.validate().is_err(), "{weak:?} must be refused");
+        }
+        m.programs[0].identity_contains = "demo is the demo member".into();
+        m.validate().unwrap();
+    }
+
+    #[test]
+    fn an_unsafe_version_or_tag_is_refused() {
+        let mut m = manifest(GOOD).unwrap();
+        m.version = "1.2.3/../x".into();
+        assert!(m.validate().is_err());
+        let mut m = manifest(GOOD).unwrap();
+        m.tag = "v{version}?x=1".into();
+        assert!(m.validate().is_err());
+    }
+
+    #[test]
     fn a_bad_digest_an_unsafe_name_or_a_shadowing_name_is_refused() {
         let bad_digest = GOOD.to_owned();
         let m = manifest(&bad_digest).unwrap();
         let mut bad = m.clone();
         bad.sha256.insert("x".into(), "ABC".into());
         assert!(bad.validate().is_err());
-        let mut shadow = m.clone();
-        shadow.name = "bobbin".into();
-        assert!(shadow.validate().is_err());
+        for builtin in ToolName::BUILTINS {
+            let mut shadow = m.clone();
+            shadow.name = builtin.as_str().into();
+            assert!(shadow.validate().is_err(), "{}", builtin.as_str());
+        }
         let mut unsafe_name = m;
         unsafe_name.name = "../x".into();
         assert!(unsafe_name.validate().is_err());

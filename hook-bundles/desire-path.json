@@ -1,4 +1,5 @@
 {"schema":"st.hook-bundle/1","name":"desire-path","version":"0.3.2","owner":"caboodle","roles":["*"],
+ "codex_notify":["bash","-c","printf '%s' \"$1\" | dp ingest --source codex","--"],
  "hooks":[
   {"event":"PostToolUse","matcher":".*","command":"dp ingest --source claude-code","harnesses":["claude"]},
   {"event":"PostToolUseFailure","matcher":".*","command":"dp ingest --source claude-code","harnesses":["claude"]},

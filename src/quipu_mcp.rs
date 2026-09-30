@@ -24,19 +24,21 @@ pub const SERVER_NAME: &str = "quipu";
 const HELPER_NAME: &str = "quipu-mcp-headers";
 
 /// Mirrors `quipu_auth::resolve`: QUIPU_AUTH_TOKEN, then QUIPU_AUTH_TOKEN_FILE,
-/// then ~/.config/quipu/token. The token is read at connect time and is never
-/// written into this script or into the Claude configuration.
-pub const HELPER_SCRIPT: &str = r#"#!/bin/sh
+/// then the default file. The token is read at connect time and is never
+/// written into this script or into the Claude configuration. `@DEFAULT@` is
+/// replaced by `helper_script` with the plan's token file (a path, not the
+/// secret) or ~/.config/quipu/token.
+const HELPER_TEMPLATE: &str = r#"#!/bin/sh
 # Installed by caboodle. Prints Quipu's MCP Authorization header at connect time.
 # Token precedence matches caboodle: QUIPU_AUTH_TOKEN, then QUIPU_AUTH_TOKEN_FILE,
-# then ~/.config/quipu/token. The secret is never stored in this file.
+# then the default file below. The secret is never stored in this file.
 set -u
 token=${QUIPU_AUTH_TOKEN:-}
 if [ -z "$token" ]; then
     file=${QUIPU_AUTH_TOKEN_FILE:-}
-    [ -n "$file" ] || file="${HOME:-}/.config/quipu/token"
+    [ -n "$file" ] || file=@DEFAULT@
     if [ ! -e "$file" ]; then
-        echo "quipu-mcp-headers: no Quipu token: set QUIPU_AUTH_TOKEN_FILE or install ~/.config/quipu/token" >&2
+        echo "quipu-mcp-headers: no Quipu token at $file: set QUIPU_AUTH_TOKEN_FILE or install the token there" >&2
         exit 1
     fi
     if ! token=$(cat "$file"); then
@@ -57,6 +59,25 @@ case $token in
 esac
 printf '{"Authorization":"Bearer %s"}\n' "$token"
 "#;
+
+/// The helper for a plan. `token_file` replaces ~/.config/quipu/token as the
+/// default so a host whose convention differs (for example a token kept under
+/// another directory) works in Claude Code's own environment, which need not
+/// carry QUIPU_AUTH_TOKEN_FILE.
+pub fn helper_script(token_file: Option<&str>) -> Result<String> {
+    let default = match token_file {
+        None => "\"${HOME:-}/.config/quipu/token\"".to_owned(),
+        Some(path) => {
+            if !path.starts_with('/') || path.contains(['\'', '\n', '\r']) {
+                bail!(
+                    "the Quipu token file must be an absolute path without quotes or line breaks"
+                );
+            }
+            format!("'{path}'")
+        }
+    };
+    Ok(HELPER_TEMPLATE.replace("@DEFAULT@", &default))
+}
 
 pub fn helper_path() -> Result<PathBuf> {
     let home = env::var_os("HOME").context("HOME is not set; cannot place the Quipu MCP helper")?;
@@ -112,8 +133,8 @@ pub fn quipu_entries(config: &Value) -> Vec<(String, Value)> {
     found
 }
 
-fn write_helper(path: &Path) -> Result<bool> {
-    if fs::read_to_string(path).is_ok_and(|body| body == HELPER_SCRIPT)
+fn write_helper(path: &Path, script: &str) -> Result<bool> {
+    if fs::read_to_string(path).is_ok_and(|body| body == script)
         && fs::metadata(path).is_ok_and(|m| m.permissions().mode() & 0o777 == 0o755)
     {
         return Ok(false);
@@ -123,7 +144,7 @@ fn write_helper(path: &Path) -> Result<bool> {
         .context("helper path has no parent directory")?;
     fs::create_dir_all(dir).with_context(|| format!("create {}", dir.display()))?;
     let mut temp = tempfile::NamedTempFile::new_in(dir).context("create helper temp file")?;
-    temp.write_all(HELPER_SCRIPT.as_bytes())
+    temp.write_all(script.as_bytes())
         .context("write Quipu MCP helper")?;
     fs::set_permissions(temp.path(), fs::Permissions::from_mode(0o755))
         .context("make Quipu MCP helper executable")?;
@@ -154,9 +175,9 @@ fn claude(args: &[OsString]) -> Result<()> {
 
 /// Install the helper and register the user-scope entry. Idempotent; replaces
 /// a user-scope entry that differs (for example one without a headersHelper).
-pub fn provision(url: &str) -> Result<String> {
+pub fn provision(url: &str, token_file: Option<&str>) -> Result<String> {
     let helper = helper_path()?;
-    let wrote = write_helper(&helper)?;
+    let wrote = write_helper(&helper, &helper_script(token_file)?)?;
     let desired = desired_entry(url, &helper);
     let existing = read_claude_config()?["mcpServers"]
         .get(SERVER_NAME)
@@ -173,8 +194,17 @@ pub fn provision(url: &str) -> Result<String> {
             } else {
                 "replaced a user-scope quipu entry that differed from the plan".to_owned()
             });
+            // `remove` then `add-json` is not atomic. If the add fails, put the
+            // previous entry back rather than leave the user with none.
             claude(&["mcp", "remove", SERVER_NAME, "-s", "user"].map(OsString::from))?;
-            add(&desired)?;
+            if let Err(error) = add(&desired) {
+                return Err(match add(&entry) {
+                    Ok(()) => error.context("registering the planned quipu entry failed; the previous entry was restored"),
+                    Err(restore) => error.context(format!(
+                        "registering the planned quipu entry failed AND restoring the previous entry failed ({restore:#}); re-add it with `claude mcp add-json quipu '{entry}' -s user`"
+                    )),
+                });
+            }
         }
         None => {
             notes.push("registered the user-scope quipu entry".to_owned());
@@ -224,6 +254,12 @@ pub enum ProbeAnswer {
 
 /// Classify a `tools/call` answer. Quipu wraps REST errors as a tool result,
 /// and the transport is SSE, so the HTTP status says nothing: read the body.
+///
+/// This is coupled to two strings in Quipu's REST errors: the auth refusal's
+/// `reason: missing_or_invalid_bearer_token`, and `/knot`'s `RDF parse error`
+/// prefix. If Quipu rewords either, answers fall to `Other`, and verify then
+/// reports UNKNOWN rather than a false PASS. The test fixtures are the shapes
+/// measured against a served Quipu 0.9.1.
 pub fn classify(body: &str) -> ProbeAnswer {
     let payloads: Vec<&str> = body
         .lines()
@@ -310,8 +346,14 @@ fn post(endpoint: &str, token: Option<&str>) -> Result<String> {
 
 /// Run the registered helper exactly as Claude Code would and return the
 /// bearer it supplies.
-fn helper_token(helper: &str) -> Result<String> {
-    let out = Command::new(helper)
+fn helper_token(helper: &str, clean_env: bool) -> Result<String> {
+    let mut command = Command::new(helper);
+    if clean_env {
+        command
+            .env_remove("QUIPU_AUTH_TOKEN")
+            .env_remove("QUIPU_AUTH_TOKEN_FILE");
+    }
+    let out = command
         .stdin(Stdio::null())
         .output()
         .with_context(|| format!("run headersHelper {helper}"))?;
@@ -333,8 +375,8 @@ fn helper_token(helper: &str) -> Result<String> {
 }
 
 /// Prove the registered entry authenticates MCP writes. Every outcome other
-/// than PASS is an error that names FAIL or UNKNOWN.
-pub fn verify(url: &str) -> Result<()> {
+/// than PASS is an error that names FAIL or UNKNOWN; a PASS may carry notes.
+pub fn verify(url: &str) -> Result<Vec<String>> {
     let helper = helper_path()?;
     let desired = desired_entry(url, &helper);
     let config = read_claude_config()?;
@@ -366,10 +408,24 @@ pub fn verify(url: &str) -> Result<()> {
             "UNKNOWN: {target} gave no recognisable answer to the unauthenticated control; the MCP write path is untested"
         ),
     }
-    let token =
-        helper_token(&helper.to_string_lossy()).map_err(|e| anyhow::anyhow!("FAIL: {e:#}"))?;
+    let helper_str = helper.to_string_lossy();
+    let token = helper_token(&helper_str, false).map_err(|e| anyhow::anyhow!("FAIL: {e:#}"))?;
+    // verify runs in this shell; Claude Code runs the helper in ITS environment
+    // at connect time, which may not carry the token variables. Say so when the
+    // helper only works because of them.
+    let mut notes = Vec::new();
+    let from_env = ["QUIPU_AUTH_TOKEN", "QUIPU_AUTH_TOKEN_FILE"]
+        .into_iter()
+        .filter(|key| env::var_os(key).is_some_and(|v| !v.is_empty()))
+        .collect::<Vec<_>>();
+    if !from_env.is_empty() && helper_token(&helper_str, true).is_err() {
+        notes.push(format!(
+            "WARNING: the helper found a token only through {} in this shell. Claude Code must see the same variable when it connects, or re-plan with --quipu-mcp-token-file",
+            from_env.join(" and ")
+        ));
+    }
     match classify(&post(&target, Some(&token))?) {
-        ProbeAnswer::Parsed => Ok(()),
+        ProbeAnswer::Parsed => Ok(notes),
         ProbeAnswer::Unauthorized => bail!(
             "FAIL: {target} refused the headersHelper's bearer (missing_or_invalid_bearer_token); check the Quipu token"
         ),
@@ -384,9 +440,13 @@ mod tests {
     use super::*;
 
     fn run_helper(env: &[(&str, &str)], home: &Path) -> (bool, String) {
+        run_helper_with(env, home, None)
+    }
+
+    fn run_helper_with(env: &[(&str, &str)], home: &Path, default: Option<&str>) -> (bool, String) {
         let dir = tempfile::tempdir().unwrap();
         let helper = dir.path().join(HELPER_NAME);
-        write_helper(&helper).unwrap();
+        write_helper(&helper, &helper_script(default).unwrap()).unwrap();
         let mut command = Command::new(&helper);
         command
             .env_clear()
@@ -395,7 +455,17 @@ mod tests {
         for (key, value) in env {
             command.env(key, value);
         }
-        let out = command.output().unwrap();
+        // Parallel tests write and exec scripts; a sibling's fork can briefly
+        // hold a just-written file open, and exec then fails with ETXTBSY.
+        let out = (0..50)
+            .find_map(|_| match command.output() {
+                Err(e) if e.kind() == std::io::ErrorKind::ExecutableFileBusy => {
+                    std::thread::sleep(std::time::Duration::from_millis(20));
+                    None
+                }
+                other => Some(other.unwrap()),
+            })
+            .expect("helper stayed busy");
         (
             out.status.success(),
             String::from_utf8_lossy(&out.stdout).into_owned(),
@@ -449,8 +519,29 @@ mod tests {
 
     #[test]
     fn helper_holds_no_secret() {
-        assert!(!HELPER_SCRIPT.contains("Bearer ey"));
-        assert!(HELPER_SCRIPT.contains("QUIPU_AUTH_TOKEN_FILE"));
+        let script = helper_script(None).unwrap();
+        assert!(!script.contains("Bearer ey"));
+        assert!(script.contains("QUIPU_AUTH_TOKEN_FILE"));
+    }
+
+    #[test]
+    fn planned_token_file_replaces_the_default_but_not_the_environment() {
+        let home = tempfile::tempdir().unwrap();
+        let planned = home.path().join("host-convention/quipu_token");
+        fs::create_dir_all(planned.parent().unwrap()).unwrap();
+        fs::write(&planned, "planned\n").unwrap();
+        let path = planned.to_str();
+        assert_eq!(
+            run_helper_with(&[], home.path(), path),
+            (true, "{\"Authorization\":\"Bearer planned\"}\n".to_owned())
+        );
+        assert_eq!(
+            run_helper_with(&[("QUIPU_AUTH_TOKEN", "override")], home.path(), path).1,
+            "{\"Authorization\":\"Bearer override\"}\n"
+        );
+        for bad in ["relative/token", "/tmp/it's", "/tmp/a\nb"] {
+            assert!(helper_script(Some(bad)).is_err(), "{bad}");
+        }
     }
 
     #[test]

@@ -65,6 +65,10 @@ enum Commands {
         /// headersHelper that reads the token at connect time (no secret in config)
         #[arg(long)]
         quipu_mcp_url: Option<String>,
+        /// This host's Quipu token FILE, baked into the helper as its default
+        /// (a path, never the token). Defaults to $QUIPU_AUTH_TOKEN_FILE when set.
+        #[arg(long, requires = "quipu_mcp_url")]
+        quipu_mcp_token_file: Option<String>,
     },
     /// Converge installed tools and prove each binary by version read-back
     Apply {
@@ -302,6 +306,7 @@ fn main() -> Result<()> {
             quipu_flavor,
             embedding_model,
             quipu_mcp_url,
+            quipu_mcp_token_file,
         } => {
             let profile = Profile::from(profile);
             let crew: CrewMode = crew.into();
@@ -320,7 +325,14 @@ fn main() -> Result<()> {
             if let Some(spec) = embedding_model {
                 plan.embedding_model = Some(EmbeddingModel::read(&spec)?);
             }
-            plan.quipu_mcp = quipu_mcp_url.map(|url| caboodle::model::QuipuMcp { url });
+            plan.quipu_mcp = quipu_mcp_url.map(|url| caboodle::model::QuipuMcp {
+                url,
+                token_file: quipu_mcp_token_file.or_else(|| {
+                    std::env::var("QUIPU_AUTH_TOKEN_FILE")
+                        .ok()
+                        .filter(|path| !path.is_empty())
+                }),
+            });
             plan.intent = Some(InstallIntent::read(&intent)?);
             plan.write(&output)?;
             println!("plan: {}", output.display());

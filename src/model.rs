@@ -240,6 +240,11 @@ pub struct Plan {
 pub struct QuipuMcp {
     /// The Quipu server (or its `/mcp` endpoint). Never a credential.
     pub url: String,
+    /// Absolute path of this host's token FILE, baked in as the helper's
+    /// default so Claude Code's own environment needs no QUIPU_AUTH_TOKEN_FILE.
+    /// A path, never the token.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub token_file: Option<String>,
 }
 
 impl QuipuMcp {
@@ -255,6 +260,14 @@ impl QuipuMcp {
             bail!(
                 "quipu_mcp.url must be a plain server URL with no credentials, query or fragment"
             );
+        }
+        if let Some(path) = &self.token_file {
+            require_safe_text("quipu_mcp.token_file", path)?;
+            if !path.starts_with('/') || path.contains(['\'', '\n', '\r']) {
+                bail!(
+                    "quipu_mcp.token_file must be an absolute path without quotes or line breaks"
+                );
+            }
         }
         Ok(())
     }

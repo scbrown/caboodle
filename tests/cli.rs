@@ -2141,7 +2141,10 @@ else printf '%s\n' "$refused" > "$out"; fi
         "claude",
         r#"
 printf '%s\n' "$*" >> "$HOME/claude.log"
-if [ "$1 $2" = "mcp add-json" ]; then printf '{"mcpServers":{"%s":%s}}\n' "$3" "$4" > "$HOME/.claude.json"; exit 0; fi
+if [ "$1 $2" = "mcp add-json" ]; then
+  case "$4" in *headersHelper*) if [ "${FAKE_CLAUDE_ADD_FAIL:-}" = 1 ]; then echo 'add refused' >&2; exit 1; fi ;; esac
+  printf '{"mcpServers":{"%s":%s}}\n' "$3" "$4" > "$HOME/.claude.json"; exit 0
+fi
 if [ "$1 $2" = "mcp remove" ]; then printf '{"mcpServers":{}}\n' > "$HOME/.claude.json"; exit 0; fi
 exit 2
 "#,
@@ -2349,4 +2352,105 @@ fn quipu_mcp_plan_refuses_credentials_in_the_url() {
             .assert()
             .failure();
     }
+}
+
+#[test]
+fn quipu_mcp_restores_the_previous_entry_when_the_add_fails() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    let bare = r#"{"type":"http","url":"http://quipu.example/mcp"}"#;
+    fs::write(
+        root.path().join(".claude.json"),
+        format!(r#"{{"mcpServers":{{"quipu":{bare}}}}}"#),
+    )
+    .unwrap();
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .env("FAKE_CLAUDE_ADD_FAIL", "1")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("the previous entry was restored"));
+    let config: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(root.path().join(".claude.json")).unwrap())
+            .unwrap();
+    assert_eq!(
+        config["mcpServers"]["quipu"],
+        serde_json::from_str::<serde_json::Value>(bare).unwrap()
+    );
+}
+
+#[test]
+fn quipu_mcp_bakes_the_planned_token_file_and_warns_on_shell_only_tokens() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    quipu_mcp_fixture(root.path(), &bin);
+    // This host keeps its token somewhere other than ~/.config/quipu/token.
+    fs::remove_file(root.path().join(".config/quipu/token")).unwrap();
+    let host_file = root.path().join("host-convention/quipu_token");
+    fs::create_dir_all(host_file.parent().unwrap()).unwrap();
+    fs::write(&host_file, "good-token\n").unwrap();
+
+    // Taken from QUIPU_AUTH_TOKEN_FILE at plan time, visible in the plan.
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .env("QUIPU_AUTH_TOKEN_FILE", &host_file)
+        .assert()
+        .success();
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(plan.contains(host_file.to_str().unwrap()), "{plan}");
+    // Claude Code's environment has no token variable: the baked default works.
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "quipu mcp: authenticated MCP write reached",
+        ))
+        .stdout(predicate::str::contains("WARNING").not());
+    let helper = fs::read_to_string(root.path().join(".local/bin/quipu-mcp-headers")).unwrap();
+    assert!(helper.contains(host_file.to_str().unwrap()) && !helper.contains("good-token"));
+
+    // A plan WITHOUT the baked path, where only this shell's variable finds the
+    // token, passes but says Claude Code must see that variable too.
+    command(root.path(), &bin)
+        .args([
+            "plan",
+            "--profile",
+            "retrieval",
+            "--quipu-mcp-url",
+            "http://quipu.example",
+        ])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["verify"])
+        .env("QUIPU_AUTH_TOKEN_FILE", &host_file)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "WARNING: the helper found a token only through QUIPU_AUTH_TOKEN_FILE",
+        ));
 }

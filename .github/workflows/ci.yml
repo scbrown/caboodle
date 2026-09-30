@@ -75,7 +75,8 @@ jobs:
           with open("caboodle-plan.toml", "rb") as plan_file:
               plan = tomllib.load(plan_file)
           assert plan["profile"] == "everything"
-          assert plan["tools"] == ["quipu", "camayoc", "bobbin", "yupana", "desire-path"]
+          # Built-ins, then the members that join this profile (members/*.toml).
+          assert plan["tools"] == ["quipu", "camayoc", "bobbin", "yupana", "desire-path", "seeds"]
           assert plan["intent"]["anticipated_questions"][0]["expected"] == "caboodle-verify-roundtrip"
           PY
       - name: Install and functionally verify the expanded corpus
@@ -91,7 +92,8 @@ jobs:
             .tools.camayoc.verified == true and
             .tools.bobbin.verified == true and
             .tools.yupana.verified == true and
-            .tools["desire-path"].verified == true
+            .tools["desire-path"].verified == true and
+            .tools.seeds.verified == true
           ' .caboodle/state.json
       - name: Execute the interview's anticipated ontology question
         run: |

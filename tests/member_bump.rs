@@ -102,6 +102,7 @@ esac
             .current_dir(self.root.path())
             .env("PATH", path)
             .env("FAKE_ROOT", self.root.path())
+            .env("HOME", self.path("home"))
             .arg("bump-member")
             .arg(self.manifest())
             .args(args)
@@ -214,6 +215,27 @@ fn a_release_that_is_not_the_member_is_refused_before_anything_is_recorded() {
     // Control: the same release with its identity and version intact bumps.
     fake.publish("v0.2.0", &good_program("v0.2.0"));
     fake.bump(&[]).success();
+}
+
+#[test]
+fn a_bump_keeps_the_file_mode_and_runs_the_release_in_a_throwaway_home() {
+    let fake = Fake::new("v0.2.0");
+    fs::create_dir_all(fake.path("home")).unwrap();
+    fs::set_permissions(fake.manifest(), fs::Permissions::from_mode(0o644)).unwrap();
+    // A release program that writes under $HOME whenever it runs.
+    fake.publish(
+        "v0.2.0",
+        &format!("touch \"$HOME/touched\"\n{}", good_program("v0.2.0")),
+    );
+    fake.bump(&[]).success();
+    // malcolm N1: NamedTempFile's 0600 must not replace the reviewed file's mode.
+    let mode = fs::metadata(fake.manifest()).unwrap().permissions().mode() & 0o777;
+    assert_eq!(mode, 0o644);
+    // wu: the proof ran the release, but never in the maintainer's HOME.
+    assert!(
+        !fake.path("home/touched").exists(),
+        "the release wrote into the real HOME"
+    );
 }
 
 #[test]

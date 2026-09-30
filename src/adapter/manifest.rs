@@ -69,8 +69,11 @@ fn same_file(a: &Path, b: &Path) -> bool {
 }
 
 /// Does the executable at `path` identify as this member's `program`?
+/// Probes run in a throwaway HOME, so reading an identity never touches the
+/// user's own config or store (wu, #46).
 fn identify(path: &Path, program: &Program) -> Result<()> {
-    let out = Command::new(path)
+    let root = tempfile::tempdir().context("create identity probe root")?;
+    let out = hermetic_command(root.path(), path)?
         .args(&program.identity_argv)
         .output()
         .with_context(|| format!("cannot run {} to read its identity", path.display()))?;
@@ -323,11 +326,9 @@ pub(crate) fn prove_release(manifest: &Manifest, archive: &Path) -> Result<()> {
     }
     let first = find_program(unpack.path(), &manifest.programs[0].name)
         .context("release program vanished")?;
-    let out = checked(
-        first.as_os_str(),
-        manifest.version_argv.iter().map(String::as_str),
-        None,
-    )?;
+    let mut argv = vec![first.to_string_lossy().into_owned()];
+    argv.extend(manifest.version_argv.iter().cloned());
+    let out = hermetic(unpack.path(), &argv).context("read the release's version")?;
     let reported = String::from_utf8_lossy(&out.stdout).trim().to_owned();
     if !reports_version(&reported, &manifest.version) {
         bail!(
@@ -363,8 +364,25 @@ fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
 /// write the verify marker into the user's live store (malcolm B2).
 fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
     let (program, args) = argv.split_first().context("empty verify step")?;
+    let out = hermetic_command(root, program)?
+        .args(args)
+        .output()
+        .with_context(|| format!("run {program}"))?;
+    if !out.status.success() {
+        bail!(
+            "exited {}: {}",
+            out.status,
+            String::from_utf8_lossy(&out.stderr).trim()
+        );
+    }
+    Ok(out)
+}
+
+/// `program` with a CLEARED environment rooted at `root`: HOME and the XDG dirs
+/// inside it, PATH and the locale passed through, nothing else.
+fn hermetic_command(root: &Path, program: impl AsRef<OsStr>) -> Result<Command> {
     let mut command = Command::new(program);
-    command.args(args).current_dir(root).env_clear();
+    command.current_dir(root).env_clear();
     for var in ["PATH", "LANG", "LC_ALL", "TERM"] {
         if let Some(value) = env::var_os(var) {
             command.env(var, value);
@@ -381,13 +399,5 @@ fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
         fs::create_dir_all(&path)?;
         command.env(var, path);
     }
-    let out = command.output().with_context(|| format!("run {program}"))?;
-    if !out.status.success() {
-        bail!(
-            "exited {}: {}",
-            out.status,
-            String::from_utf8_lossy(&out.stderr).trim()
-        );
-    }
-    Ok(out)
+    Ok(command)
 }

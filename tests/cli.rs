@@ -2708,6 +2708,54 @@ fn install_fixture_member(bin: &Path) {
     .unwrap();
 }
 
+/// aegis-z1u9s0: apply must not report a member applied while an older copy
+/// of the SAME member earlier on PATH is what the shell runs. A member's
+/// version is read from the managed copy, so apply printed "converged" and
+/// exited 0 while a plain `sd` still ran the previous release (measured on the
+/// Mac). Identity checks pass a stale copy of the same program; only verify
+/// compared what PATH runs, and apply is the step that says done.
+#[cfg(feature = "fixture-members")]
+#[test]
+fn apply_refuses_a_stale_member_copy_that_shadows_the_managed_install() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let managed_dir = root.path().join("cargo-home").join("bin");
+    fs::create_dir_all(&managed_dir).unwrap();
+    let managed = managed_dir.join("fixture-demo");
+    fs::rename(bin.join("fixture-demo"), &managed).unwrap();
+
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "everything"])
+        .assert()
+        .success();
+    // Control: no other copy on PATH, and apply succeeds.
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("fixture-demo: applied"));
+
+    // An older copy of the same member, earlier on PATH: same identity, other version.
+    fake_tool(
+        &bin,
+        "fixture-demo",
+        &format!(
+            "if [ \"${{1:-}}\" = --version ]; then echo 'fixture-demo 0.0.9'; exit 0; fi\nexec {} \"$@\"",
+            managed.display()
+        ),
+    );
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains("fixture-demo: applied").not())
+        .stderr(predicate::str::contains("fixture-demo is SHADOWED"))
+        .stderr(predicate::str::contains("fixture-demo 0.0.9"))
+        .stderr(predicate::str::contains(managed.display().to_string()));
+}
+
 #[test]
 fn apply_registers_exactly_the_hook_bundles_of_the_plans_tools() {
     // aegis-u1ybxo scope (a): apply registers each shipped bundle whose tool the

@@ -48,7 +48,7 @@ platform or prerequisite blockers.
 - **`<tool> functional verification`**: the tool installed but its round trip
   failed. The error includes the tool's own output. Fix it and rerun
   `caboodle install`; tools that already passed are not redone.
-- **macOS with Bobbin v0.16.2: bobbin panics with `Failed to load ONNX Runtime dylib`**: bobbin
+- **macOS with Bobbin before v0.18.0 (the pin CABOODLE carried before this release was v0.16.2): bobbin panics with `Failed to load ONNX Runtime dylib`**: bobbin
   looks for its bundled runtime next to the `~/.cargo/bin/bobbin` symlink rather
   than next to the real binary. For that release, run
   `export ORT_DYLIB_PATH="$HOME/.local/share/caboodle/bobbin/v0.16.2/lib/libonnxruntime.dylib"`

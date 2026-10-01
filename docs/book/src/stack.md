@@ -18,7 +18,10 @@ the tool demonstrate its own job, through three proofs:
    finds it; bobbin indexes a fixture and search returns it; yupana finds a
    caller in a fixture repository; seeds lists a fresh store, creates a
    marker work item, and finds it; shuttle defines a workflow, starts a run,
-   advances it through one signed transition, and finds it in the new state.
+   advances it through one signed transition, and finds it in the new state;
+   quipu also loads the pinned [Quechua](https://scbrown.github.io/quechua/ns)
+   vocabulary release, which must resolve `quechua:WorkflowRun` and must not
+   resolve an undeclared term.
    Every check first proves its marker is
    absent, so a pass is capable of failing.
 3. **Observable**: caboodle generates Prometheus scrape config, starter alerts,
@@ -39,13 +42,13 @@ design is in the [book](introduction.md).
 | [yupana](https://github.com/scbrown/yupana) | structural code intelligence — impact before you touch |
 | [desire-path](https://github.com/scbrown/desire-path) | turn AI hallucinations into feature requests |
 | [seeds](https://github.com/scbrown/seeds) | beads-compatible work tracker (`sd`) on a quipu graph, with fact-level history |
-| [shuttle](https://github.com/scbrown/shuttle) | workflow engine: signed, append-only runs exported into quipu's windowed graphs |
 | [shantytown](https://github.com/scbrown/shantytown) | a small harness for running a crew of coding agents |
 | [creel](https://github.com/scbrown/creel) | parallel agent bursts, entirely in the browser |
 | [shanty](https://github.com/scbrown/shanty) | a terminal multiplexer wrapper that makes tmux feel like home |
 | [skein](https://github.com/scbrown/skein) | portable agentic skills — shell + HTTP only |
 | [beads](https://github.com/Dicklesworthstone/beads_rust) | issue tracking as agent memory — `br`, SQLite + JSONL |
 | [shuttle](https://github.com/scbrown/shuttle) | workflow engine — signed runs, windowed export, frozen history |
+| [quechua](https://github.com/scbrown/quechua) | the stack's shared vocabulary; caboodle pins a release by digest and loads it into Quipu ([catalog](https://scbrown.github.io/quechua/ns)) |
 
 See [the corpus](corpus.md) for share import and [profiles](profiles.md) for
 which tools each selection installs.

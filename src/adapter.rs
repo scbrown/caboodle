@@ -434,6 +434,9 @@ impl Adapter for Quipu {
         if !String::from_utf8_lossy(&after.stdout).contains(marker) {
             bail!("quipu episode landed but read-back did not find the verification node");
         }
+        // The stack's shared vocabulary rides with Quipu: the pinned Quechua
+        // release must load and resolve a term, with an absent-term control.
+        crate::vocabulary::verify().context("Quechua vocabulary verification")?;
         Ok(())
     }
 }

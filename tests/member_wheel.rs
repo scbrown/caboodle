@@ -181,6 +181,18 @@ exec {} "$@""#,
     assert!(refused.contains("refusing to overwrite"), "{refused}");
     assert_eq!(fs::read_to_string(&installed).unwrap(), foreign);
 
+    // 2f. Control: a `..` that leaves the members dir lexically still starts
+    //     with it. Not provably ours: refused and left as is.
+    let escape = format!(
+        "#!{}\n",
+        members.join("../../elsewhere/bin/python").display()
+    );
+    fs::write(&installed, &escape).unwrap();
+    fs::set_permissions(&installed, fs::Permissions::from_mode(0o755)).unwrap();
+    let refused = err(demo.install());
+    assert!(refused.contains("refusing to overwrite"), "{refused}");
+    assert_eq!(fs::read_to_string(&installed).unwrap(), escape);
+
     // 3. A tampered wheel is refused on the RECORDED digest; nothing installs.
     fs::remove_file(&installed).unwrap();
     let tampered = root.path().join("tampered.whl");

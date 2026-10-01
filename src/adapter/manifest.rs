@@ -11,7 +11,7 @@ use std::{
     env,
     ffi::OsStr,
     fs,
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
     process::Command,
 };
 
@@ -169,9 +169,16 @@ fn orphaned_own_launcher(manifest: &Manifest, script: &Path) -> Option<PathBuf> 
         shebang.split_whitespace().next()?.to_string()
     };
     let interpreter = PathBuf::from(interpreter);
-    let inside = interpreter
-        .strip_prefix(&owned)
-        .is_ok_and(|rest| !rest.as_os_str().is_empty());
+    // strip_prefix is lexical, so `<owned>/../x` would pass it: a path that is
+    // not plainly inside the members dir is not provably ours (malcolm, #66).
+    let plain = interpreter.is_absolute()
+        && interpreter
+            .components()
+            .all(|c| matches!(c, Component::RootDir | Component::Normal(_)));
+    let inside = plain
+        && interpreter
+            .strip_prefix(&owned)
+            .is_ok_and(|rest| !rest.as_os_str().is_empty());
     (inside && !interpreter.exists()).then_some(interpreter)
 }
 

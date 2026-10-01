@@ -18,13 +18,17 @@ use std::{
 use anyhow::{bail, Context, Result};
 
 use super::{checked, download_https, managed_bin_dir, Adapter};
-use crate::members::{Manifest, Program};
+use crate::members::{Kind, Manifest, Program, ANY_TARGET};
 use crate::model::ToolName;
 
 pub(super) struct ManifestAdapter(pub(super) &'static Manifest);
 
 /// The release target triple for this host, if the manifest records one.
 pub(crate) fn release_target(manifest: &Manifest) -> Result<&'static str> {
+    if manifest.kind == Kind::PythonWheel {
+        // One pure-Python wheel serves every host; validate() guarantees the key.
+        return Ok(ANY_TARGET);
+    }
     let host = match (env::consts::ARCH, env::consts::OS) {
         ("x86_64", "linux") => "x86_64-unknown-linux-gnu",
         ("aarch64", "linux") => "aarch64-unknown-linux-gnu",
@@ -194,18 +198,12 @@ impl Adapter for ManifestAdapter {
                 m.version
             );
         }
-        let unpack = root.path().join("unpack");
-        fs::create_dir_all(&unpack)?;
-        checked(
-            "tar",
-            [
-                OsStr::new("-xzf"),
-                archive.as_os_str(),
-                OsStr::new("-C"),
-                unpack.as_os_str(),
-            ],
-            None,
-        )?;
+        let unpack = match m.kind {
+            Kind::RustRelease => root.path().join("unpack"),
+            // The venv outlives the install: its console scripts point into it.
+            Kind::PythonWheel => venv_root(m)?,
+        };
+        let unpack = materialize(m, &archive, &unpack)?;
         let bin = managed_bin_dir().context("HOME is required to install a stack member")?;
         fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
         for program in &m.programs {
@@ -266,9 +264,11 @@ impl Adapter for ManifestAdapter {
             if let Some((_, path)) = resolved.iter().find(|(name, _)| *name == argv[0]) {
                 argv[0] = path.to_string_lossy().into_owned();
             }
-            let out = hermetic(root.path(), &argv).with_context(|| {
-                format!("{} verify step {} ({})", m.name, i + 1, argv.join(" "))
-            })?;
+            let stdin = step.stdin.as_ref().map(|s| s.replace("{marker}", &marker));
+            let out =
+                hermetic_via(root.path(), None, &argv, stdin.as_deref()).with_context(|| {
+                    format!("{} verify step {} ({})", m.name, i + 1, argv.join(" "))
+                })?;
             let stdout = String::from_utf8_lossy(&out.stdout);
             if let Some(absent) = &step.absent {
                 let needle = absent.replace("{marker}", &marker);
@@ -312,19 +312,10 @@ pub(crate) fn prove_release(
     archive: &Path,
     wrapper: Option<&Path>,
 ) -> Result<()> {
-    let unpack = tempfile::tempdir().context("create release proof directory")?;
-    checked(
-        "tar",
-        [
-            OsStr::new("-xzf"),
-            archive.as_os_str(),
-            OsStr::new("-C"),
-            unpack.path().as_os_str(),
-        ],
-        None,
-    )?;
+    let scratch = tempfile::tempdir().context("create release proof directory")?;
+    let unpack = materialize(manifest, archive, &scratch.path().join("unpack"))?;
     for program in &manifest.programs {
-        let path = find_program(unpack.path(), &program.name).with_context(|| {
+        let path = find_program(&unpack, &program.name).with_context(|| {
             format!(
                 "{} release does not contain `{}`",
                 manifest.name, program.name
@@ -338,11 +329,12 @@ pub(crate) fn prove_release(
             )
         })?;
     }
-    let first = find_program(unpack.path(), &manifest.programs[0].name)
-        .context("release program vanished")?;
+    let first =
+        find_program(&unpack, &manifest.programs[0].name).context("release program vanished")?;
     let mut argv = vec![first.to_string_lossy().into_owned()];
     argv.extend(manifest.version_argv.iter().cloned());
-    let out = hermetic_via(unpack.path(), wrapper, &argv).context("read the release's version")?;
+    let out =
+        hermetic_via(scratch.path(), wrapper, &argv, None).context("read the release's version")?;
     let reported = String::from_utf8_lossy(&out.stdout).trim().to_owned();
     if !reports_version(&reported, &manifest.version) {
         bail!(
@@ -352,6 +344,142 @@ pub(crate) fn prove_release(
         );
     }
     Ok(())
+}
+
+/// Where a python-wheel member's venv goes: caboodle-owned and UNIQUE per
+/// install (`<version>-<nanos>`), never reused. A venv cannot be moved (its
+/// scripts and pyvenv.cfg hold absolute paths), so a reinstall builds beside the
+/// live one and the swap is the atomic replacement of the console script. A
+/// failed pip leaves the live venv, and the script pointing into it, untouched
+/// (dearing, caboodle#59). Superseded venvs are left for rollback.
+fn venv_root(manifest: &Manifest) -> Result<PathBuf> {
+    let home = env::var_os("HOME").context("HOME is required for a python-wheel member")?;
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_nanos());
+    Ok(PathBuf::from(home)
+        .join(".local/share/caboodle/members")
+        .join(&manifest.name)
+        .join(format!("{}-{nanos}", manifest.version)))
+}
+
+/// Pick an interpreter that satisfies the wheel's `Requires-Python`, BEFORE
+/// anything is created. `python3` first, then versioned names newest first, so a
+/// host whose `python3` is too old (macOS /usr/bin is 3.9) still works when a
+/// newer one is installed, and is refused with the requirement named otherwise.
+/// The wheel's METADATA is read by that interpreter's own zipfile module; a
+/// specifier this check cannot evaluate is refused, never guessed.
+fn select_python(archive: &Path) -> Result<String> {
+    const CHECK: &str = r#"
+import re, sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as z:
+    meta = next(n for n in z.namelist() if n.endswith(".dist-info/METADATA"))
+    req = next((l.split(":", 1)[1].strip() for l in z.read(meta).decode().splitlines()
+                if l.lower().startswith("requires-python:")), "")
+have = sys.version_info[:3]
+def ver(s):
+    return tuple(int(x) for x in s.split(".")) + (0,) * (3 - len(s.split(".")))
+ops = {">=": lambda a, b: a >= b, ">": lambda a, b: a > b, "<=": lambda a, b: a <= b,
+       "<": lambda a, b: a < b, "==": lambda a, b: a == b, "!=": lambda a, b: a != b}
+for clause in filter(None, (c.strip() for c in req.split(","))):
+    m = re.fullmatch(r"(>=|<=|==|!=|>|<)\s*(\d+(?:\.\d+){0,2})", clause)
+    if not m:
+        print("UNEVALUABLE " + req); sys.exit(3)
+    if not ops[m.group(1)](have, ver(m.group(2))):
+        print("UNSATISFIED " + req); sys.exit(2)
+print("OK " + req)
+"#;
+    let mut candidates = vec!["python3".to_owned()];
+    candidates.extend((9..=14).rev().map(|minor| format!("python3.{minor}")));
+    let mut requirement = String::new();
+    for python in &candidates {
+        let Ok(out) = Command::new(python)
+            .args(["-c", CHECK])
+            .arg(archive)
+            .output()
+        else {
+            continue;
+        };
+        let text = String::from_utf8_lossy(&out.stdout).trim().to_owned();
+        match out.status.code() {
+            Some(0) => return Ok(python.clone()),
+            Some(3) => bail!("cannot evaluate the wheel's Requires-Python ({text}); refusing"),
+            _ => requirement = text,
+        }
+    }
+    bail!(
+        "no python on PATH satisfies the wheel's Requires-Python ({}); install one, then retry",
+        requirement
+            .strip_prefix("UNSATISFIED ")
+            .unwrap_or("python3 not found")
+    )
+}
+
+/// Turn a verified release asset into a directory holding its programs.
+///
+/// rust-release: unpack the tarball into `dest`. python-wheel: build a fresh
+/// venv at `dest` (replacing one a previous install left) and pip-install the
+/// wheel into it; the programs are its console scripts in `dest/bin`. Installing
+/// a wheel runs none of its code, so the caller may still confine the first
+/// EXECUTION of an unreviewed release with a probe wrapper.
+fn materialize(manifest: &Manifest, archive: &Path, dest: &Path) -> Result<PathBuf> {
+    match manifest.kind {
+        Kind::RustRelease => {
+            fs::create_dir_all(dest)?;
+            checked(
+                "tar",
+                [
+                    OsStr::new("-xzf"),
+                    archive.as_os_str(),
+                    OsStr::new("-C"),
+                    dest.as_os_str(),
+                ],
+                None,
+            )?;
+            Ok(dest.to_path_buf())
+        }
+        Kind::PythonWheel => {
+            // Refuse an unsatisfiable Requires-Python before creating anything.
+            let python = select_python(archive)?;
+            if dest.exists() {
+                bail!(
+                    "{} already exists; a venv is never rebuilt in place",
+                    dest.display()
+                );
+            }
+            if let Some(parent) = dest.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            let built = (|| -> Result<()> {
+                checked(
+                    &python,
+                    [OsStr::new("-m"), OsStr::new("venv"), dest.as_os_str()],
+                    None,
+                )
+                .with_context(|| format!("create the {} venv with {python}", manifest.name))?;
+                checked(
+                    dest.join("bin/python").as_os_str(),
+                    [
+                        OsStr::new("-m"),
+                        OsStr::new("pip"),
+                        OsStr::new("install"),
+                        OsStr::new("--quiet"),
+                        OsStr::new("--disable-pip-version-check"),
+                        archive.as_os_str(),
+                    ],
+                    None,
+                )
+                .with_context(|| format!("pip install {}", manifest.name))?;
+                Ok(())
+            })();
+            if let Err(error) = built {
+                // Only the new, never-live directory is removed.
+                let _ = fs::remove_dir_all(dest);
+                return Err(error);
+            }
+            Ok(dest.join("bin"))
+        }
+    }
 }
 
 fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
@@ -376,19 +504,37 @@ fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
 /// XDG dirs inside `root`, PATH and the locale passed through, nothing else. A
 /// member that reads its store location from the environment would otherwise
 /// write the verify marker into the user's live store (malcolm B2).
-fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
-    hermetic_via(root, None, argv)
-}
-
 fn hermetic_via(
     root: &Path,
     wrapper: Option<&Path>,
     argv: &[String],
+    stdin: Option<&str>,
 ) -> Result<std::process::Output> {
+    use std::io::Write;
+    use std::process::Stdio;
     let (program, args) = argv.split_first().context("empty verify step")?;
-    let out = hermetic_command(root, wrapper, program)?
+    let mut command = hermetic_command(root, wrapper, program)?;
+    command
         .args(args)
-        .output()
+        .stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    let mut child = command.spawn().with_context(|| format!("run {program}"))?;
+    if let Some(text) = stdin {
+        // Dropped at the end of this statement, which closes the pipe (EOF).
+        child
+            .stdin
+            .take()
+            .context("stdin pipe")?
+            .write_all(text.as_bytes())
+            .with_context(|| format!("write stdin to {program}"))?;
+    }
+    let out = child
+        .wait_with_output()
         .with_context(|| format!("run {program}"))?;
     if !out.status.success() {
         bail!(
@@ -433,4 +579,59 @@ fn hermetic_command(
         command.env(var, path);
     }
     Ok(command)
+}
+
+#[cfg(test)]
+mod python_tests {
+    use super::*;
+
+    /// A minimal wheel whose METADATA declares `requires`.
+    fn wheel(dir: &Path, requires: &str) -> PathBuf {
+        let path = dir.join("demo-1.0.0-py3-none-any.whl");
+        let line = if requires.is_empty() {
+            String::new()
+        } else {
+            format!("Requires-Python: {requires}\\n")
+        };
+        let meta = format!("Metadata-Version: 2.1\\nName: demo\\nVersion: 1.0.0\\n{line}");
+        let script = format!(
+            "import sys, zipfile\nz = zipfile.ZipFile(sys.argv[1], 'w')\nz.writestr('demo-1.0.0.dist-info/METADATA', '{meta}')\nz.close()\n"
+        );
+        let status = Command::new("python3")
+            .args(["-c", &script])
+            .arg(&path)
+            .status()
+            .unwrap();
+        assert!(status.success());
+        path
+    }
+
+    #[test]
+    fn a_satisfied_or_absent_requirement_selects_an_interpreter() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(select_python(&wheel(dir.path(), ">=3.0")).is_ok());
+        let dir = tempfile::tempdir().unwrap();
+        assert!(select_python(&wheel(dir.path(), "")).is_ok());
+    }
+
+    #[test]
+    fn an_unsatisfiable_requirement_is_refused_and_named() {
+        let dir = tempfile::tempdir().unwrap();
+        let err = select_python(&wheel(dir.path(), ">=3.0,<3.1"))
+            .unwrap_err()
+            .to_string();
+        assert!(
+            err.contains("satisfies the wheel's Requires-Python (>=3.0,<3.1)"),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn an_unevaluable_requirement_is_refused_not_guessed() {
+        let dir = tempfile::tempdir().unwrap();
+        let err = select_python(&wheel(dir.path(), "~=3.11"))
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("cannot evaluate"), "{err}");
+    }
 }

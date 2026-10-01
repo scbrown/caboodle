@@ -76,7 +76,7 @@ jobs:
               plan = tomllib.load(plan_file)
           assert plan["profile"] == "everything"
           # Built-ins, then the members that join this profile (members/*.toml).
-          assert plan["tools"] == ["quipu", "camayoc", "bobbin", "yupana", "desire-path", "seeds"]
+          assert plan["tools"] == ["quipu", "camayoc", "bobbin", "yupana", "desire-path", "seeds", "shuttle"]
           assert plan["intent"]["anticipated_questions"][0]["expected"] == "caboodle-verify-roundtrip"
           PY
       - name: Install and functionally verify the expanded corpus
@@ -93,7 +93,8 @@ jobs:
             .tools.bobbin.verified == true and
             .tools.yupana.verified == true and
             .tools["desire-path"].verified == true and
-            .tools.seeds.verified == true
+            .tools.seeds.verified == true and
+            .tools.shuttle.verified == true
           ' .caboodle/state.json
       - name: Execute the interview's anticipated ontology question
         run: |
@@ -148,7 +149,7 @@ jobs:
           caboodle render-observability
           caboodle validate-observability
           # One contract per selected tool; a member's says it declares no metrics.
-          jq -e '.contracts | length == 6' caboodle-observability/contracts.json
+          jq -e '.contracts | length == 7' caboodle-observability/contracts.json
           grep -q 'quipu_graph_facts' caboodle-observability/alerts.yml
           grep -q 'bobbin_up' caboodle-observability/dashboard.json
       - name: Prove lifecycle emission queue is redacted and idempotent
@@ -156,11 +157,11 @@ jobs:
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
           cd "$RUNNER_TEMP/caboodle-phase2"
-          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 12
+          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 14
           printf '%s\n' '{"id":"demo-1","title":"token=fixture-secret","status":"closed","comments":[{"id":"c1","text":"done"}]}' > br-export.jsonl
           caboodle queue-br br-export.jsonl
           caboodle queue-br br-export.jsonl
-          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 15
+          test "$(find .caboodle/episodes -maxdepth 1 -name '*.json' | wc -l)" -eq 17
           ! grep -R -q 'fixture-secret' .caboodle/episodes
       - name: Prove adversarial negative controls turn verification red
         run: |

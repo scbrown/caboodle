@@ -1,0 +1,15 @@
+# Source of tests/fixtures/releases/fixture_wheel-0.1.0-py3-none-any.whl, the
+# python-wheel member fixture. Rebuild with `pip wheel --no-deps -w <dir> .`
+# and re-pin its digest in tests/fixtures/members/fixture-wheel.toml.
+[project]
+name = "fixture-wheel"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+fixture-wheel = "fixture_wheel:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

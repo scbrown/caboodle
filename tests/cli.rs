@@ -219,6 +219,28 @@ exit 2
             version = seeds.version
         ),
     );
+    // shuttle (members/shuttle.toml), same rules: identity from --help, the
+    // PINNED version from `version`. A run only reaches "claimed" in status
+    // after `advance`, so the fake keeps the manifest's read-back meaningful.
+    let shuttle = caboodle::members::get("shuttle").expect("shuttle is an embedded member");
+    fake_tool(
+        bin,
+        "shuttle",
+        &format!(
+            r#"
+case "${{1:-}}" in
+  --help) echo 'The `shuttle` CLI (test)'; exit 0 ;;
+  version) echo 'shuttle {version}'; exit 0 ;;
+  define) cat >/dev/null; exit 0 ;;
+  start) echo "$5" >> .shuttle-fake-started; exit 0 ;;
+  advance) grep -qx "$6" .shuttle-fake-started && printf '%s\tcaboodle-verify\tclaimed\topen\n' "$6" >> .shuttle-fake-runs; exit 0 ;;
+  status) cat .shuttle-fake-runs 2>/dev/null || true; exit 0 ;;
+esac
+exit 2
+"#,
+            version = shuttle.version
+        ),
+    );
     fake_tool(
         bin,
         "curl",

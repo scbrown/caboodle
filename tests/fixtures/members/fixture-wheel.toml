@@ -1,0 +1,35 @@
+# Test-only python-wheel stack member (compiled in only with the fixture-members
+# feature). Its release asset is the committed tests/fixtures/releases wheel,
+# built from tests/fixtures/wheel-src and pinned here.
+name = "fixture-wheel"
+kind = "python-wheel"
+repo = "caboodle-fixtures/fixture-wheel"
+version = "0.1.0"
+tag = "v{version}"
+asset = "fixture_wheel-{version}-py3-none-any.whl"
+version_argv = ["--version"]
+sums_asset = "checksums.txt"
+# No profile: only tests/member_wheel.rs drives it, so it stays out of the
+# profile-wide CLI tests that fake every member of "everything".
+profiles = []
+
+[sha256]
+any = "915eea0f2bf8bef1c32eca0a7b7b396ba1648daea8fe7eadf482a08439ed581b"
+
+[[programs]]
+name = "fixture-wheel"
+identity_argv = ["--help"]
+identity_contains = "fixture-wheel is the caboodle python-wheel fixture stack member"
+
+[[verify]]
+argv = ["fixture-wheel", "list"]
+absent = "{marker}"
+
+# The marker arrives on stdin, so this also proves a step's stdin is delivered.
+[[verify]]
+argv = ["fixture-wheel", "add", "-"]
+stdin = "{marker}"
+
+[[verify]]
+argv = ["fixture-wheel", "list"]
+present = "{marker}"

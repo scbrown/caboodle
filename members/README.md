@@ -37,3 +37,23 @@ different program of the same name. The text must ALSO appear in the OLDEST
 release a user may still have installed. Install refuses to replace a program
 whose identity it cannot confirm, so a string added in a newer release makes
 the first upgrade over an older install fail.
+
+## Kinds
+
+| kind | asset | install |
+|---|---|---|
+| `rust-release` | one `.tar.gz` per target triple, digest per target | unpack, copy the programs into the managed bin dir |
+| `python-wheel` | one `*-py3-none-any.whl` for every host, digest under `any` | a fresh venv at `~/.local/share/caboodle/members/<name>/<version>`, `pip install` the wheel, copy its console scripts into the managed bin dir |
+
+A `python-wheel` pin covers the member's OWN code. pip resolves the wheel's
+declared dependencies from the package index at install time, so they are not
+digest-pinned; keep a member's dependency list short and say so in its
+manifest (shuttle has one, `cryptography`). `bump-member` proves a wheel the
+same way it proves a tarball: it installs it into a scratch venv (installing
+runs none of the wheel's code) and executes the programs, through
+`--probe-wrapper` when given.
+
+A verify step may set `stdin`, text written to the program's standard input
+with `{marker}` substituted. shuttle uses it to define a workflow without
+writing a file. The B3 rule covers it: a step handed the marker on stdin may
+not also assert it present.

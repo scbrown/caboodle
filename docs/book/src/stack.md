@@ -4,7 +4,7 @@
     caboodle                      (interview → plan → apply → verify → observe)
         │  installs, proves, and watches ↓
         ▼
-  quipu · bobbin · camayoc · yupana · desire-path · shantytown / creel
+  quipu · bobbin · camayoc · yupana · desire-path · seeds · shantytown / creel
         │
         ▼
     prometheus                    (every tool's metrics, consolidated)
@@ -16,7 +16,8 @@ the tool demonstrate its own job, through three proofs:
 1. **Installed**: proven by reading the version back, never by an exit code.
 2. **Working**: a per-tool round trip. quipu accepts an episode and a query
    finds it; bobbin indexes a fixture and search returns it; yupana finds a
-   caller in a fixture repository. Every check first proves its marker is
+   caller in a fixture repository; seeds lists a fresh store, creates a
+   marker work item, and finds it. Every check first proves its marker is
    absent, so a pass is capable of failing.
 3. **Observable**: caboodle generates Prometheus scrape config, starter alerts,
    and one dashboard for the selected tools, for you to review and deploy.
@@ -35,6 +36,7 @@ design is in the [book](introduction.md).
 | [camayoc](https://github.com/scbrown/camayoc) | bootstrap ontology, knowledge ingress, knowledge packs |
 | [yupana](https://github.com/scbrown/yupana) | structural code intelligence — impact before you touch |
 | [desire-path](https://github.com/scbrown/desire-path) | turn AI hallucinations into feature requests |
+| [seeds](https://github.com/scbrown/seeds) | beads-compatible work tracker (`sd`) on a quipu graph, with fact-level history |
 | [shantytown](https://github.com/scbrown/shantytown) | a small harness for running a crew of coding agents |
 | [creel](https://github.com/scbrown/creel) | parallel agent bursts, entirely in the browser |
 | [shanty](https://github.com/scbrown/shanty) | a terminal multiplexer wrapper that makes tmux feel like home |

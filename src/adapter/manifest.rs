@@ -166,6 +166,41 @@ fn sha256_file(path: &Path) -> Result<String> {
     Ok(format!("{:x}", hasher.finalize()))
 }
 
+/// Download `m`'s release asset for this host, accept it only on the RECORDED
+/// digest, and materialize it. Returns the scratch dir (keep it alive while the
+/// programs are used) and the directory holding the programs. A python-wheel
+/// member materializes into its persistent per-version venv.
+pub(crate) fn stage(m: &Manifest) -> Result<(tempfile::TempDir, PathBuf)> {
+    let target = release_target(m)?;
+    let asset = m.asset_for(target);
+
+    let root =
+        tempfile::tempdir().with_context(|| format!("create {} download directory", m.name))?;
+    let archive = root.path().join(&asset);
+    download_https(
+        &format!(
+            "https://github.com/{}/releases/download/{}/{asset}",
+            m.repo,
+            m.tag()
+        ),
+        &archive,
+    )?;
+    if sha256_file(&archive)? != m.sha256[target] {
+        bail!(
+            "{} {} release checksum mismatch for {target}",
+            m.name,
+            m.version
+        );
+    }
+    let unpack = match m.kind {
+        Kind::RustRelease => root.path().join("unpack"),
+        // The venv outlives the install: its console scripts point into it.
+        Kind::PythonWheel => venv_root(m)?,
+    };
+    let unpack = materialize(m, &archive, &unpack)?;
+    Ok((root, unpack))
+}
+
 impl Adapter for ManifestAdapter {
     fn name(&self) -> ToolName {
         ToolName::Member(self.0.name.as_str())
@@ -177,33 +212,8 @@ impl Adapter for ManifestAdapter {
 
     fn install(&self) -> Result<()> {
         let m = self.0;
-        let target = release_target(m)?;
         refuse_foreign_program(m)?;
-        let asset = m.asset_for(target);
-        let root =
-            tempfile::tempdir().with_context(|| format!("create {} download directory", m.name))?;
-        let archive = root.path().join(&asset);
-        download_https(
-            &format!(
-                "https://github.com/{}/releases/download/{}/{asset}",
-                m.repo,
-                m.tag()
-            ),
-            &archive,
-        )?;
-        if sha256_file(&archive)? != m.sha256[target] {
-            bail!(
-                "{} {} release checksum mismatch for {target}",
-                m.name,
-                m.version
-            );
-        }
-        let unpack = match m.kind {
-            Kind::RustRelease => root.path().join("unpack"),
-            // The venv outlives the install: its console scripts point into it.
-            Kind::PythonWheel => venv_root(m)?,
-        };
-        let unpack = materialize(m, &archive, &unpack)?;
+        let (_root, unpack) = stage(m)?;
         let bin = managed_bin_dir().context("HOME is required to install a stack member")?;
         fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
         for program in &m.programs {
@@ -240,6 +250,45 @@ impl Adapter for ManifestAdapter {
 
     fn verify(&self) -> Result<()> {
         let m = self.0;
+        // Verify the member, not whatever answers to its name (B1).
+        let resolved = m
+            .programs
+            .iter()
+            .map(|p| Ok((p.name.as_str(), resolve(p)?)))
+            .collect::<Result<Vec<_>>>()?;
+        verify_resolved(m, &resolved)
+    }
+}
+
+/// Verify a single-program member AT `path` (the copy PATH runs), after
+/// confirming `path` identifies as the member.
+pub(crate) fn verify_at(m: &Manifest, path: &Path) -> Result<()> {
+    let program = single_program(m)?;
+    identify_member(m, path)?;
+    verify_resolved(m, &[(program.name.as_str(), path.to_path_buf())])
+}
+
+/// Refuse unless the program at `path` identifies as `m`'s single program, so
+/// release tracking never replaces a same-named foreign program (A2).
+pub(crate) fn identify_member(m: &Manifest, path: &Path) -> Result<()> {
+    identify(path, single_program(m)?)
+        .with_context(|| format!("refusing to update it as {}", m.name))
+}
+
+/// The one program of a member that release tracking can update in place.
+pub(crate) fn single_program(m: &Manifest) -> Result<&Program> {
+    match m.programs.as_slice() {
+        [only] => Ok(only),
+        _ => bail!(
+            "{} has {} programs; update-release tracks single-program members only",
+            m.name,
+            m.programs.len()
+        ),
+    }
+}
+
+fn verify_resolved(m: &Manifest, resolved: &[(&str, PathBuf)]) -> Result<()> {
+    {
         let root =
             tempfile::tempdir().with_context(|| format!("create {} verification root", m.name))?;
         let marker = format!(
@@ -249,12 +298,6 @@ impl Adapter for ManifestAdapter {
                 .duration_since(std::time::UNIX_EPOCH)
                 .map_or(0, |d| d.as_nanos())
         );
-        // Verify the member, not whatever answers to its name (B1).
-        let resolved = m
-            .programs
-            .iter()
-            .map(|p| Ok((p.name.as_str(), resolve(p)?)))
-            .collect::<Result<Vec<_>>>()?;
         for (i, step) in m.verify.iter().enumerate() {
             let mut argv: Vec<String> = step
                 .argv
@@ -482,7 +525,7 @@ fn materialize(manifest: &Manifest, archive: &Path, dest: &Path) -> Result<PathB
     }
 }
 
-fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
+pub(crate) fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
     let direct = dir.join(name);
     if direct.is_file() {
         return Some(direct);

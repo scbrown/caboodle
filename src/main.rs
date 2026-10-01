@@ -160,7 +160,9 @@ enum Commands {
         plan: PathBuf,
         #[arg(long, default_value = ".caboodle/state.json")]
         state: PathBuf,
-        #[arg(long, value_parser = ["bobbin", "yupana", "desire-path"])]
+        /// bobbin, yupana or desire-path track the newest published release; a
+        /// stack member (members/*.toml) tracks its reviewed pin
+        #[arg(long, value_parser = update_release_tool)]
         tool: String,
         /// Inspect release/version metadata without downloading or replacing binaries
         #[arg(long)]
@@ -283,6 +285,25 @@ impl From<ProfileArg> for Profile {
             ProfileArg::Crew => Self::Crew,
             ProfileArg::Everything => Self::Everything,
         }
+    }
+}
+
+/// `update-release --tool`: the release-tracked built-ins, or any embedded member.
+#[cfg(unix)]
+fn update_release_tool(value: &str) -> Result<String, String> {
+    if ["bobbin", "yupana", "desire-path"].contains(&value)
+        || caboodle::members::get(value).is_some()
+    {
+        Ok(value.to_owned())
+    } else {
+        let members: Vec<&str> = caboodle::members::all()
+            .iter()
+            .map(|m| m.name.as_str())
+            .collect();
+        Err(format!(
+            "possible values: bobbin, yupana, desire-path, or a stack member ({})",
+            members.join(", ")
+        ))
     }
 }
 

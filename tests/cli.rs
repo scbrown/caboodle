@@ -130,13 +130,40 @@ exit 2
         "st",
         // `ops hooks register <file>` answers like st: `<name>: installed`, the
         // name read from the bundle it was given (aegis-u1ybxo), and logs it.
+        // `ops hooks check --json` reports every registered bundle configured.
         "if [ \"${1:-}\" = --version ]; then echo 'st 0.4.0 (test)'; exit 0; fi\n\
          if [ \"${1:-} ${2:-} ${3:-}\" = 'ops hooks register' ]; then\n\
            n=$(sed -n 's/.*\"name\": *\"\\([^\"]*\\)\".*/\\1/p' \"$4\" | head -n 1)\n\
+           v=$(sed -n 's/.*\"version\": *\"\\([^\"]*\\)\".*/\\1/p' \"$4\" | head -n 1)\n\
            echo \"$n\" >> \"$(dirname \"$0\")/st-registered.log\"\n\
+           echo \"$n $v\" >> \"$(dirname \"$0\")/st-versions.log\"\n\
            echo \"$n: installed\"; exit 0\n\
+         fi\n\
+         if [ \"${1:-} ${2:-} ${3:-}\" = 'ops hooks check' ]; then\n\
+           printf '{\"schema\":\"st.hook-check/1\",\"registry_errors\":[],\"items\":['\n\
+           sep=''\n\
+           if [ -f \"$(dirname \"$0\")/st-versions.log\" ]; then\n\
+             while read -r n v; do\n\
+               printf '%s{\"bundle\":\"%s\",\"version\":\"%s\",\"configured\":\"ok\",\"live\":\"ok\"}' \"$sep\" \"$n\" \"$v\"; sep=','\n\
+             done < \"$(dirname \"$0\")/st-versions.log\"\n\
+           fi\n\
+           printf ']}\\n'; exit 0\n\
          fi\nexit 2",
     );
+    // Its registry starts holding every shipped bundle, as on a host that was
+    // applied: verify asserts the bundles, and tests about other steps must
+    // not trip on them. A test about registration clears this first.
+    let mut seeded = String::new();
+    for entry in fs::read_dir(Path::new(env!("CARGO_MANIFEST_DIR")).join("hook-bundles")).unwrap() {
+        let bundle: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(entry.unwrap().path()).unwrap()).unwrap();
+        seeded.push_str(&format!(
+            "{} {}\n",
+            bundle["name"].as_str().unwrap(),
+            bundle["version"].as_str().unwrap()
+        ));
+    }
+    fs::write(bin.join("st-versions.log"), seeded).unwrap();
     fake_tool(
         bin,
         "yupana",
@@ -2682,4 +2709,55 @@ fn apply_registers_exactly_the_hook_bundles_of_the_plans_tools() {
             );
         }
     }
+}
+
+#[test]
+fn verify_asserts_the_hook_bundles_without_a_crew_plan_and_before_the_tools() {
+    // aegis-u1ybxo: apply registers the plan's bundles whenever st is present,
+    // crew mode or not, so verify must assert them on the same terms. It used to
+    // assert them only inside crew verification, which a plan without a crew
+    // section never reaches, and only after every tool had verified, so on the
+    // measured Mac a bobbin skew failed first and the bundles went unasserted.
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    assert!(!plan.contains("[crew]"), "control: no crew section\n{plan}");
+    fs::remove_file(bin.join("st-versions.log")).unwrap();
+
+    // Before apply registered anything: verify FAILS naming the bundle.
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("bobbin: not registered with st"));
+
+    // After apply: verify asserts each applicable bundle.
+    command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "hook bundle bobbin: configured in",
+        ))
+        .stdout(predicate::str::contains(
+            "hook bundle quipu: not applicable on this host",
+        ));
+
+    // A skewed tool still fails verify, but the hooks verdict is printed first.
+    fake_tool(
+        &bin,
+        "bobbin",
+        "if [ \"${1:-}\" = --version ]; then echo 'bobbin 0.17.0'; exit 0; fi\nexit 101",
+    );
+    command(root.path(), &bin)
+        .arg("verify")
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains(
+            "hook bundle bobbin: configured in",
+        ))
+        .stderr(predicate::str::contains("VERSION SKEW"));
 }

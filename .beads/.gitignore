@@ -1,0 +1,34 @@
+# br's local state under .beads/. Only the export (issues.jsonl) and metadata.json
+# are tracked; do not add any pattern that could match either.
+
+# The store itself.
+beads.db
+beads.db?*
+*.db-journal
+*.db-wal
+*.db-shm
+
+# A redirect holds an absolute local path.
+redirect
+
+# Locks and transient write state
+.write.lock
+.br-*
+*.tmp
+
+# br runtime directories
+.br_history/
+.br_recovery/
+.doctor/
+
+# Three-way merge state. The ancestor keeps a pre-upgrade record by design (a flush
+# never advances it), so a committed copy can publish what the export no longer does.
+beads.base.jsonl
+beads.base.meta.json
+beads.left.jsonl
+beads.left.meta.json
+beads.right.jsonl
+beads.right.meta.json
+*-fsqlite-ns-gate
+*-fsqlite-ns-use
+*.vacuum-wal-cert*

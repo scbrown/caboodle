@@ -2622,40 +2622,64 @@ fn install_fixture_member(bin: &Path) {
 fn apply_registers_exactly_the_hook_bundles_of_the_plans_tools() {
     // aegis-u1ybxo scope (a): apply registers each shipped bundle whose tool the
     // plan installs, through st's generic `ops hooks register`, and no other.
-    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
-    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
-    let out = command(root.path(), &bin)
-        .args(["apply", "--skip-install"])
-        .assert()
-        .success()
-        .get_output()
-        .stdout
-        .clone();
-    let out = String::from_utf8(out).unwrap();
-    let mut registered: Vec<String> = fs::read_to_string(bin.join("st-registered.log"))
-        .unwrap_or_default()
-        .lines()
-        .map(str::to_string)
-        .collect();
-    registered.sort();
-    let mut expected: Vec<String> = ["bobbin", "desire-path", "quipu", "yupana"]
-        .into_iter()
-        .filter(|t| plan.contains(&format!("\"{t}\"")))
-        .map(str::to_string)
-        .collect();
-    expected.sort();
-    assert!(
-        expected.contains(&"bobbin".to_string()),
-        "control: the plan installs bobbin\n{plan}"
-    );
-    assert_eq!(
-        registered, expected,
-        "registered exactly the plan's bundles"
-    );
-    for name in &expected {
+    // Two hosts: a fresh one (the measured Mac) without the quipu session-capture
+    // script, where quipu must NOT be registered, and a Gas Town host that has it.
+    use std::os::unix::fs::PermissionsExt;
+    for gas_town in [false, true] {
+        let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+        if gas_town {
+            let hooks = root.path().join(".gt/hooks");
+            fs::create_dir_all(&hooks).unwrap();
+            let script = hooks.join("quipu-session-capture.sh");
+            fs::write(&script, "#!/bin/sh\n").unwrap();
+            fs::set_permissions(&script, fs::Permissions::from_mode(0o755)).unwrap();
+        }
+        let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+        let out = command(root.path(), &bin)
+            .args(["apply", "--skip-install"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let out = String::from_utf8(out).unwrap();
+        let mut registered: Vec<String> = fs::read_to_string(bin.join("st-registered.log"))
+            .unwrap_or_default()
+            .lines()
+            .map(str::to_string)
+            .collect();
+        registered.sort();
+        let in_plan: Vec<String> = ["bobbin", "desire-path", "quipu", "yupana"]
+            .into_iter()
+            .filter(|t| plan.contains(&format!("\"{t}\"")))
+            .map(str::to_string)
+            .collect();
         assert!(
-            out.contains(&format!("hook bundle {name}: installed")),
-            "{out}"
+            in_plan.contains(&"bobbin".to_string()) && in_plan.contains(&"quipu".to_string()),
+            "control: the plan installs bobbin and quipu\n{plan}"
         );
+        let mut expected: Vec<String> = in_plan
+            .iter()
+            .filter(|t| gas_town || t.as_str() != "quipu")
+            .cloned()
+            .collect();
+        expected.sort();
+        assert_eq!(
+            registered, expected,
+            "gas_town={gas_town}: registered exactly the plan's applicable bundles"
+        );
+        for name in &expected {
+            assert!(
+                out.contains(&format!("hook bundle {name}: installed")),
+                "{out}"
+            );
+        }
+        if !gas_town {
+            assert!(
+                out.contains("quipu: NOT registered on this host")
+                    && out.contains("$HOME/.gt/hooks/quipu-session-capture.sh"),
+                "the skip is named, not silent\n{out}"
+            );
+        }
     }
 }

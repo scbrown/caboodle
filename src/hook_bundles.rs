@@ -33,6 +33,55 @@ pub fn selected<'a>(tools: impl IntoIterator<Item = &'a str>) -> Vec<(&'static s
         .collect()
 }
 
+/// Hook commands in `bundle` that START with an explicit path (`/`, `~/` or
+/// `$HOME/`) naming no executable on this host. Such a hook fails on every
+/// event it fires on, which is worse than not registering it: the quipu
+/// bundle's `$HOME/.gt/hooks/quipu-session-capture.sh` exists only on a Gas
+/// Town host (measured on a fresh Mac, aegis-u1ybxo). Bare program names are
+/// not checked: they are the plan's own tools, installed by apply before this.
+pub fn missing_executables(bundle: &str, home: Option<&std::path::Path>) -> Vec<String> {
+    let Ok(obj) = serde_json::from_str::<Value>(bundle) else {
+        return Vec::new();
+    };
+    let mut missing = Vec::new();
+    for hook in obj
+        .get("hooks")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        let Some(cmd) = hook.get("command").and_then(Value::as_str) else {
+            continue;
+        };
+        let first = cmd
+            .split_whitespace()
+            .next()
+            .unwrap_or("")
+            .trim_matches(['"', '\'']);
+        let path = if let Some(rest) = first.strip_prefix("$HOME/").or(first.strip_prefix("~/")) {
+            match home {
+                Some(h) => h.join(rest),
+                None => {
+                    missing.push(first.to_string());
+                    continue;
+                }
+            }
+        } else if first.starts_with('/') {
+            std::path::PathBuf::from(first)
+        } else {
+            continue;
+        };
+        let executable = std::fs::metadata(&path).is_ok_and(|m| {
+            use std::os::unix::fs::PermissionsExt;
+            m.is_file() && m.permissions().mode() & 0o111 != 0
+        });
+        if !executable && !missing.contains(&first.to_string()) {
+            missing.push(first.to_string());
+        }
+    }
+    missing
+}
+
 /// Register `bundles` with st through its generic interface (`st ops hooks
 /// register <file>`, aegis-u1ybxo scope a). Idempotent: st compares the
 /// registered copy and answers `unchanged` without re-rendering anything.
@@ -47,7 +96,17 @@ pub fn register(bundles: &[(&str, &str)], st: &str) -> Result<Vec<String>> {
         return Ok(vec!["none selected by this plan".into()]);
     }
     let mut lines = Vec::new();
+    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
     for (name, json) in bundles {
+        let missing = missing_executables(json, home.as_deref());
+        if !missing.is_empty() {
+            lines.push(format!(
+                "{name}: NOT registered on this host: hook command {} is not an executable \
+                 here (it would fail on every event)",
+                missing.join(", ")
+            ));
+            continue;
+        }
         let mut file = tempfile::Builder::new()
             .prefix(&format!("caboodle-{name}-"))
             .suffix(".json")
@@ -198,7 +257,21 @@ pub fn verify(bundles: &[(&str, &str)]) -> Result<Vec<String>> {
             output.status.code()
         )
     })?;
-    assess(bundles, &report)
+    // A bundle whose hook command cannot exist on this host was not registered
+    // (see `register`); demanding it here would be the same impossible ask.
+    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+    let (applicable, absent): (Vec<_>, Vec<_>) = bundles
+        .iter()
+        .copied()
+        .partition(|(_, json)| missing_executables(json, home.as_deref()).is_empty());
+    let mut lines = assess(&applicable, &report)?;
+    for (name, json) in absent {
+        lines.push(format!(
+            "{name}: not applicable on this host (hook command {} is not an executable here)",
+            missing_executables(json, home.as_deref()).join(", ")
+        ));
+    }
+    Ok(lines)
 }
 
 #[cfg(test)]
@@ -236,6 +309,53 @@ mod tests {
             }
         }
         register(bundles, st)
+    }
+
+    #[test]
+    fn a_hook_starting_with_a_missing_path_is_found_and_bare_names_are_not_checked() {
+        use std::os::unix::fs::PermissionsExt;
+        let home = tempfile::tempdir().unwrap();
+        let quipu = BUNDLES.iter().find(|(n, _)| *n == "quipu").unwrap().1;
+        // Fresh host (the measured Mac): no ~/.gt/hooks at all.
+        assert_eq!(
+            missing_executables(quipu, Some(home.path())),
+            ["$HOME/.gt/hooks/quipu-session-capture.sh"]
+        );
+        // Present but not executable still counts as missing.
+        let dir = home.path().join(".gt/hooks");
+        std::fs::create_dir_all(&dir).unwrap();
+        let script = dir.join("quipu-session-capture.sh");
+        std::fs::write(&script, "#!/bin/sh\n").unwrap();
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert_eq!(missing_executables(quipu, Some(home.path())).len(), 1);
+        // Executable: applicable (the Gas Town host, e.g. vati).
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert!(missing_executables(quipu, Some(home.path())).is_empty());
+        // Bare program names (bobbin) and shell forms (yupana's `out=$(yupana`) are
+        // the plan's own tools: never reported, even with no HOME at all.
+        for name in ["bobbin", "yupana", "desire-path"] {
+            let b = BUNDLES.iter().find(|(n, _)| *n == name).unwrap().1;
+            assert!(missing_executables(b, None).is_empty(), "{name}");
+        }
+    }
+
+    #[test]
+    fn register_skips_a_bundle_whose_hook_path_does_not_exist_without_calling_st() {
+        let dir = tempfile::tempdir().unwrap();
+        let st = fake_st(dir.path(), "ghost: installed", 0);
+        let ghost = r#"{"schema":"st.hook-bundle/1","name":"ghost","version":"1",
+            "owner":"caboodle","roles":["*"],
+            "hooks":[{"event":"Stop","command":"/nonexistent/ghost-hook.sh"}]}"#;
+        let lines = reg(&[("ghost", ghost)], &st).unwrap();
+        assert!(
+            lines[0].starts_with("ghost: NOT registered on this host"),
+            "{lines:?}"
+        );
+        assert!(lines[0].contains("/nonexistent/ghost-hook.sh"));
+        assert!(
+            !dir.path().join("got.json").exists(),
+            "st was never asked to register it"
+        );
     }
 
     #[test]

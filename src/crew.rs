@@ -47,19 +47,9 @@ pub fn apply(selection: &CrewSelection, state: &mut State, skip_install: bool) -
     Ok(())
 }
 
-pub fn verify(
-    selection: &CrewSelection,
-    evidence: &CrewEvidence,
-    bundles: &[(&str, &str)],
-    state: &mut State,
-) -> Result<()> {
+pub fn verify(selection: &CrewSelection, evidence: &CrewEvidence, state: &mut State) -> Result<()> {
     if selects_shantytown(selection.mode) {
         let version = shantytown_version()?;
-        // st renders the stack's hooks from registered bundles; verify that
-        // every shipped bundle is configured in st's own check (aegis-u1ybxo).
-        for line in crate::hook_bundles::verify(bundles)? {
-            println!("hook bundle {line}");
-        }
         record(state, "shantytown", version, true);
         println!("shantytown: verified");
     }

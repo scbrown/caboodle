@@ -144,6 +144,43 @@ exec {} "$@""#,
     demo.verify().expect("the live install still works");
     set_path(&system, &[&fakes, &cargo_home.join("bin")]);
 
+    // 2c. aegis-z1u9s0: a cache restored $CARGO_HOME/bin but not the venvs, so
+    //     the installed script cannot run to prove its identity. It is this
+    //     member's own launcher (its interpreter is inside the caboodle-owned
+    //     venv dir), so install replaces it instead of refusing.
+    fs::remove_dir_all(&members).unwrap();
+    assert!(
+        demo.version().is_err(),
+        "control: the orphaned script cannot run"
+    );
+    demo.install()
+        .expect("replace this member's own orphaned launcher");
+    assert_eq!(demo.version().unwrap(), "fixture-wheel 0.1.0");
+
+    // 2d. The same, in pip's /bin/sh trampoline form (used for a long path).
+    let gone = members.join("0.0.1-1/bin/python");
+    fs::write(
+        &installed,
+        format!(
+            "#!/bin/sh\n'''exec' {} \"$0\" \"$@\"\n' '''\n",
+            gone.display()
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(&installed, fs::Permissions::from_mode(0o755)).unwrap();
+    demo.install()
+        .expect("replace an orphaned trampoline launcher");
+    assert_eq!(demo.version().unwrap(), "fixture-wheel 0.1.0");
+
+    // 2e. Control: an unrunnable script whose interpreter is NOT inside this
+    //     member's venv dir is not provably ours. It is refused and left as is.
+    let foreign = format!("#!{}\n", root.path().join("elsewhere/bin/python").display());
+    fs::write(&installed, &foreign).unwrap();
+    fs::set_permissions(&installed, fs::Permissions::from_mode(0o755)).unwrap();
+    let refused = err(demo.install());
+    assert!(refused.contains("refusing to overwrite"), "{refused}");
+    assert_eq!(fs::read_to_string(&installed).unwrap(), foreign);
+
     // 3. A tampered wheel is refused on the RECORDED digest; nothing installs.
     fs::remove_file(&installed).unwrap();
     let tampered = root.path().join("tampered.whl");

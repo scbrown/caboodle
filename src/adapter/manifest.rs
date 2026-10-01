@@ -110,8 +110,22 @@ fn refuse_foreign_program(manifest: &Manifest) -> Result<()> {
     for program in &manifest.programs {
         let dest = destination(&program.name)?;
         if dest.exists() {
-            identify(&dest, program)
-                .with_context(|| format!("refusing to overwrite it with {}", manifest.name))?;
+            if let Err(error) = identify(&dest, program) {
+                match orphaned_own_launcher(manifest, &dest) {
+                    Some(interpreter) => eprintln!(
+                        "{}: replacing {}: it is this member's own console script, and its \
+                         venv interpreter {} no longer exists",
+                        manifest.name,
+                        dest.display(),
+                        interpreter.display()
+                    ),
+                    None => {
+                        return Err(error).with_context(|| {
+                            format!("refusing to overwrite it with {}", manifest.name)
+                        })
+                    }
+                }
+            }
         }
         if let Some(found) = on_path(&program.name).filter(|p| !same_file(p, &dest)) {
             identify(&found, program).with_context(|| {
@@ -124,6 +138,41 @@ fn refuse_foreign_program(manifest: &Manifest) -> Result<()> {
         }
     }
     Ok(())
+}
+
+/// A python-wheel member's console script whose venv is gone, so it cannot run
+/// to prove its identity (aegis-z1u9s0). Seen on CI: a cache restored
+/// `$CARGO_HOME/bin` but not the venvs under `~/.local/share`, and the A2 guard
+/// then refused to overwrite caboodle's own launcher. Ownership is proved, not
+/// assumed: the script's interpreter (a `#!` line, or pip's `/bin/sh`
+/// trampoline for a long path) must lie inside this member's caboodle-owned
+/// venv directory and must not exist. Anything else unrunnable stays refused.
+/// Returns the missing interpreter.
+fn orphaned_own_launcher(manifest: &Manifest, script: &Path) -> Option<PathBuf> {
+    if manifest.kind != Kind::PythonWheel {
+        return None;
+    }
+    let owned = venv_root(manifest).ok()?.parent()?.to_path_buf();
+    let text = fs::read(script).ok()?;
+    let text = String::from_utf8_lossy(&text[..text.len().min(4096)]);
+    let mut lines = text.lines();
+    let shebang = lines.next()?.strip_prefix("#!")?.trim();
+    let interpreter = if shebang == "/bin/sh" {
+        // pip: '''exec' /path/to/python "$0" "$@"
+        lines
+            .next()?
+            .strip_prefix("'''exec' ")?
+            .split_whitespace()
+            .next()?
+            .to_string()
+    } else {
+        shebang.split_whitespace().next()?.to_string()
+    };
+    let interpreter = PathBuf::from(interpreter);
+    let inside = interpreter
+        .strip_prefix(&owned)
+        .is_ok_and(|rest| !rest.as_os_str().is_empty());
+    (inside && !interpreter.exists()).then_some(interpreter)
 }
 
 /// The executable version and verify must run: the managed install when it

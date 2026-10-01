@@ -13,7 +13,9 @@ use serde_json::{json, Value};
 use crate::model::{QuipuFlavor, ToolName};
 
 mod manifest;
-pub(crate) use manifest::{prove_release, release_target};
+pub(crate) use manifest::{
+    find_program, identify_member, prove_release, release_target, single_program, stage, verify_at,
+};
 
 pub trait Adapter {
     fn name(&self) -> ToolName;

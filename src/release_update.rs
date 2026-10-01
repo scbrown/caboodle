@@ -213,7 +213,151 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
     if !plan.tools.contains(&tool) {
         bail!("tool is not selected by the reviewed plan");
     }
+    if let ToolName::Member(name) = tool {
+        let m = crate::members::get(name).context("unknown stack member")?;
+        return update_member(m, state_path, check_only);
+    }
     update_binary(Some(plan), Some(tool), state_path, check_only)
+}
+
+/// Take the release-update state lock and finish any interrupted swap.
+fn lock_state(state_path: &Path) -> Result<fs::File> {
+    let state_dir = state_path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    fs::create_dir_all(state_dir)?;
+    let lock = fs::OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .write(true)
+        .open(state_dir.join("release-update.lock"))?;
+    FileExt::try_lock_exclusive(&lock).context("another release update holds the state lock")?;
+    transaction::recover(state_path)?;
+    Ok(lock)
+}
+
+/// Release tracking for a data-declared stack member (aegis-2ezq5j).
+///
+/// A member tracks its REVIEWED PIN, never the newest published release: the
+/// pin's digest is the member's trust anchor (members/README), and pins move by
+/// `bump-member` PR -> caboodle release -> `update-self`. So this installs the
+/// pinned asset, accepted on the digest embedded in this build, over the copy
+/// PATH runs (the same copy the built-in tools update), with the same backup,
+/// transaction and rollback-on-failed-verify. Every run ends in a functional
+/// verify of that copy, so "verified" in the output is always a fresh proof.
+fn update_member(m: &crate::members::Manifest, state_path: &Path, check_only: bool) -> Result<()> {
+    let _lock = lock_state(state_path)?;
+    let tool_id = m.name.as_str();
+    if held() {
+        println!("{tool_id}: held (no release lookup or install)");
+        return Ok(());
+    }
+    let program = crate::adapter::single_program(m)?;
+    let version_args: Vec<&str> = m.version_argv.iter().map(String::as_str).collect();
+    let destination = selected_path(&program.name)?;
+    crate::adapter::identify_member(m, &destination)?;
+    let before = text(
+        destination.to_str().context("binary path is not UTF-8")?,
+        &version_args,
+    )?;
+    let pin = &m.version;
+    let is_pin = |line: &str| {
+        line.split_whitespace()
+            .any(|w| w.trim_start_matches('v') == pin.as_str())
+    };
+    if is_pin(&before) {
+        if check_only {
+            println!("{tool_id}: at reviewed pin {pin} ({before}); functional proof not run");
+            return Ok(());
+        }
+        crate::adapter::verify_at(m, &destination)?;
+        println!("{tool_id}: current and verified (reviewed pin {pin}; {before})");
+        return Ok(());
+    }
+    // Both sides in `<name> <version>` form: the version is the second word.
+    match behind_reviewed(&before, &format!("{} {pin}", program.name)) {
+        Some(true) => {}
+        Some(false) => {
+            println!(
+                "{tool_id}: ahead of reviewed pin {pin} — refusing downgrade (installed {before})"
+            );
+            return Ok(());
+        }
+        None => bail!(
+            "{tool_id}: cannot compare installed {before:?} with reviewed pin {pin}; refusing"
+        ),
+    }
+    if check_only {
+        println!(
+            "{tool_id}: reviewed pin {pin}, installed {before}; install/functional proof not run"
+        );
+        return Ok(());
+    }
+    let (_scratch, programs) = crate::adapter::stage(m)?;
+    let candidate = crate::adapter::find_program(&programs, &program.name)
+        .with_context(|| format!("{tool_id} release does not contain `{}`", program.name))?;
+    let after = text(
+        candidate.to_str().context("candidate path is not UTF-8")?,
+        &version_args,
+    )?;
+    if !is_pin(&after) {
+        bail!("{tool_id}: candidate reports {after:?}, not the reviewed pin {pin}");
+    }
+    let old_hash = hash(&destination)?;
+    let backup = state_path
+        .parent()
+        .context("state has no directory")?
+        .join("release-backups")
+        .join(&program.name)
+        .join(&old_hash);
+    atomic_copy(&destination, &backup)?;
+    if held() {
+        println!("{tool_id}: held before swap");
+        return Ok(());
+    }
+    transaction::begin(
+        state_path,
+        &transaction::Pending {
+            tool: tool_id.into(),
+            destination: destination.clone(),
+            backup: backup.clone(),
+            sha256: old_hash.clone(),
+        },
+    )?;
+    atomic_copy(&candidate, &destination)?;
+    let verify = (|| -> Result<()> {
+        let read_back = text(destination.to_str().unwrap(), &version_args)?;
+        if !is_pin(&read_back) {
+            bail!("installed {tool_id} reads back {read_back:?}, not {pin}");
+        }
+        crate::adapter::verify_at(m, &destination)
+    })();
+    if let Err(error) = verify {
+        atomic_copy(&backup, &destination).context("verification failed AND rollback failed")?;
+        if hash(&destination)? != old_hash {
+            bail!("rollback checksum mismatch after {error:#}");
+        }
+        transaction::finish(state_path)?;
+        return Err(error).context("member verification failed; previous artifact restored");
+    }
+    let mut state = State::read(state_path)?;
+    state.tools.insert(
+        tool_id.to_owned(),
+        ToolState {
+            version: after.clone(),
+            applied: true,
+            verified: true,
+        },
+    );
+    state.write(state_path)?;
+    emission::queue_transition(state_path, tool_id, "release-updated", &after)?;
+    transaction::finish(state_path)?;
+    println!(
+        "{tool_id}: installed and verified reviewed pin {pin} (was {before}) backup={}",
+        backup.display()
+    );
+    Ok(())
 }
 
 /// Update Caboodle itself from a published checksummed release.
@@ -229,18 +373,7 @@ fn update_binary(
 ) -> Result<()> {
     let tool_id = tool.map_or("caboodle", |t| t.as_str());
     let (repo, binary, _, _) = names(tool, "v0.0.0")?;
-    let state_dir = state_path
-        .parent()
-        .filter(|p| !p.as_os_str().is_empty())
-        .unwrap_or_else(|| Path::new("."));
-    fs::create_dir_all(state_dir)?;
-    let lock = fs::OpenOptions::new()
-        .create(true)
-        .truncate(false)
-        .write(true)
-        .open(state_dir.join("release-update.lock"))?;
-    FileExt::try_lock_exclusive(&lock).context("another release update holds the state lock")?;
-    transaction::recover(state_path)?;
+    let _lock = lock_state(state_path)?;
     if held() {
         println!("{}: held (no release lookup or install)", tool_id);
         return Ok(());

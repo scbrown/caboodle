@@ -57,7 +57,14 @@ expected = "fixture-result"
         .env("QUIPU_SERVER", "http://quipu.test")
         .env("FAKE_QUIPU_IMPORT_LOG", root.join("quipu-import.log"))
         .env("FAKE_MODEL_FETCH_LOG", root.join("model-fetch.log"))
-        .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"));
+        .env("FAKE_CAMAYOC_STATE", root.join("camayoc-ingested"))
+        // The committed copy of the reviewed Quechua release (aegis-1i5h1j.3):
+        // its digest is still checked against the pin, so no network is needed.
+        .env(
+            "CABOODLE_QUECHUA_FILE",
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/vocabulary/quechua-ns-v0.1.0.ttl"),
+        );
     command
 }
 
@@ -90,12 +97,35 @@ if [ "${1:-}" = "episode" ]; then
   touch "$db"
   exit 0
 fi
-if [ "${1:-}" = "read" ]; then
-  db=''
+if [ "${1:-}" = "knot" ]; then
+  file=$2; db=''
   while [ "$#" -gt 0 ]; do
     if [ "$1" = "--db" ]; then shift; db=$1; fi
     shift || true
   done
+  cp "$file" "$db.knot"
+  exit 0
+fi
+if [ "${1:-}" = "read" ]; then
+  query=$2; db=''
+  while [ "$#" -gt 0 ]; do
+    if [ "$1" = "--db" ]; then shift; db=$1; fi
+    shift || true
+  done
+  case "$query" in
+    ASK*)
+      # Answer from what `knot` stored: the version literal, or a declared term.
+      if [ ! -f "$db.knot" ]; then echo false; exit 0; fi
+      case "$query" in
+        *versionInfo*)
+          v=$(printf '%s' "$query" | sed -n 's/.*versionInfo> "\([^"]*\)".*/\1/p')
+          if grep -q "owl:versionInfo \"$v\"" "$db.knot"; then echo true; else echo false; fi ;;
+        *)
+          term=$(printf '%s' "$query" | sed -n 's/.*quechua\/ns#\([A-Za-z0-9_]*\)>.*/\1/p')
+          if grep -q "ns#$term>" "$db.knot"; then echo true; else echo false; fi ;;
+      esac
+      exit 0 ;;
+  esac
   [ ! -f "$db" ] || echo 'caboodle-verify-roundtrip'
   exit 0
 fi
@@ -896,7 +926,18 @@ fn profile_stages_canonical_quipu_shares_without_promoting_them() {
         .assert()
         .success()
         .stdout(predicate::str::contains("share sha256:aaaa"))
-        .stdout(predicate::str::contains("promotion eligible: true"));
+        .stdout(predicate::str::contains("promotion eligible: true"))
+        .stdout(predicate::str::contains(
+            "vocabulary: quechua v0.1.0 loaded into knowledge.db",
+        ));
+    // aegis-1i5h1j.3: the pinned Quechua release was knotted into the plan's
+    // store, byte-for-byte the reviewed asset.
+    let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/vocabulary/quechua-ns-v0.1.0.ttl");
+    assert_eq!(
+        fs::read(root.path().join("knowledge.db.knot")).unwrap(),
+        fs::read(fixture).unwrap()
+    );
 
     let log = fs::read_to_string(root.path().join("quipu-import.log")).unwrap();
     assert_eq!(log.trim(), "import team-share --db knowledge.db");

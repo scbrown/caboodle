@@ -252,8 +252,36 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     for line in crate::hook_bundles::register(&bundles, "st")? {
         println!("hook bundle {line}");
     }
+    load_vocabulary(plan)?;
     consume_shares(plan, &mut state, state_path)?;
     Ok(state)
+}
+
+/// Load the pinned Quechua vocabulary (aegis-1i5h1j.3) into the plan's Quipu
+/// store. It is part of Quipu: a plan without Quipu, or without a store to load
+/// into, loads nothing, and verify still proves the release round trip in a
+/// throwaway store.
+fn load_vocabulary(plan: &Plan) -> Result<()> {
+    if !plan.tools.contains(&crate::model::ToolName::Quipu) {
+        return Ok(());
+    }
+    let cached = crate::vocabulary::ensure_cached()?;
+    match plan.quipu_db.as_deref() {
+        Some(db) => {
+            crate::vocabulary::load(db)?;
+            println!(
+                "vocabulary: quechua v{} loaded into {}",
+                crate::vocabulary::QUECHUA_VERSION,
+                db.display()
+            );
+        }
+        None => println!(
+            "vocabulary: quechua v{} cached at {} (no plan quipu_db to load into)",
+            crate::vocabulary::QUECHUA_VERSION,
+            cached.display()
+        ),
+    }
+    Ok(())
 }
 
 fn consume_shares(plan: &Plan, state: &mut State, state_path: &Path) -> Result<()> {

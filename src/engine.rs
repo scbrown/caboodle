@@ -154,6 +154,14 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
                 }
             })
         })();
+        // aegis-z1u9s0: the version above is the MANAGED copy's for a member, so
+        // a stale copy earlier on PATH left apply saying "applied" while the
+        // shell ran the older release. Apply is the step that says done; it
+        // checks what PATH runs, as verify does.
+        let version = version.and_then(|version| {
+            check_path_resolution(name)?;
+            Ok(version)
+        });
         let version = match version {
             Ok(version) => version,
             Err(error) => {

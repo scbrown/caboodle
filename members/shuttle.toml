@@ -1,0 +1,52 @@
+# shuttle: the workflow engine of the quipu stack (aegis-1i5h1j.2). One pure-Python
+# wheel for every host. The digest is the wheel's line in the release's
+# checksums.txt, re-derived by downloading and hashing it. Bump with
+# `caboodle bump-member members/shuttle.toml`; never edit a digest by hand.
+#
+# The pin covers shuttle's own code. Its one dependency (cryptography, for
+# ed25519) is resolved by pip from the package index at install time.
+name = "shuttle"
+kind = "python-wheel"
+repo = "scbrown/shuttle"
+version = "0.3.0"
+tag = "v{version}"
+asset = "shuttle-{version}-py3-none-any.whl"
+version_argv = ["version"]
+sums_asset = "checksums.txt"
+prerequisites = ["python3"]
+profiles = ["crew", "everything"]
+
+[sha256]
+any = "e9f7db9cc4815840ff548249bbd4bd09d555dc89f28e37638f3456dbd4d0a18d"
+
+# Every released shuttle (0.2.0 onward) prints this line in --help.
+[[programs]]
+name = "shuttle"
+identity_argv = ["--help"]
+identity_contains = "The `shuttle` CLI"
+
+# A real run round trip, all local (no quipu): the hermetic HOME starts with no
+# runs, a workflow is defined from stdin, a run named by the marker is started
+# and advanced through one SIGNED transition (which mints the agent key), and
+# status must then show the run in the advanced state.
+[[verify]]
+argv = ["shuttle", "status"]
+absent = "{marker}"
+
+[[verify]]
+argv = ["shuttle", "define", "/dev/stdin"]
+stdin = '''
+{"name": "caboodle-verify", "initial": "open", "terminal": ["done"],
+ "transitions": [{"step": "claim", "from": "open", "to": "claimed"},
+                 {"step": "finish", "from": "claimed", "to": "done"}]}
+'''
+
+[[verify]]
+argv = ["shuttle", "start", "--agent", "caboodle", "caboodle-verify", "{marker}"]
+
+[[verify]]
+argv = ["shuttle", "advance", "--step", "claim", "--agent", "caboodle", "{marker}"]
+
+[[verify]]
+argv = ["shuttle", "status"]
+present = "{marker}\tcaboodle-verify\tclaimed"

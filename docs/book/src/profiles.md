@@ -10,9 +10,10 @@
 Both harnesses are first-class: **Claude Code and codex** can each drive the
 install, and when a crew is chosen the wizard asks which harness each role runs
 on, emitting the right per-harness configuration. The `crew` profile also
-installs seeds (`sd`), the crew's work tracker.
-- `everything` — code-intel + Desire Path + seeds; isolated failure-ingest/read
-  proof, and a seeds marker round trip
+installs seeds (`sd`), the crew's work tracker, and shuttle, its workflow engine.
+- `everything` — code-intel + Desire Path + seeds + shuttle; isolated
+  failure-ingest/read proof, a seeds marker round trip, and a shuttle run round
+  trip
 
 Any profile can extend its corpus with repeatable `--share` selections because
 all profiles include Quipu. Shares require an explicit `--quipu-db`, are staged

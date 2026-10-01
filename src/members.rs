@@ -23,7 +23,16 @@ use crate::model::{Profile, ToolName};
 pub enum Kind {
     /// A `.tar.gz` GitHub release asset per target, holding the programs.
     RustRelease,
+    /// One pure-Python `py3-none-any` wheel for every host, recorded under the
+    /// target key [`ANY_TARGET`]. Install puts it in a caboodle-owned venv and
+    /// links its console scripts. The wheel is digest-pinned; its declared
+    /// dependencies are resolved by pip from the package index, so the pin
+    /// covers the member's own code and NOT its dependencies.
+    PythonWheel,
 }
+
+/// The single `[sha256]` key of a host-independent (`python-wheel`) member.
+pub const ANY_TARGET: &str = "any";
 
 /// One program the member puts on PATH, and how to tell it from a program of
 /// the same name that is NOT this member (seeds' `sd` vs chmln/sd, A2).
@@ -47,6 +56,11 @@ pub struct Program {
 #[serde(deny_unknown_fields)]
 pub struct Step {
     pub argv: Vec<String>,
+    /// Text written to the step's stdin, with `{marker}` substituted. Lets a
+    /// step hand a member a file's worth of input (a workflow definition)
+    /// without writing outside the hermetic root.
+    #[serde(default)]
+    pub stdin: Option<String>,
     #[serde(default)]
     pub absent: Option<String>,
     #[serde(default)]
@@ -134,6 +148,31 @@ impl Manifest {
         if self.sha256.is_empty() {
             bail!("{}: at least one target digest is required", self.name);
         }
+        match self.kind {
+            Kind::PythonWheel => {
+                if self.sha256.len() != 1 || !self.sha256.contains_key(ANY_TARGET) {
+                    bail!(
+                        "{}: a python-wheel member records exactly one digest, under \"{ANY_TARGET}\"",
+                        self.name
+                    );
+                }
+                if !self.asset.ends_with("-py3-none-any.whl") || self.asset.contains("{target}") {
+                    bail!(
+                        "{}: a python-wheel asset is one pure-Python wheel (*-py3-none-any.whl), \
+                         not per target",
+                        self.name
+                    );
+                }
+            }
+            Kind::RustRelease => {
+                if self.sha256.contains_key(ANY_TARGET) {
+                    bail!(
+                        "{}: \"{ANY_TARGET}\" is not a target triple; a rust-release digest is per target",
+                        self.name
+                    );
+                }
+            }
+        }
         for (target, digest) in &self.sha256 {
             if !safe(target)
                 || digest.len() != 64
@@ -189,11 +228,11 @@ impl Manifest {
         }
         // B3: a step handed the marker can pass `present` by echoing its
         // arguments, storing nothing. The read-back must be a separate step.
-        if self
-            .verify
-            .iter()
-            .any(|s| s.present.is_some() && s.argv.iter().any(|a| a.contains("{marker}")))
-        {
+        if self.verify.iter().any(|s| {
+            s.present.is_some()
+                && (s.argv.iter().any(|a| a.contains("{marker}"))
+                    || s.stdin.as_deref().is_some_and(|i| i.contains("{marker}")))
+        }) {
             bail!(
                 "{}: a verify step asserting the marker PRESENT must not be given it in argv (B3)",
                 self.name
@@ -259,7 +298,10 @@ pub fn prerequisites(name: &str) -> &'static [&'static str] {
                 .map(|m| {
                     // What ManifestAdapter::install itself shells out to (the digest
                     // is computed in-process), then the member's own.
-                    let mut all: Vec<&'static str> = vec!["curl", "tar"];
+                    let mut all: Vec<&'static str> = match m.kind {
+                        Kind::RustRelease => vec!["curl", "tar"],
+                        Kind::PythonWheel => vec!["curl", "python3"],
+                    };
                     all.extend(m.prerequisites.iter().map(String::as_str));
                     (m.name.clone(), all)
                 })
@@ -375,6 +417,79 @@ present = "{marker}"
         let mut m = manifest(GOOD).unwrap();
         m.tag = "v{version}?x=1".into();
         assert!(m.validate().is_err());
+    }
+
+    fn wheel(sha256: &str, asset: &str) -> Result<Manifest> {
+        let text = format!(
+            r#"name = "demo"
+kind = "python-wheel"
+repo = "owner/demo"
+version = "1.2.3"
+tag = "v{{version}}"
+asset = "{asset}"
+version_argv = ["--version"]
+sums_asset = "checksums.txt"
+[sha256]
+{sha256}
+[[programs]]
+name = "demo"
+identity_argv = ["--help"]
+identity_contains = "demo is the demo member"
+{GOOD}"#
+        );
+        let m: Manifest = toml::from_str(&text)?;
+        m.validate()?;
+        Ok(m)
+    }
+
+    #[test]
+    fn a_python_wheel_has_one_any_digest_and_one_pure_wheel() {
+        let any = format!("any = \"{}\"", "a".repeat(64));
+        let m = wheel(&any, "demo-{version}-py3-none-any.whl").unwrap();
+        assert_eq!(m.asset_for(ANY_TARGET), "demo-1.2.3-py3-none-any.whl");
+        // A per-target digest, a second key, a platform wheel or a {target}
+        // template are all refused.
+        let triple = format!("x86_64-unknown-linux-gnu = \"{}\"", "a".repeat(64));
+        assert!(wheel(&triple, "demo-{version}-py3-none-any.whl").is_err());
+        assert!(wheel(
+            &format!("{any}\n{triple}"),
+            "demo-{version}-py3-none-any.whl"
+        )
+        .is_err());
+        assert!(wheel(&any, "demo-{version}-cp312-abi3-linux_x86_64.whl").is_err());
+        assert!(wheel(&any, "demo-{version}-{target}-py3-none-any.whl").is_err());
+    }
+
+    #[test]
+    fn a_rust_release_may_not_use_the_any_key() {
+        let mut m = manifest(GOOD).unwrap();
+        m.sha256.insert(ANY_TARGET.into(), "a".repeat(64));
+        assert!(m.validate().is_err());
+    }
+
+    #[test]
+    fn present_on_a_step_handed_the_marker_on_stdin_is_refused() {
+        // B3 through stdin: an echoing program would pass without storing.
+        let echo_pass = r#"[[verify]]
+argv = ["demo", "list"]
+absent = "{marker}"
+[[verify]]
+argv = ["demo", "add", "-"]
+stdin = "{marker}"
+present = "{marker}"
+"#;
+        assert!(manifest(echo_pass).unwrap_err().to_string().contains("B3"));
+        let separate = r#"[[verify]]
+argv = ["demo", "list"]
+absent = "{marker}"
+[[verify]]
+argv = ["demo", "add", "-"]
+stdin = "{marker}"
+[[verify]]
+argv = ["demo", "list"]
+present = "{marker}"
+"#;
+        manifest(separate).unwrap();
     }
 
     #[test]

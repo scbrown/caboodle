@@ -135,6 +135,7 @@ Caboodle installs these together and proves each one works; every tool also stan
 | [yupana](https://github.com/scbrown/yupana) | which code calls which: the blast radius before an edit |
 | [desire-path](https://github.com/scbrown/desire-path) | the tool calls your agents get wrong, so you can fix them |
 | [seeds](https://github.com/scbrown/seeds) | the work your agents track, as facts in the graph with full history |
+| [shuttle](https://github.com/scbrown/shuttle) | the workflows your agents run, every step signed and kept in the graph |
 
 ## Contributing
 

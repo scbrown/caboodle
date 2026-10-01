@@ -18,13 +18,17 @@ use std::{
 use anyhow::{bail, Context, Result};
 
 use super::{checked, download_https, managed_bin_dir, Adapter};
-use crate::members::{Manifest, Program};
+use crate::members::{Kind, Manifest, Program, ANY_TARGET};
 use crate::model::ToolName;
 
 pub(super) struct ManifestAdapter(pub(super) &'static Manifest);
 
 /// The release target triple for this host, if the manifest records one.
 pub(crate) fn release_target(manifest: &Manifest) -> Result<&'static str> {
+    if manifest.kind == Kind::PythonWheel {
+        // One pure-Python wheel serves every host; validate() guarantees the key.
+        return Ok(ANY_TARGET);
+    }
     let host = match (env::consts::ARCH, env::consts::OS) {
         ("x86_64", "linux") => "x86_64-unknown-linux-gnu",
         ("aarch64", "linux") => "aarch64-unknown-linux-gnu",
@@ -194,18 +198,12 @@ impl Adapter for ManifestAdapter {
                 m.version
             );
         }
-        let unpack = root.path().join("unpack");
-        fs::create_dir_all(&unpack)?;
-        checked(
-            "tar",
-            [
-                OsStr::new("-xzf"),
-                archive.as_os_str(),
-                OsStr::new("-C"),
-                unpack.as_os_str(),
-            ],
-            None,
-        )?;
+        let unpack = match m.kind {
+            Kind::RustRelease => root.path().join("unpack"),
+            // The venv outlives the install: its console scripts point into it.
+            Kind::PythonWheel => venv_root(m)?,
+        };
+        let unpack = materialize(m, &archive, &unpack)?;
         let bin = managed_bin_dir().context("HOME is required to install a stack member")?;
         fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
         for program in &m.programs {
@@ -266,9 +264,11 @@ impl Adapter for ManifestAdapter {
             if let Some((_, path)) = resolved.iter().find(|(name, _)| *name == argv[0]) {
                 argv[0] = path.to_string_lossy().into_owned();
             }
-            let out = hermetic(root.path(), &argv).with_context(|| {
-                format!("{} verify step {} ({})", m.name, i + 1, argv.join(" "))
-            })?;
+            let stdin = step.stdin.as_ref().map(|s| s.replace("{marker}", &marker));
+            let out =
+                hermetic_via(root.path(), None, &argv, stdin.as_deref()).with_context(|| {
+                    format!("{} verify step {} ({})", m.name, i + 1, argv.join(" "))
+                })?;
             let stdout = String::from_utf8_lossy(&out.stdout);
             if let Some(absent) = &step.absent {
                 let needle = absent.replace("{marker}", &marker);
@@ -312,19 +312,10 @@ pub(crate) fn prove_release(
     archive: &Path,
     wrapper: Option<&Path>,
 ) -> Result<()> {
-    let unpack = tempfile::tempdir().context("create release proof directory")?;
-    checked(
-        "tar",
-        [
-            OsStr::new("-xzf"),
-            archive.as_os_str(),
-            OsStr::new("-C"),
-            unpack.path().as_os_str(),
-        ],
-        None,
-    )?;
+    let scratch = tempfile::tempdir().context("create release proof directory")?;
+    let unpack = materialize(manifest, archive, &scratch.path().join("unpack"))?;
     for program in &manifest.programs {
-        let path = find_program(unpack.path(), &program.name).with_context(|| {
+        let path = find_program(&unpack, &program.name).with_context(|| {
             format!(
                 "{} release does not contain `{}`",
                 manifest.name, program.name
@@ -338,11 +329,12 @@ pub(crate) fn prove_release(
             )
         })?;
     }
-    let first = find_program(unpack.path(), &manifest.programs[0].name)
-        .context("release program vanished")?;
+    let first =
+        find_program(&unpack, &manifest.programs[0].name).context("release program vanished")?;
     let mut argv = vec![first.to_string_lossy().into_owned()];
     argv.extend(manifest.version_argv.iter().cloned());
-    let out = hermetic_via(unpack.path(), wrapper, &argv).context("read the release's version")?;
+    let out =
+        hermetic_via(scratch.path(), wrapper, &argv, None).context("read the release's version")?;
     let reported = String::from_utf8_lossy(&out.stdout).trim().to_owned();
     if !reports_version(&reported, &manifest.version) {
         bail!(
@@ -352,6 +344,68 @@ pub(crate) fn prove_release(
         );
     }
     Ok(())
+}
+
+/// Where a python-wheel member's venv lives: caboodle-owned, one per version.
+fn venv_root(manifest: &Manifest) -> Result<PathBuf> {
+    let home = env::var_os("HOME").context("HOME is required for a python-wheel member")?;
+    Ok(PathBuf::from(home)
+        .join(".local/share/caboodle/members")
+        .join(&manifest.name)
+        .join(&manifest.version))
+}
+
+/// Turn a verified release asset into a directory holding its programs.
+///
+/// rust-release: unpack the tarball into `dest`. python-wheel: build a fresh
+/// venv at `dest` (replacing one a previous install left) and pip-install the
+/// wheel into it; the programs are its console scripts in `dest/bin`. Installing
+/// a wheel runs none of its code, so the caller may still confine the first
+/// EXECUTION of an unreviewed release with a probe wrapper.
+fn materialize(manifest: &Manifest, archive: &Path, dest: &Path) -> Result<PathBuf> {
+    match manifest.kind {
+        Kind::RustRelease => {
+            fs::create_dir_all(dest)?;
+            checked(
+                "tar",
+                [
+                    OsStr::new("-xzf"),
+                    archive.as_os_str(),
+                    OsStr::new("-C"),
+                    dest.as_os_str(),
+                ],
+                None,
+            )?;
+            Ok(dest.to_path_buf())
+        }
+        Kind::PythonWheel => {
+            if dest.exists() {
+                fs::remove_dir_all(dest).with_context(|| format!("replace {}", dest.display()))?;
+            }
+            if let Some(parent) = dest.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            checked(
+                "python3",
+                [OsStr::new("-m"), OsStr::new("venv"), dest.as_os_str()],
+                None,
+            )?;
+            checked(
+                dest.join("bin/python").as_os_str(),
+                [
+                    OsStr::new("-m"),
+                    OsStr::new("pip"),
+                    OsStr::new("install"),
+                    OsStr::new("--quiet"),
+                    OsStr::new("--disable-pip-version-check"),
+                    archive.as_os_str(),
+                ],
+                None,
+            )
+            .with_context(|| format!("pip install {}", manifest.name))?;
+            Ok(dest.join("bin"))
+        }
+    }
 }
 
 fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
@@ -376,19 +430,37 @@ fn find_program(dir: &Path, name: &str) -> Option<std::path::PathBuf> {
 /// XDG dirs inside `root`, PATH and the locale passed through, nothing else. A
 /// member that reads its store location from the environment would otherwise
 /// write the verify marker into the user's live store (malcolm B2).
-fn hermetic(root: &Path, argv: &[String]) -> Result<std::process::Output> {
-    hermetic_via(root, None, argv)
-}
-
 fn hermetic_via(
     root: &Path,
     wrapper: Option<&Path>,
     argv: &[String],
+    stdin: Option<&str>,
 ) -> Result<std::process::Output> {
+    use std::io::Write;
+    use std::process::Stdio;
     let (program, args) = argv.split_first().context("empty verify step")?;
-    let out = hermetic_command(root, wrapper, program)?
+    let mut command = hermetic_command(root, wrapper, program)?;
+    command
         .args(args)
-        .output()
+        .stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    let mut child = command.spawn().with_context(|| format!("run {program}"))?;
+    if let Some(text) = stdin {
+        // Dropped at the end of this statement, which closes the pipe (EOF).
+        child
+            .stdin
+            .take()
+            .context("stdin pipe")?
+            .write_all(text.as_bytes())
+            .with_context(|| format!("write stdin to {program}"))?;
+    }
+    let out = child
+        .wait_with_output()
         .with_context(|| format!("run {program}"))?;
     if !out.status.success() {
         bail!(

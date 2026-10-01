@@ -21,6 +21,76 @@ pub const BUNDLES: &[(&str, &str)] = &[
     ("quipu", include_str!("../hook-bundles/quipu.json")),
 ];
 
+/// The shipped bundles whose tool this plan installs. A bundle for a tool the
+/// host does not run would render hooks calling a missing binary, failing on
+/// every tool call, so neither registration nor verification includes it.
+pub fn selected<'a>(tools: impl IntoIterator<Item = &'a str>) -> Vec<(&'static str, &'static str)> {
+    let tools: Vec<&str> = tools.into_iter().collect();
+    BUNDLES
+        .iter()
+        .filter(|(name, _)| tools.contains(name))
+        .copied()
+        .collect()
+}
+
+/// Register `bundles` with st through its generic interface (`st ops hooks
+/// register <file>`, aegis-u1ybxo scope a). Idempotent: st compares the
+/// registered copy and answers `unchanged` without re-rendering anything.
+///
+/// When `st` is not installed this is a NOTE, not a failure: st is optional on
+/// a host, and `caboodle verify` reports the bundles as unregistered there. A
+/// bundle st REFUSES, or an answer outside st's contract, fails: that is a
+/// defect in the shipped bundle or a changed contract, never something to
+/// skip. Returns one report line per bundle.
+pub fn register(bundles: &[(&str, &str)], st: &str) -> Result<Vec<String>> {
+    if bundles.is_empty() {
+        return Ok(vec!["none selected by this plan".into()]);
+    }
+    let mut lines = Vec::new();
+    for (name, json) in bundles {
+        let mut file = tempfile::Builder::new()
+            .prefix(&format!("caboodle-{name}-"))
+            .suffix(".json")
+            .tempfile()
+            .context("create a temporary bundle file")?;
+        std::io::Write::write_all(&mut file, json.as_bytes())
+            .with_context(|| format!("write bundle {name}"))?;
+        let output = match Command::new(st)
+            .args(["ops", "hooks", "register"])
+            .arg(file.path())
+            .output()
+        {
+            Ok(output) => output,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Ok(vec![format!(
+                    "NOT registered: `{st}` (shantytown) is not installed on this host. \
+                     Install it and rerun `caboodle apply`; verify reports the bundles until then"
+                )]);
+            }
+            Err(error) => {
+                return Err(error).with_context(|| format!("run {st} ops hooks register"))
+            }
+        };
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        if !output.status.success() {
+            bail!(
+                "st refused hook bundle {name} (exit {:?}): {}",
+                output.status.code(),
+                String::from_utf8_lossy(&output.stderr).trim()
+            );
+        }
+        let first = stdout.lines().next().unwrap_or("").trim();
+        let outcome = first
+            .strip_prefix(&format!("{name}: "))
+            .filter(|o| matches!(*o, "installed" | "updated" | "unchanged"))
+            .with_context(|| {
+                format!("st answered {first:?} registering {name}; expected `{name}: installed|updated|unchanged`")
+            })?;
+        lines.push(format!("{name}: {outcome}"));
+    }
+    Ok(lines)
+}
+
 /// Judge one `st ops hooks check --json` report (schema `st.hook-check/1`)
 /// against the shipped bundles.
 ///
@@ -111,8 +181,8 @@ pub fn assess(bundles: &[(&str, &str)], report: &Value) -> Result<Vec<String>> {
     Ok(lines)
 }
 
-/// Run st's check and assess the shipped bundles against it.
-pub fn verify() -> Result<Vec<String>> {
+/// Run st's check and assess `bundles` (the plan's selection) against it.
+pub fn verify(bundles: &[(&str, &str)]) -> Result<Vec<String>> {
     // Not `checked`: st exits 1 for drift (including live staleness) and 2 when
     // it cannot tell. Exit 2 is also what st returns when it cannot read what
     // ONE running agent carries, with every item configured ok (aegis-331f7p,
@@ -128,11 +198,91 @@ pub fn verify() -> Result<Vec<String>> {
             output.status.code()
         )
     })?;
-    assess(BUNDLES, &report)
+    assess(bundles, &report)
 }
 
 #[cfg(test)]
 mod tests {
+
+    /// A fake `st` that copies the bundle file it was given to `got.json`,
+    /// prints `out` and exits `code`.
+    fn fake_st(dir: &std::path::Path, out: &str, code: i32) -> String {
+        use std::os::unix::fs::PermissionsExt;
+        // A distinct file per fake: rewriting one path that a parallel test's
+        // fork still holds open is the classic ETXTBSY race.
+        let path = dir.join(format!("st-{}-{code}", out.replace([' ', ':'], "_")));
+        let got = dir.join("got.json");
+        std::fs::write(
+            &path,
+            format!(
+                "#!/bin/sh\ncp \"$4\" '{}'\necho '{out}'\necho 'refused: bad bundle' >&2\nexit {code}\n",
+                got.display()
+            ),
+        )
+        .unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+        path.display().to_string()
+    }
+
+    /// `register` against a just-written fake, retrying the exec race
+    /// ("Text file busy") that parallel tests can cause. Test-only.
+    fn reg(bundles: &[(&str, &str)], st: &str) -> Result<Vec<String>> {
+        for _ in 0..5 {
+            match register(bundles, st) {
+                Err(e) if format!("{e:#}").contains("Text file busy") => {
+                    std::thread::sleep(std::time::Duration::from_millis(50))
+                }
+                other => return other,
+            }
+        }
+        register(bundles, st)
+    }
+
+    #[test]
+    fn selection_follows_the_plan_tools() {
+        fn names(b: Vec<(&'static str, &'static str)>) -> Vec<&'static str> {
+            b.into_iter().map(|(n, _)| n).collect()
+        }
+        assert_eq!(
+            names(selected(["bobbin", "quipu", "camayoc"])),
+            ["bobbin", "quipu"]
+        );
+        assert!(selected(Vec::<&str>::new()).is_empty());
+        assert_eq!(
+            names(selected(["quipu", "bobbin", "yupana", "desire-path"])).len(),
+            BUNDLES.len()
+        );
+        assert_eq!(register(&[], "st").unwrap(), ["none selected by this plan"]);
+    }
+
+    #[test]
+    fn register_passes_the_shipped_bundle_and_reports_st_outcome() {
+        let dir = tempfile::tempdir().unwrap();
+        let bobbin = selected(["bobbin"]);
+        for outcome in ["installed", "updated", "unchanged"] {
+            let st = fake_st(dir.path(), &format!("bobbin: {outcome}"), 0);
+            assert_eq!(reg(&bobbin, &st).unwrap(), [format!("bobbin: {outcome}")]);
+        }
+        // st received exactly the shipped bundle.
+        let got = std::fs::read_to_string(dir.path().join("got.json")).unwrap();
+        assert_eq!(got, bobbin[0].1);
+    }
+
+    #[test]
+    fn st_absent_is_a_note_but_a_refusal_or_off_contract_answer_fails() {
+        let dir = tempfile::tempdir().unwrap();
+        let bobbin = selected(["bobbin"]);
+        let missing = dir.path().join("no-such-st").display().to_string();
+        let note = reg(&bobbin, &missing).unwrap();
+        assert!(note[0].starts_with("NOT registered"), "{note:?}");
+        let refused = fake_st(dir.path(), "", 1);
+        let e = reg(&bobbin, &refused).unwrap_err().to_string();
+        assert!(e.contains("refused") && e.contains("bad bundle"), "{e}");
+        let odd = fake_st(dir.path(), "bobbin: maybe", 0);
+        let e = reg(&bobbin, &odd).unwrap_err().to_string();
+        assert!(e.contains("expected"), "{e}");
+    }
+
     use super::*;
     use serde_json::json;
 
@@ -245,12 +395,61 @@ mod tests {
         assert_eq!(claimants, 1);
     }
 
+    /// Against the host's real st (`cargo test -- --ignored live_register`):
+    /// registers every shipped bundle, exactly the step `caboodle apply` runs.
+    /// It WRITES the host's st registry; a second run must print `unchanged`
+    /// for every bundle (idempotence on the real st).
+    #[test]
+    #[ignore = "writes the host's st hook-bundle registry"]
+    fn live_register_against_host_st() {
+        for line in register(BUNDLES, "st").expect("register against host st") {
+            println!("REGISTER {line}");
+        }
+    }
+
     /// Against the host's real st (`cargo test -- --ignored live_`): prints the
     /// verdict so an operator can see what `caboodle verify` would say.
     #[test]
+    fn evidence_is_well_formed_and_fails_closed_without_its_source() {
+        let mut seen = 0;
+        for (name, json) in BUNDLES {
+            let v: Value = serde_json::from_str(json).unwrap();
+            for hook in v["hooks"].as_array().unwrap() {
+                let Some(ev) = hook.get("evidence") else {
+                    continue;
+                };
+                seen += 1;
+                let cmd = ev["command"].as_str().expect("evidence.command");
+                assert!(!cmd.trim().is_empty(), "{name}");
+                assert!(
+                    ev["max_age_seconds"].as_u64().is_some_and(|n| n > 0),
+                    "{name}"
+                );
+                // Fail closed: with HOME pointing at an empty dir the source is
+                // absent, so the command must exit non-zero, never print a ts.
+                let empty = tempfile::tempdir().unwrap();
+                let out = std::process::Command::new("sh")
+                    .args(["-c", cmd])
+                    .env("HOME", empty.path())
+                    .output()
+                    .unwrap();
+                assert!(
+                    !out.status.success(),
+                    "{name}: evidence succeeded without its source"
+                );
+                assert!(out.stdout.is_empty(), "{name}: printed without its source");
+            }
+        }
+        assert!(
+            seen >= 6,
+            "expected evidence on at least 6 hooks, saw {seen}"
+        );
+    }
+
+    #[test]
     #[ignore = "needs a live st with a registry"]
     fn live_verify_against_host_st() {
-        match verify() {
+        match verify(BUNDLES) {
             Ok(lines) => lines.iter().for_each(|l| println!("OK {l}")),
             Err(e) => println!("FAIL {e}"),
         }

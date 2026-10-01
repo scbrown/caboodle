@@ -246,6 +246,12 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
             emission::queue_transition(state_path, name, "applied", &runtime.version)?;
         }
     }
+    // After the tools and crew (which may have just installed st): register the
+    // stack's hook bundles for the tools this plan installs (aegis-u1ybxo).
+    let bundles = crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str()));
+    for line in crate::hook_bundles::register(&bundles, "st")? {
+        println!("hook bundle {line}");
+    }
     consume_shares(plan, &mut state, state_path)?;
     Ok(state)
 }
@@ -417,7 +423,12 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         println!("quipu mcp: authenticated MCP write reached Quipu's parser; unauthenticated control was refused");
     }
     if let Some(selection) = &plan.crew {
-        crew::verify(selection, evidence, &mut state)?;
+        crew::verify(
+            selection,
+            evidence,
+            &crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str())),
+            &mut state,
+        )?;
         state.write(state_path)?;
         for (name, runtime) in &state.crew {
             emission::queue_transition(state_path, name, "verified", &runtime.version)?;
@@ -515,7 +526,12 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     if let Some(selection) = &plan.crew {
         if !crew::check_updates(selection) {
             crew::apply(selection, &mut state, false)?;
-            crew::verify(selection, evidence, &mut state)?;
+            crew::verify(
+                selection,
+                evidence,
+                &crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str())),
+                &mut state,
+            )?;
             state.write(state_path)?;
             for (name, runtime) in &state.crew {
                 emission::queue_transition(state_path, name, "updated", &runtime.version)?;

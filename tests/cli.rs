@@ -128,7 +128,14 @@ exit 2
     fake_tool(
         bin,
         "st",
-        "if [ \"${1:-}\" = --version ]; then echo 'st 0.4.0 (test)'; exit 0; fi\nexit 2",
+        // `ops hooks register <file>` answers like st: `<name>: installed`, the
+        // name read from the bundle it was given (aegis-u1ybxo), and logs it.
+        "if [ \"${1:-}\" = --version ]; then echo 'st 0.4.0 (test)'; exit 0; fi\n\
+         if [ \"${1:-} ${2:-} ${3:-}\" = 'ops hooks register' ]; then\n\
+           n=$(sed -n 's/.*\"name\": *\"\\([^\"]*\\)\".*/\\1/p' \"$4\" | head -n 1)\n\
+           echo \"$n\" >> \"$(dirname \"$0\")/st-registered.log\"\n\
+           echo \"$n: installed\"; exit 0\n\
+         fi\nexit 2",
     );
     fake_tool(
         bin,
@@ -2609,4 +2616,46 @@ fn install_fixture_member(bin: &Path) {
         bin.join("fixture-demo"),
     )
     .unwrap();
+}
+
+#[test]
+fn apply_registers_exactly_the_hook_bundles_of_the_plans_tools() {
+    // aegis-u1ybxo scope (a): apply registers each shipped bundle whose tool the
+    // plan installs, through st's generic `ops hooks register`, and no other.
+    let (root, bin) = retrieval_plan_with_bobbin("0.16.2", true);
+    let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+    let out = command(root.path(), &bin)
+        .args(["apply", "--skip-install"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let out = String::from_utf8(out).unwrap();
+    let mut registered: Vec<String> = fs::read_to_string(bin.join("st-registered.log"))
+        .unwrap_or_default()
+        .lines()
+        .map(str::to_string)
+        .collect();
+    registered.sort();
+    let mut expected: Vec<String> = ["bobbin", "desire-path", "quipu", "yupana"]
+        .into_iter()
+        .filter(|t| plan.contains(&format!("\"{t}\"")))
+        .map(str::to_string)
+        .collect();
+    expected.sort();
+    assert!(
+        expected.contains(&"bobbin".to_string()),
+        "control: the plan installs bobbin\n{plan}"
+    );
+    assert_eq!(
+        registered, expected,
+        "registered exactly the plan's bundles"
+    );
+    for name in &expected {
+        assert!(
+            out.contains(&format!("hook bundle {name}: installed")),
+            "{out}"
+        );
+    }
 }

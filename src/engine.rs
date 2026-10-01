@@ -346,6 +346,14 @@ fn check_path_resolution(name: crate::model::ToolName) -> Result<()> {
 pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result<State> {
     plan.validate()?;
     let mut state = State::read(state_path)?;
+    // The hook bundles apply registers for the plan's tools (aegis-u1ybxo).
+    // Asserted for every plan, as apply registers for every plan, and FIRST:
+    // it is independent of the tools' functional checks, and a skewed tool
+    // failing below must not hide whether the hooks are registered (measured
+    // on a fresh Mac, where a bobbin skew left the bundles never asserted).
+    for line in hook_bundles_verify(plan)? {
+        println!("hook bundle {line}");
+    }
     for &name in &plan.tools {
         let adapter = adapter(name, plan.quipu_flavor);
         let version = adapter
@@ -423,12 +431,7 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         println!("quipu mcp: authenticated MCP write reached Quipu's parser; unauthenticated control was refused");
     }
     if let Some(selection) = &plan.crew {
-        crew::verify(
-            selection,
-            evidence,
-            &crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str())),
-            &mut state,
-        )?;
+        crew::verify(selection, evidence, &mut state)?;
         state.write(state_path)?;
         for (name, runtime) in &state.crew {
             emission::queue_transition(state_path, name, "verified", &runtime.version)?;
@@ -526,12 +529,10 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     if let Some(selection) = &plan.crew {
         if !crew::check_updates(selection) {
             crew::apply(selection, &mut state, false)?;
-            crew::verify(
-                selection,
-                evidence,
-                &crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str())),
-                &mut state,
-            )?;
+            crew::verify(selection, evidence, &mut state)?;
+            for line in hook_bundles_verify(plan)? {
+                println!("hook bundle {line}");
+            }
             state.write(state_path)?;
             for (name, runtime) in &state.crew {
                 emission::queue_transition(state_path, name, "updated", &runtime.version)?;
@@ -539,6 +540,12 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         }
     }
     Ok(state)
+}
+
+fn hook_bundles_verify(plan: &Plan) -> Result<Vec<String>> {
+    crate::hook_bundles::verify(&crate::hook_bundles::selected(
+        plan.tools.iter().map(|t| t.as_str()),
+    ))
 }
 
 pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {

@@ -241,16 +241,38 @@ pub fn assess(bundles: &[(&str, &str)], report: &Value) -> Result<Vec<String>> {
 }
 
 /// Run st's check and assess `bundles` (the plan's selection) against it.
+///
+/// Symmetric with `register`: no selected bundle is a note, and so is a host
+/// without st (st is optional; apply printed the same note). Only a host WITH
+/// st can be asked, and there every applicable bundle must be configured.
 pub fn verify(bundles: &[(&str, &str)]) -> Result<Vec<String>> {
+    verify_with(bundles, "st")
+}
+
+fn verify_with(bundles: &[(&str, &str)], st: &str) -> Result<Vec<String>> {
+    if bundles.is_empty() {
+        return Ok(vec!["none selected by this plan".into()]);
+    }
     // Not `checked`: st exits 1 for drift (including live staleness) and 2 when
     // it cannot tell. Exit 2 is also what st returns when it cannot read what
     // ONE running agent carries, with every item configured ok (aegis-331f7p,
     // measured 2026-09-30). The JSON is the evidence either way; `assess`
     // decides, so an item st could not judge still fails on `configured`.
-    let output = Command::new("st")
+    let output = match Command::new(st)
         .args(["ops", "hooks", "check", "--json"])
         .output()
-        .context("run st ops hooks check --json")?;
+    {
+        Ok(output) => output,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Ok(vec![format!(
+                "NOT verified: `{st}` (shantytown) is not installed on this host, so no \
+                 hook bundle is registered here"
+            )]);
+        }
+        Err(error) => {
+            return Err(error).with_context(|| format!("run {st} ops hooks check --json"))
+        }
+    };
     let report: Value = serde_json::from_slice(&output.stdout).with_context(|| {
         format!(
             "st ops hooks check --json gave no readable report (exit {:?})",
@@ -309,6 +331,23 @@ mod tests {
             }
         }
         register(bundles, st)
+    }
+
+    #[test]
+    fn verify_without_st_is_a_note_and_with_nothing_selected_asks_nobody() {
+        // Symmetric with `register`: st is optional on a host (aegis-u1ybxo).
+        let bobbin = BUNDLES
+            .iter()
+            .find(|(n, _)| *n == "bobbin")
+            .copied()
+            .unwrap();
+        let lines = verify_with(&[bobbin], "caboodle-test-no-such-st").unwrap();
+        assert_eq!(lines.len(), 1);
+        assert!(lines[0].starts_with("NOT verified:"), "{lines:?}");
+        assert_eq!(
+            verify_with(&[], "caboodle-test-no-such-st").unwrap(),
+            ["none selected by this plan"]
+        );
     }
 
     #[test]

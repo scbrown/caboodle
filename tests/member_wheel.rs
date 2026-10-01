@@ -38,9 +38,9 @@ fn a_wheel_member_installs_into_its_own_venv_and_verifies_through_stdin() {
     let fakes = root.path().join("fakes");
     let cargo_home = root.path().join("cargo-home");
     let installed = cargo_home.join("bin/fixture-wheel");
-    let venv = root
+    let venv_parent = root
         .path()
-        .join(".local/share/caboodle/members/fixture-wheel/0.1.0");
+        .join(".local/share/caboodle/members/fixture-wheel");
     let log = root.path().join("curl.log");
     let wheel = Path::new(env!("CARGO_MANIFEST_DIR")).join(WHEEL);
     env::set_var("CARGO_HOME", &cargo_home);
@@ -73,8 +73,15 @@ printf 200"#,
          fixture_wheel-0.1.0-py3-none-any.whl"
     );
     assert!(installed.is_file());
+    let venvs: Vec<_> = fs::read_dir(&venv_parent).unwrap().collect();
+    assert_eq!(venvs.len(), 1);
     assert!(
-        venv.join("bin/python").exists(),
+        venvs[0]
+            .as_ref()
+            .unwrap()
+            .path()
+            .join("bin/python")
+            .exists(),
         "the venv lives under the caboodle-owned members dir"
     );
     let version = demo.version().unwrap();
@@ -87,9 +94,55 @@ printf 200"#,
         "verify must run in a hermetic HOME, never the user's"
     );
 
-    // 2. Re-install over an existing venv replaces it and still works.
-    demo.install().expect("reinstall over the existing venv");
+    // 2. Re-install builds a NEW venv beside the live one and swaps the script.
+    let members = root
+        .path()
+        .join(".local/share/caboodle/members/fixture-wheel");
+    demo.install().expect("reinstall beside the existing venv");
     assert_eq!(demo.version().unwrap(), "fixture-wheel 0.1.0");
+    assert_eq!(
+        fs::read_dir(&members).unwrap().count(),
+        2,
+        "old venv kept for rollback"
+    );
+
+    // 2b. dearing #59: a reinstall whose venv build FAILS leaves the live venv
+    //     and the installed script untouched, and leaves no half-built dir.
+    let live_script = fs::read(&installed).unwrap();
+    let broken = root.path().join("broken-python");
+    let real = String::from_utf8(
+        std::process::Command::new("sh")
+            .args(["-c", "command -v python3"])
+            .output()
+            .unwrap()
+            .stdout,
+    )
+    .unwrap();
+    script(
+        &broken,
+        "python3",
+        &format!(
+            r#"if [ "$1" = -m ] && [ "$2" = venv ]; then mkdir -p "$3/bin"; exit 1; fi
+exec {} "$@""#,
+            real.trim()
+        ),
+    );
+    set_path(&system, &[&fakes, &broken, &cargo_home.join("bin")]);
+    let failed = err(demo.install());
+    assert!(failed.contains("venv"), "{failed}");
+    assert_eq!(
+        fs::read(&installed).unwrap(),
+        live_script,
+        "live script replaced"
+    );
+    assert_eq!(
+        fs::read_dir(&members).unwrap().count(),
+        2,
+        "a half-built venv was left"
+    );
+    assert_eq!(demo.version().unwrap(), "fixture-wheel 0.1.0");
+    demo.verify().expect("the live install still works");
+    set_path(&system, &[&fakes, &cargo_home.join("bin")]);
 
     // 3. A tampered wheel is refused on the RECORDED digest; nothing installs.
     fs::remove_file(&installed).unwrap();

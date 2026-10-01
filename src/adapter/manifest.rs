@@ -346,13 +346,73 @@ pub(crate) fn prove_release(
     Ok(())
 }
 
-/// Where a python-wheel member's venv lives: caboodle-owned, one per version.
+/// Where a python-wheel member's venv goes: caboodle-owned and UNIQUE per
+/// install (`<version>-<nanos>`), never reused. A venv cannot be moved (its
+/// scripts and pyvenv.cfg hold absolute paths), so a reinstall builds beside the
+/// live one and the swap is the atomic replacement of the console script. A
+/// failed pip leaves the live venv, and the script pointing into it, untouched
+/// (dearing, caboodle#59). Superseded venvs are left for rollback.
 fn venv_root(manifest: &Manifest) -> Result<PathBuf> {
     let home = env::var_os("HOME").context("HOME is required for a python-wheel member")?;
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_nanos());
     Ok(PathBuf::from(home)
         .join(".local/share/caboodle/members")
         .join(&manifest.name)
-        .join(&manifest.version))
+        .join(format!("{}-{nanos}", manifest.version)))
+}
+
+/// Pick an interpreter that satisfies the wheel's `Requires-Python`, BEFORE
+/// anything is created. `python3` first, then versioned names newest first, so a
+/// host whose `python3` is too old (macOS /usr/bin is 3.9) still works when a
+/// newer one is installed, and is refused with the requirement named otherwise.
+/// The wheel's METADATA is read by that interpreter's own zipfile module; a
+/// specifier this check cannot evaluate is refused, never guessed.
+fn select_python(archive: &Path) -> Result<String> {
+    const CHECK: &str = r#"
+import re, sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as z:
+    meta = next(n for n in z.namelist() if n.endswith(".dist-info/METADATA"))
+    req = next((l.split(":", 1)[1].strip() for l in z.read(meta).decode().splitlines()
+                if l.lower().startswith("requires-python:")), "")
+have = sys.version_info[:3]
+def ver(s):
+    return tuple(int(x) for x in s.split(".")) + (0,) * (3 - len(s.split(".")))
+ops = {">=": lambda a, b: a >= b, ">": lambda a, b: a > b, "<=": lambda a, b: a <= b,
+       "<": lambda a, b: a < b, "==": lambda a, b: a == b, "!=": lambda a, b: a != b}
+for clause in filter(None, (c.strip() for c in req.split(","))):
+    m = re.fullmatch(r"(>=|<=|==|!=|>|<)\s*(\d+(?:\.\d+){0,2})", clause)
+    if not m:
+        print("UNEVALUABLE " + req); sys.exit(3)
+    if not ops[m.group(1)](have, ver(m.group(2))):
+        print("UNSATISFIED " + req); sys.exit(2)
+print("OK " + req)
+"#;
+    let mut candidates = vec!["python3".to_owned()];
+    candidates.extend((9..=14).rev().map(|minor| format!("python3.{minor}")));
+    let mut requirement = String::new();
+    for python in &candidates {
+        let Ok(out) = Command::new(python)
+            .args(["-c", CHECK])
+            .arg(archive)
+            .output()
+        else {
+            continue;
+        };
+        let text = String::from_utf8_lossy(&out.stdout).trim().to_owned();
+        match out.status.code() {
+            Some(0) => return Ok(python.clone()),
+            Some(3) => bail!("cannot evaluate the wheel's Requires-Python ({text}); refusing"),
+            _ => requirement = text,
+        }
+    }
+    bail!(
+        "no python on PATH satisfies the wheel's Requires-Python ({}); install one, then retry",
+        requirement
+            .strip_prefix("UNSATISFIED ")
+            .unwrap_or("python3 not found")
+    )
 }
 
 /// Turn a verified release asset into a directory holding its programs.
@@ -379,30 +439,44 @@ fn materialize(manifest: &Manifest, archive: &Path, dest: &Path) -> Result<PathB
             Ok(dest.to_path_buf())
         }
         Kind::PythonWheel => {
+            // Refuse an unsatisfiable Requires-Python before creating anything.
+            let python = select_python(archive)?;
             if dest.exists() {
-                fs::remove_dir_all(dest).with_context(|| format!("replace {}", dest.display()))?;
+                bail!(
+                    "{} already exists; a venv is never rebuilt in place",
+                    dest.display()
+                );
             }
             if let Some(parent) = dest.parent() {
                 fs::create_dir_all(parent)?;
             }
-            checked(
-                "python3",
-                [OsStr::new("-m"), OsStr::new("venv"), dest.as_os_str()],
-                None,
-            )?;
-            checked(
-                dest.join("bin/python").as_os_str(),
-                [
-                    OsStr::new("-m"),
-                    OsStr::new("pip"),
-                    OsStr::new("install"),
-                    OsStr::new("--quiet"),
-                    OsStr::new("--disable-pip-version-check"),
-                    archive.as_os_str(),
-                ],
-                None,
-            )
-            .with_context(|| format!("pip install {}", manifest.name))?;
+            let built = (|| -> Result<()> {
+                checked(
+                    &python,
+                    [OsStr::new("-m"), OsStr::new("venv"), dest.as_os_str()],
+                    None,
+                )
+                .with_context(|| format!("create the {} venv with {python}", manifest.name))?;
+                checked(
+                    dest.join("bin/python").as_os_str(),
+                    [
+                        OsStr::new("-m"),
+                        OsStr::new("pip"),
+                        OsStr::new("install"),
+                        OsStr::new("--quiet"),
+                        OsStr::new("--disable-pip-version-check"),
+                        archive.as_os_str(),
+                    ],
+                    None,
+                )
+                .with_context(|| format!("pip install {}", manifest.name))?;
+                Ok(())
+            })();
+            if let Err(error) = built {
+                // Only the new, never-live directory is removed.
+                let _ = fs::remove_dir_all(dest);
+                return Err(error);
+            }
             Ok(dest.join("bin"))
         }
     }
@@ -505,4 +579,59 @@ fn hermetic_command(
         command.env(var, path);
     }
     Ok(command)
+}
+
+#[cfg(test)]
+mod python_tests {
+    use super::*;
+
+    /// A minimal wheel whose METADATA declares `requires`.
+    fn wheel(dir: &Path, requires: &str) -> PathBuf {
+        let path = dir.join("demo-1.0.0-py3-none-any.whl");
+        let line = if requires.is_empty() {
+            String::new()
+        } else {
+            format!("Requires-Python: {requires}\\n")
+        };
+        let meta = format!("Metadata-Version: 2.1\\nName: demo\\nVersion: 1.0.0\\n{line}");
+        let script = format!(
+            "import sys, zipfile\nz = zipfile.ZipFile(sys.argv[1], 'w')\nz.writestr('demo-1.0.0.dist-info/METADATA', '{meta}')\nz.close()\n"
+        );
+        let status = Command::new("python3")
+            .args(["-c", &script])
+            .arg(&path)
+            .status()
+            .unwrap();
+        assert!(status.success());
+        path
+    }
+
+    #[test]
+    fn a_satisfied_or_absent_requirement_selects_an_interpreter() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(select_python(&wheel(dir.path(), ">=3.0")).is_ok());
+        let dir = tempfile::tempdir().unwrap();
+        assert!(select_python(&wheel(dir.path(), "")).is_ok());
+    }
+
+    #[test]
+    fn an_unsatisfiable_requirement_is_refused_and_named() {
+        let dir = tempfile::tempdir().unwrap();
+        let err = select_python(&wheel(dir.path(), ">=3.0,<3.1"))
+            .unwrap_err()
+            .to_string();
+        assert!(
+            err.contains("satisfies the wheel's Requires-Python (>=3.0,<3.1)"),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn an_unevaluable_requirement_is_refused_not_guessed() {
+        let dir = tempfile::tempdir().unwrap();
+        let err = select_python(&wheel(dir.path(), "~=3.11"))
+            .unwrap_err()
+            .to_string();
+        assert!(err.contains("cannot evaluate"), "{err}");
+    }
 }

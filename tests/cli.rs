@@ -926,7 +926,18 @@ fn profile_stages_canonical_quipu_shares_without_promoting_them() {
         .assert()
         .success()
         .stdout(predicate::str::contains("share sha256:aaaa"))
-        .stdout(predicate::str::contains("promotion eligible: true"));
+        .stdout(predicate::str::contains("promotion eligible: true"))
+        .stdout(predicate::str::contains(
+            "vocabulary: quechua v0.1.0 loaded into knowledge.db",
+        ));
+    // aegis-1i5h1j.3: the pinned Quechua release was knotted into the plan's
+    // store, byte-for-byte the reviewed asset.
+    let fixture = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/vocabulary/quechua-ns-v0.1.0.ttl");
+    assert_eq!(
+        fs::read(root.path().join("knowledge.db.knot")).unwrap(),
+        fs::read(fixture).unwrap()
+    );
 
     let log = fs::read_to_string(root.path().join("quipu-import.log")).unwrap();
     assert_eq!(log.trim(), "import team-share --db knowledge.db");

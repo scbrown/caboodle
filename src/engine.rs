@@ -260,6 +260,13 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     for line in crate::hook_bundles::register(&bundles, "st")? {
         println!("hook bundle {line}");
     }
+    // seeds + Desire Path: redirect habitual `bd` to `sd`, never overwriting a
+    // host's existing `bd` rule (aegis-fbaso4).
+    if crate::dp_alias::wanted(plan.tools.iter().map(|t| t.as_str())) {
+        let outcome = crate::dp_alias::apply(crate::dp_alias::locate().as_deref(), None)
+            .context("Desire Path bd -> sd alias step")?;
+        println!("dp alias {}", outcome.line());
+    }
     load_vocabulary(plan)?;
     consume_shares(plan, &mut state, state_path)?;
     Ok(state)
@@ -432,6 +439,12 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
             &state.tools[name.as_str()].version,
         )?;
         println!("{}: verified", name.as_str());
+    }
+    // After the tools: Desire Path itself was verified above (aegis-fbaso4).
+    if crate::dp_alias::wanted(plan.tools.iter().map(|t| t.as_str())) {
+        let outcome = crate::dp_alias::verify(crate::dp_alias::locate().as_deref(), None)
+            .context("Desire Path bd -> sd alias")?;
+        println!("dp alias {}", outcome.line());
     }
     if let Some(model) = &plan.embedding_model {
         // This is deliberately a re-hash, not an embed round-trip; see

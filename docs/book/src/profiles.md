@@ -15,6 +15,14 @@ installs seeds (`sd`), the crew's work tracker, and shuttle, its workflow engine
   failure-ingest/read proof, a seeds marker round trip, and a shuttle run round
   trip
 
+When a plan selects both seeds and Desire Path, `apply` also sets the Desire
+Path command alias `bd -> sd`, so an agent that types `bd` from habit reaches
+seeds. `verify` checks that the alias is there. If the host already has a `bd`
+alias that points somewhere else, caboodle leaves it alone: `dp alias` would
+silently replace it, so caboodle reads the existing aliases first. `apply` and
+`verify` then report the existing target as a deliberate local choice, not a
+failure. If `dp` is not on PATH, `apply` prints a note instead of failing.
+
 Any profile can extend its corpus with repeatable `--share` selections because
 all profiles include Quipu. Shares require an explicit `--quipu-db`, are staged
 through Quipu's canonical import command during `apply`, and are never promoted

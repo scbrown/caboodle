@@ -2,6 +2,7 @@ pub mod adapter;
 pub mod configuration;
 pub mod crew;
 pub mod doctor;
+pub mod dp_alias;
 pub mod embedding;
 pub mod emission;
 pub mod engine;

@@ -221,6 +221,21 @@ while [ "$#" -gt 0 ]; do
     if [ -f "$db.recorded" ]; then echo '[{"tool_name":"caboodle_desire_path_marker"}]'; else echo '[]'; fi
     exit 0
   fi
+  # One bd command rule in $HOME/bd.alias. Like the real dp (aegis-fbaso4,
+  # measured), `alias --cmd bd --replace X` OVERWRITES whatever was there.
+  if [ "$1" = "aliases" ]; then
+    if [ -s "$HOME/bd.alias" ]; then
+      printf '[{"from":"bd","to":"%s","command":"bd","match_kind":"command"}]\n' "$(cat "$HOME/bd.alias")"
+    else echo null; fi
+    exit 0
+  fi
+  if [ "$1" = "alias" ]; then
+    while [ "$#" -gt 0 ]; do
+      if [ "$1" = "--replace" ]; then printf '%s' "$2" > "$HOME/bd.alias"; fi
+      shift
+    done
+    exit 0
+  fi
   shift
 done
 exit 2
@@ -542,12 +557,63 @@ fn code_intel_and_everything_profiles_expand_the_verified_corpus() {
         .args(["plan", "--profile", "everything"])
         .assert()
         .success();
+    // This test verifies without applying; give the fake dp the bd -> sd rule
+    // apply would have set (apply_wires_bd_to_sd_and_never_overwrites covers apply).
+    fs::write(root.path().join("bd.alias"), "sd").unwrap();
     command(root.path(), &bin)
         .args(["verify"])
         .assert()
         .success()
         .stdout(predicate::str::contains("yupana: verified"))
         .stdout(predicate::str::contains("desire-path: verified"));
+}
+
+/// aegis-fbaso4: a plan with seeds and Desire Path sets `bd -> sd`, and never
+/// overwrites a `bd` rule the host already has (the fake dp, like the real one,
+/// would silently replace it if asked).
+#[test]
+fn apply_wires_bd_to_sd_and_never_overwrites() {
+    for (preexisting, apply_line, verify_line, after) in [
+        (
+            None,
+            "dp alias bd -> sd: set",
+            "dp alias bd -> sd: present",
+            "sd",
+        ),
+        (
+            Some("br"),
+            "this host already routes bd -> br",
+            "this host already routes bd -> br",
+            "br",
+        ),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        install_fakes(root.path(), &bin);
+        let rule = root.path().join("bd.alias");
+        if let Some(target) = preexisting {
+            fs::write(&rule, target).unwrap();
+        }
+        command(root.path(), &bin)
+            .args(["plan", "--profile", "everything"])
+            .assert()
+            .success();
+        let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
+        assert!(plan.contains("\"seeds\"") && plan.contains("\"desire-path\""));
+        command(root.path(), &bin)
+            .args(["apply", "--skip-install"])
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(apply_line));
+        assert_eq!(fs::read_to_string(&rule).unwrap(), after);
+        command(root.path(), &bin)
+            .arg("verify")
+            .assert()
+            .success()
+            .stdout(predicate::str::contains(verify_line));
+        assert_eq!(fs::read_to_string(&rule).unwrap(), after);
+    }
 }
 
 #[test]

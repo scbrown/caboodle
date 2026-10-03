@@ -554,6 +554,42 @@ mod tests {
         assert_eq!(claimants, 1);
     }
 
+    #[test]
+    fn codex_signposts_cover_both_sides_of_a_shell_search() {
+        let bundle: Value = serde_json::from_str(
+            BUNDLES
+                .iter()
+                .find(|(name, _)| *name == "desire-path")
+                .unwrap()
+                .1,
+        )
+        .unwrap();
+        let hooks: Vec<_> = bundle["hooks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|h| h["harnesses"].as_array().unwrap().contains(&json!("codex")))
+            .collect();
+        for (event, command) in [
+            ("PreToolUse", "dp signpost-prefetch"),
+            ("PostToolUse", "dp signpost"),
+        ] {
+            assert_eq!(
+                hooks
+                    .iter()
+                    .filter(|h| h["event"] == event
+                        && h["matcher"] == "Bash"
+                        && h["command"] == command)
+                    .count(),
+                1
+            );
+        }
+        // Notify retains Codex attribution. Do not feed Codex hook events to
+        // the Claude ingest source or claim unsupported failure-hook coverage.
+        assert!(hooks.iter().all(|h| h["event"] != "PostToolUseFailure"
+            && h["command"] != "dp ingest --source claude-code"));
+    }
+
     /// Against the host's real st (`cargo test -- --ignored live_register`):
     /// registers every shipped bundle, exactly the step `caboodle apply` runs.
     /// It WRITES the host's st registry; a second run must print `unchanged`

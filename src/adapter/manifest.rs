@@ -214,7 +214,7 @@ fn install_atomically(source: &Path, dest: &Path) -> Result<()> {
     Ok(())
 }
 
-fn sha256_file(path: &Path) -> Result<String> {
+pub(super) fn sha256_file(path: &Path) -> Result<String> {
     use sha2::{Digest, Sha256};
     let mut file = fs::File::open(path).with_context(|| format!("open {}", path.display()))?;
     let mut hasher = Sha256::new();

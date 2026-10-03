@@ -104,11 +104,11 @@ and managed crew registration through `caboodle project-settings`.
 
 ## Before you start
 
-| Platform | Caboodle | Quipu and Yupana |
-|---|---|---|
-| Linux x86_64 | Release | Release |
-| macOS arm64 / x86_64 | Release | Build once with Rust |
-| Linux arm64 | Build with Rust | Build with Rust |
+| Platform | Caboodle | Quipu | Yupana |
+|---|---|---|---|
+| Linux x86_64 | Release | Release | Release |
+| macOS arm64 / x86_64 | Release | Release | Release |
+| Linux arm64 | Build with Rust | Release | Build with Rust |
 
 Have `curl`, `tar`, `git`, `bash`, `python3` and `sha256sum` on PATH
 (`brew install coreutils` supplies `sha256sum` on macOS).

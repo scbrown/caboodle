@@ -140,3 +140,18 @@ cannot show that the helper works. Verify runs in your shell, not in Claude
 Code. If the helper finds a token only through a variable set in that shell, it
 warns that Claude Code must see the same variable. Re-plan with
 `--quipu-mcp-token-file` if Claude Code will not see it.
+
+### Codex search signposts
+
+The desire-path hook bundle supplies `dp signpost-prefetch` before Codex Bash
+calls and `dp signpost` after successful calls. Codex uses the same
+`tool_name: Bash` and `tool_input.command` hook envelope for these events.
+Turn-completion ingestion remains in `codex_notify` with `--source codex`;
+these search hooks do not convert turn records into tool-failure desires.
+Failure-event signposting is not claimed by this bundle for Codex.
+
+Set `DP_SIGNPOST_BOBBIN_URL`, `DP_SIGNPOST_LOG`, and any deployment-specific
+`DP_SIGNPOST_SEARCH_MODE` in the environment that launches Codex. Values in
+Claude's `settings.json` environment do not configure Codex. Verify a real
+search produces a signpost event under the Codex session ID and that prefetch
+warms the cache; a configured hook alone does not prove delivery.

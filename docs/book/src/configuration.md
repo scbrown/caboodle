@@ -155,3 +155,13 @@ Set `DP_SIGNPOST_BOBBIN_URL`, `DP_SIGNPOST_LOG`, and any deployment-specific
 Claude's `settings.json` environment do not configure Codex. Verify a real
 search produces a signpost event under the Codex session ID and that prefetch
 warms the cache; a configured hook alone does not prove delivery.
+
+### Codex edit policy hook
+
+The Yupana bundle registers `yupana hook pre-edit` for native `apply_patch`
+PreToolUse events. This requires a Yupana build with native multi-file Codex
+patch support; a pre-support binary silently ignores the patch contents.
+Activate this entry only after the supporting Yupana release is installed.
+Verify a real edit's session-attributed `guard` metric and advisory output;
+rendered configuration alone does not prove edit coverage. Existing running
+agents pick up changed hooks on their next launch.

@@ -650,3 +650,25 @@ mod tests {
         }
     }
 }
+
+#[cfg(test)]
+#[test]
+fn codex_edit_guard_targets_native_patches_once() {
+    let bundle: Value = serde_json::from_str(include_str!("../hook-bundles/yupana.json")).unwrap();
+    let edits: Vec<_> = bundle["hooks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|h| {
+            h["harnesses"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|v| v == "codex")
+                && h["event"] == "PreToolUse"
+        })
+        .collect();
+    assert_eq!(edits.len(), 1);
+    assert_eq!(edits[0]["matcher"], "apply_patch");
+    assert_eq!(edits[0]["command"], "yupana hook pre-edit");
+}

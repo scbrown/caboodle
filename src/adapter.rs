@@ -58,7 +58,7 @@ pub fn prerequisites(name: ToolName, quipu_flavor: QuipuFlavor) -> &'static [&'s
         // Camayoc's bootstrap is bash + python3, and it talks to Quipu with curl.
         ToolName::Camayoc => &["curl", "tar", "sha256sum", "bash", "python3"],
         ToolName::Bobbin => &["curl", "tar", "git"],
-        ToolName::Yupana => &["curl", "tar", "sha256sum"],
+        ToolName::Yupana => &["curl", "tar"],
         ToolName::DesirePath => &["go"],
         ToolName::Member(name) => crate::members::prerequisites(name),
     }
@@ -728,9 +728,7 @@ impl Adapter for Bobbin {
     }
 }
 
-const YUPANA_VERSION: &str = "0.10.6";
-const YUPANA_ARCHIVE_SHA256: &str =
-    "269f32c9aec274635d19c872f797a58294691fe68982e92ff83f62674da1052f";
+const YUPANA_VERSION: &str = "0.10.7";
 
 impl Adapter for Yupana {
     fn name(&self) -> ToolName {
@@ -742,32 +740,9 @@ impl Adapter for Yupana {
     }
 
     fn install(&self) -> Result<()> {
-        let target = yupana_release_target()?;
-        let archive_name = format!("yupana-v{YUPANA_VERSION}-{target}.tar.gz");
+        let (target, checksum) = yupana_release_for(env::consts::ARCH, env::consts::OS)?;
         let root = tempfile::tempdir().context("create Yupana download directory")?;
-        let archive = root.path().join(&archive_name);
-        download_https(
-            &format!("https://github.com/scbrown/yupana/releases/download/v{YUPANA_VERSION}/{archive_name}"),
-            &archive,
-        )?;
-        let digest = checked("sha256sum", [archive.as_os_str()], None)?;
-        if String::from_utf8_lossy(&digest.stdout)
-            .split_whitespace()
-            .next()
-            != Some(YUPANA_ARCHIVE_SHA256)
-        {
-            bail!("Yupana release checksum mismatch");
-        }
-        checked(
-            "tar",
-            [
-                OsStr::new("-xzf"),
-                archive.as_os_str(),
-                OsStr::new("-C"),
-                root.path().as_os_str(),
-            ],
-            None,
-        )?;
+        fetch_yupana_release(target, checksum, root.path())?;
         let home = env::var_os("HOME").context("HOME is required to install Yupana")?;
         let bin = env::var_os("CARGO_HOME")
             .map(PathBuf::from)
@@ -819,12 +794,56 @@ impl Adapter for Yupana {
 }
 
 fn yupana_release_target() -> Result<&'static str> {
-    match (env::consts::ARCH, env::consts::OS) {
-        ("x86_64", "linux") => Ok("x86_64-linux-gnu"),
-        (arch, os) => {
-            bail!("Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {arch}-{os}")
-        }
+    yupana_release_for(env::consts::ARCH, env::consts::OS).map(|(target, _)| target)
+}
+
+// Digests of the published v0.10.7 archives, verified against SHA256SUMS.
+fn yupana_release_for(arch: &str, os: &str) -> Result<(&'static str, &'static str)> {
+    match (arch, os) {
+        ("x86_64", "linux") => Ok((
+            "x86_64-linux-gnu",
+            "7ed132173fa6c141772b368c851c1559997c958b808e0d46220142e2edab4922",
+        )),
+        ("aarch64", "macos") => Ok((
+            "aarch64-apple-darwin",
+            "90acb9a228c3e80282824322c25b550a4ea536f2c422d50288190afade6a6302",
+        )),
+        ("x86_64", "macos") => Ok((
+            "x86_64-apple-darwin",
+            "362f27c7ea9c6da2c940cf74706284c9f96a230364d0d55ae12b31e1676c9266",
+        )),
+        _ => bail!("Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {arch}-{os}"),
     }
+}
+
+fn fetch_yupana_release(target: &str, checksum: &str, root: &Path) -> Result<()> {
+    let archive_name = format!("yupana-v{YUPANA_VERSION}-{target}.tar.gz");
+    let archive = root.join(&archive_name);
+    download_https(
+        &format!(
+            "https://github.com/scbrown/yupana/releases/download/v{YUPANA_VERSION}/{archive_name}"
+        ),
+        &archive,
+    )?;
+    verify_yupana_checksum(&archive, checksum)?;
+    checked(
+        "tar",
+        [
+            OsStr::new("-xzf"),
+            archive.as_os_str(),
+            OsStr::new("-C"),
+            root.as_os_str(),
+        ],
+        None,
+    )?;
+    Ok(())
+}
+
+fn verify_yupana_checksum(archive: &Path, expected: &str) -> Result<()> {
+    if manifest::sha256_file(archive)? != expected {
+        bail!("Yupana release checksum mismatch");
+    }
+    Ok(())
 }
 
 fn yupana_checked<I, S>(cwd: &Path, state: &Path, args: I) -> Result<Output>
@@ -1418,6 +1437,56 @@ fn verify_checksum(archive: &Path, sums: &Path) -> Result<()> {
         bail!("checksum mismatch for {filename}");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod yupana_release_tests {
+    use super::*;
+
+    #[test]
+    fn published_platforms_resolve_and_missing_platforms_refuse() {
+        for (arch, os, target) in [
+            ("x86_64", "linux", "x86_64-linux-gnu"),
+            ("aarch64", "macos", "aarch64-apple-darwin"),
+            ("x86_64", "macos", "x86_64-apple-darwin"),
+        ] {
+            assert_eq!(yupana_release_for(arch, os).unwrap().0, target);
+        }
+        assert!(yupana_release_for("aarch64", "linux").is_err());
+        assert!(yupana_release_for("x86_64", "windows").is_err());
+        assert!(!prerequisites(ToolName::Yupana, QuipuFlavor::Release).contains(&"sha256sum"));
+    }
+
+    #[test]
+    fn checksum_refuses_corruption_without_an_external_hash_command() {
+        let root = tempfile::tempdir().unwrap();
+        let file = root.path().join("archive");
+        fs::write(&file, b"abc").unwrap();
+        let expected = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+        verify_yupana_checksum(&file, expected).unwrap();
+        fs::write(&file, b"abd").unwrap();
+        assert!(verify_yupana_checksum(&file, expected).is_err());
+    }
+
+    #[test]
+    #[ignore = "downloads all three published archives; explicit release acceptance"]
+    fn real_yupana_archives_match_pins_and_unpack() {
+        for (arch, os) in [
+            ("x86_64", "linux"),
+            ("aarch64", "macos"),
+            ("x86_64", "macos"),
+        ] {
+            let (target, checksum) = yupana_release_for(arch, os).unwrap();
+            let root = tempfile::tempdir().unwrap();
+            fetch_yupana_release(target, checksum, root.path()).unwrap();
+            assert!(root.path().join("yupana").is_file());
+            assert_eq!(
+                fs::read_link(root.path().join("hank")).unwrap(),
+                Path::new("yupana")
+            );
+            eprintln!("verified published {target}: {checksum}");
+        }
+    }
 }
 
 #[cfg(test)]

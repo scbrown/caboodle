@@ -61,7 +61,7 @@ is a `FAIL`:
   `tar`, `git`, `bash`, `python3`, `sha256sum`, `go` for Desire Path, `cargo`
   for the lancedb Quipu flavor);
 - a selected tool is not installed and has no reviewed release for this
-  platform (Quipu and Yupana publish Linux x86_64 only), with the source build
+  platform (for example, Yupana on Linux arm64), with the source build
   to run instead.
 
 It warns, without failing, when a tool differs from the reviewed version, when
@@ -306,20 +306,21 @@ installs, and updates.
 
 **Platforms.** Linux x86_64 needs no Rust toolchain: each tool comes from a
 checksummed release or source archive, and Go builds desire-path. On other
-platforms quipu and yupana have no release yet, so you build them once with
-Rust; `caboodle doctor` prints the exact command.
+platforms, availability depends on the tool as shown below; `caboodle doctor`
+prints the exact source-build command where no reviewed release exists.
 
 | | Linux x86_64 | macOS arm64 | macOS x86_64 | Linux arm64 |
 |---|---|---|---|---|
 | caboodle | release | release | release | build with `cargo install --git` |
-| quipu | release | build with cargo | build with cargo | build with cargo |
+| quipu | release | release | release | release |
 | camayoc | source archive | source archive | source archive | source archive |
 | bobbin | release | release | release | release |
-| yupana | release | build with cargo | build with cargo | build with cargo |
+| yupana | release | release | release | build with cargo |
 | desire-path | built with Go | built with Go | built with Go | built with Go |
 
 **Commands on PATH.** `curl`, `tar`, `git`, `bash`, `python3`, and `sha256sum`
-(recent macOS ships it; otherwise `brew install coreutils`). The `everything`
+(`brew install coreutils` supplies `sha256sum` on macOS). Yupana verifies its
+three pinned v0.10.7 archives in-process and needs only `curl` and `tar` for installation. The `everything`
 profile also needs Go 1.22+. Rust is only needed for the source builds above.
 
 **Accounts and servers.** None. Nothing talks to a private network, and no

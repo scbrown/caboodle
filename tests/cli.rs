@@ -198,7 +198,7 @@ exit 2
         bin,
         "yupana",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'yupana 0.10.6'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'yupana 0.10.7'; exit 0; fi
 if [ "${1:-}" = "analyze" ]; then exit 0; fi
 if [ "${1:-}" = "callers" ]; then
   if [ -f fixture.rs ]; then echo 'fixture.rs:2 caboodle_yupana_caller';
@@ -800,7 +800,7 @@ fn expanded_adapter_negative_controls_turn_verification_red() {
     fake_tool(
         &yupana_bin,
         "yupana",
-        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.10.6'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
+        "if [ \"${1:-}\" = --version ]; then echo 'yupana 0.10.7'; exit 0; fi\nif [ \"${1:-}\" = analyze ]; then exit 0; fi\nif [ \"${1:-}\" = callers ]; then echo 'fixture.rs:2 caboodle_yupana_caller'; exit 0; fi\nexit 2",
     );
     command(yupana_root.path(), &yupana_bin)
         .args(["plan", "--profile", "code-intel"])

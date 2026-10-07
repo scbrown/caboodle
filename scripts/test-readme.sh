@@ -28,5 +28,8 @@ test -s "$work/expected.txt"
 sed '/^curl .*examples\/caboodle-intent.toml/i exec > actual.txt' "$work/commands.sh" > "$work/run.sh"
 (cd "$work/run" && env -i HOME="$work/home" PATH=/usr/bin:/bin \
   /bin/bash --noprofile --norc -e "$work/run.sh")
-diff -u "$work/expected.txt" "$work/run/actual.txt"
+# The README shows paths under the reader's home as ~ (aegis-y4dd06); this run's
+# HOME is a fresh temp dir, so write it the same way before comparing.
+sed "s|$work/home|~|g" "$work/run/actual.txt" > "$work/actual.txt"
+diff -u "$work/expected.txt" "$work/actual.txt"
 printf '%s\n' 'README first success: exact stdout matched in a fresh HOME'

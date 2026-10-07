@@ -38,44 +38,47 @@ The installer verifies SHA256 before placing the binary in `~/.cargo/bin`.
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/scbrown/caboodle/main/scripts/install.sh
-CABOODLE_VERSION=v0.2.2 sh install.sh
+sh install.sh
 export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 ```
 
-Or build from source with Rust:
-
-```bash
-cargo install --git https://github.com/scbrown/caboodle --tag v0.2.2 --locked
-caboodle --version
-```
-
-Expected version for either route: `caboodle 0.2.2`.
+`install.sh` fetches the latest release; set `CABOODLE_VERSION=vX.Y.Z` to pin one.
+The `export` lasts for this shell only: add it to `~/.bashrc` (or `~/.zshrc`).
+Or build the latest release from source with Rust (`cargo install --git
+https://github.com/scbrown/caboodle --tag vX.Y.Z --locked`). Either way,
+`caboodle --version` prints `caboodle X.Y.Z` for the release you installed.
 
 ## First success in three commands
 
-In an empty directory, download the example intent and plan the smallest
-profile (Quipu + Camayoc). Read `caboodle-plan.toml` before the third command.
-Linux x86_64 can run this directly; see platform prerequisites below for macOS.
+Run these in a directory that will stay put, such as `~/caboodle`; caboodle keeps
+its plan and state there. `retrieval` installs Quipu, Camayoc and Bobbin, which
+the agent step needs. To check prerequisites, run `caboodle doctor` after `plan`
+in the same directory (with no plan it checks `everything`, which needs Go).
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/scbrown/caboodle/main/examples/caboodle-intent.toml
-caboodle plan --profile kg --intent caboodle-intent.toml
+caboodle plan --profile retrieval --intent caboodle-intent.toml
 caboodle install
 ```
 
-Expected stdout (download and installation diagnostics go to stderr):
+Expected stdout on a fresh machine (downloads and progress go to stderr):
 
 ```text
 plan: caboodle-plan.toml
 quipu: applied
 camayoc: applied
+bobbin: applied
 stack configuration: applied
+hook bundle NOT registered: `st` (shantytown) is not installed on this host. Install it and rerun `caboodle apply`; verify reports the bundles until then
+vocabulary: quechua v0.1.0 cached at ~/.local/share/caboodle/vocabulary/quechua-ns-v0.1.0.ttl (no plan quipu_db to load into)
+hook bundle NOT verified: `st` (shantytown) is not installed on this host, so no hook bundle is registered here
 quipu: verified
 camayoc: verified
+bobbin: verified
 ```
 
-Each `verified` means a functional round trip passed after proving its marker
-was absent; [the walkthrough](https://scbrown.github.io/caboodle/getting-started.html) covers recovery.
+`hook bundle` lines are expected without Shantytown. Each `verified` is a passed
+functional round trip; [the walkthrough](https://scbrown.github.io/caboodle/getting-started.html) covers recovery.
 
 ## On your own code
 
@@ -92,11 +95,22 @@ was absent; [the walkthrough](https://scbrown.github.io/caboodle/getting-started
 ## Wire it into your agent
 
 Caboodle is a CLI, with an [agent skill](skills/caboodle/SKILL.md), not an MCP
-server. After installing the `retrieval` profile, connect Bobbin to Claude Code:
+server. Bobbin, which the `retrieval` profile installed above, is one. It
+searches the repository it was started in, so index that repository first, then
+register it from the same directory:
 
 ```bash
+cd ~/path/to/your/repo
+bobbin init
+bobbin index
 claude mcp add bobbin -- bobbin serve
 ```
+
+`claude mcp add` uses the default `local` scope: the server is registered for
+this project only, which matches an index of this repository. Repeat the four
+lines in each repository you want searchable. Without `bobbin init`, `bobbin
+serve` exits with `Bobbin not initialized` and Claude Code reports the server as
+failed to connect.
 
 MCP (Model Context Protocol) lets your agent call the installed server.
 [Agent setup](https://scbrown.github.io/caboodle/agents.html) covers indexing, Yupana, other clients

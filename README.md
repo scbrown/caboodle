@@ -43,12 +43,17 @@ export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 ```
 
 `install.sh` fetches the latest release; set `CABOODLE_VERSION=vX.Y.Z` to pin one.
-The `export` lasts for this shell only. To keep it, add it to your shell's
-startup file once (use `~/.zshrc` for zsh):
+The `export` lasts for this shell only. To keep it, add the same line once to
+your shell's startup file: `~/.bashrc` for bash, `~/.zshrc` for zsh (the macOS
+default). For bash:
 
 ```bash
 echo 'export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"' >> ~/.bashrc
 ```
+
+Apps started outside a terminal, such as the Claude desktop app or an IDE, may
+not read that file, which is why the agent step below registers servers by
+absolute path.
 
 Or build the latest release from source with Rust (`cargo install --git
 https://github.com/scbrown/caboodle --tag vX.Y.Z --locked`). Either way,
@@ -114,19 +119,26 @@ state). Keep the directory; `verify`, `update` and a resumed `install` read it.
 
 Caboodle is a CLI, with an [agent skill](skills/caboodle/SKILL.md), not an MCP
 server. Bobbin, which the `retrieval` profile installed above, is one. It
-searches the repository it was started in, so index that repository first, then
-register it from the same directory:
+searches one repository: the code you want your agent to work on, such as your
+own project's git checkout. Do not use `~/caboodle`, which holds only the plan.
+Index that repository, then register bobbin from inside it:
 
 ```bash
 cd ~/path/to/your/repo
 bobbin init
 bobbin index
-claude mcp add bobbin -- bobbin serve
+claude mcp add bobbin -- "$(command -v bobbin)" serve "$PWD"
 ```
 
+`$(command -v bobbin)` and `$PWD` are expanded once, now, so Claude Code
+starts the server by absolute path and serves this repository whatever its own
+`PATH` or working directory. Registering a bare `bobbin` fails with `ENOENT` when
+Claude Code was not started from a shell that has `~/.cargo/bin` on `PATH`.
+
 `claude mcp add` uses the default `local` scope: the server is registered for
-this project only, which matches an index of this repository. Repeat the four
-lines in each repository you want searchable. `bobbin init` creates `.bobbin/`
+this project only, so start Claude Code in this repository to see it (`claude
+mcp list` there shows `bobbin: ... ✓ Connected`). Repeat the four lines in each
+repository you want searchable. `bobbin init` creates `.bobbin/`
 in the repository and, if the repository has a `.gitignore`, appends `.bobbin/`
 to it; review that change before you commit. Without `bobbin init`, `bobbin
 serve` exits with `Bobbin not initialized` and Claude Code reports the server as

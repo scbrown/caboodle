@@ -25,7 +25,8 @@ awk '
 test -s "$work/expected.txt"
 # Separate the release installer (whose output includes HOME) from the three
 # first-success commands. Keep the same fresh HOME and shell for both.
-sed '/^curl .*examples\/caboodle-intent.toml/i exec > actual.txt' "$work/commands.sh" > "$work/run.sh"
+# Absolute: the block changes into its own work directory first (aegis-2gtpsr).
+sed "/^curl .*examples\/caboodle-intent.toml/i exec > $work/run/actual.txt" "$work/commands.sh" > "$work/run.sh"
 (cd "$work/run" && env -i HOME="$work/home" PATH=/usr/bin:/bin \
   /bin/bash --noprofile --norc -e "$work/run.sh")
 # The README shows paths under the reader's home as ~ (aegis-y4dd06); this run's

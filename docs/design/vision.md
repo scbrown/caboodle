@@ -85,7 +85,7 @@ lives in the graph the box just installed.
   entry point to the whole box.
 - `skills/camayoc` (ships with camayoc; caboodle installs it) — bootstrap the
   ontology: interview the user about their domain, derive competency questions,
-  load the bootstrap ontology plus the right `.qpack`, run a verified first ingest.
+  load the bootstrap ontology plus the right `.pendant`, run a verified first ingest.
 
 ## Initial plan
 

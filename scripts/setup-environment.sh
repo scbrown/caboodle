@@ -124,7 +124,7 @@ TOOLS_PID=$!
 wait "$QUIPU_PID" "$CABOODLE_PID" "$TOOLS_PID" 2>/dev/null || true
 
 # ── Post-install: consume a repository share directly by reference ─────────
-# A qpack is a text share, not a SQLite file. The caller pins an immutable
+# A pendant is a text share, not a SQLite file. The caller pins an immutable
 # release URL; Quipu fetches it into bounded memory and verifies it before the
 # transient store is opened. No user-visible download is staged here.
 SHARE_STATUS="not requested"

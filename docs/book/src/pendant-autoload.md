@@ -1,9 +1,9 @@
-# Design: qpack autoload, monorepo shares and graph pointers
+# Design: pendant autoload, monorepo shares and graph pointers
 
 **Status:** proposal, not built. Every behaviour below is future work unless it
 says "exists today".
 
-Once repositories routinely ship a quipu pack (`.qpack.tar.gz`), a fresh clone
+Once repositories routinely ship a quipu pack (`.pendant.tar.gz`), a fresh clone
 should have that knowledge in the local graph without anyone running a command.
 This document covers three questions: how a clone discovers and loads its
 packs, how a monorepo ships one pack per project, and how a pack can point at
@@ -11,7 +11,7 @@ graphs that are not loaded yet.
 
 ## What exists today
 
-- **Packs.** A `.qpack.tar.gz` is a deterministic text bundle, not a database
+- **Packs.** A `.pendant.tar.gz` is a deterministic text bundle, not a database
   file. Its manifest carries `parent_share`, `tx_anchor`, `graph_hash`,
   `shapes_hash` and a stored CONSTRUCT scope.
 - **Composition.** `quipu compose` loads verified packs into one store. Each
@@ -21,7 +21,7 @@ graphs that are not loaded yet.
   union stays in quarantine, and nothing is promoted to ROOT. A local
   retraction survives a reload of the same snapshot. See quipu's
   [pack composition](https://scbrown.github.io/quipu/concepts/pack-composition.html).
-- **Manual loading.** `install-stack.sh --qpack PATH` loads a pack by hand, and
+- **Manual loading.** `install-stack.sh --pendant PATH` loads a pack by hand, and
   `scripts/setup-environment.sh` stages and verifies packs in cloud
   environments.
 - **Federation.** quipu reaches remote graphs through SPARQL `SERVICE` and
@@ -37,7 +37,7 @@ files ([convention over manifest](conventions.md)), and packs need none. A
 repository ships its packs at one conventional path:
 
 ```text
-.quipu/packs/*.qpack.tar.gz
+.quipu/packs/*.pendant.tar.gz
 ```
 
 Each pack already describes itself: its own manifest, inside the archive,

@@ -69,7 +69,7 @@ It refuses when either contract is absent, when a required doctor result is not
 
 Camayoc currently distributes its bootstrap ontology, shapes, queries, and gate
 proof as a repository bundle; CABOODLE pins and checksums that bundle until the
-designed `core.qpack` artifact is published.
+designed `core.pendant` artifact is published.
 
 ## Quipu install flavor
 

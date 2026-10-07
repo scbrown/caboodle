@@ -43,19 +43,28 @@ export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
 ```
 
 `install.sh` fetches the latest release; set `CABOODLE_VERSION=vX.Y.Z` to pin one.
-The `export` lasts for this shell only: add it to `~/.bashrc` (or `~/.zshrc`).
+The `export` lasts for this shell only. To keep it, add it to your shell's
+startup file once (use `~/.zshrc` for zsh):
+
+```bash
+echo 'export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"' >> ~/.bashrc
+```
+
 Or build the latest release from source with Rust (`cargo install --git
 https://github.com/scbrown/caboodle --tag vX.Y.Z --locked`). Either way,
 `caboodle --version` prints `caboodle X.Y.Z` for the release you installed.
 
 ## First success in three commands
 
-Run these in a directory that will stay put, such as `~/caboodle`; caboodle keeps
-its plan and state there. `retrieval` installs Quipu, Camayoc and Bobbin, which
-the agent step needs. To check prerequisites, run `caboodle doctor` after `plan`
-in the same directory (with no plan it checks `everything`, which needs Go).
+Run these in a new, empty directory that will stay put. It is caboodle's own
+working directory, NOT the repository you want indexed (that comes in
+[Wire it into your agent](#wire-it-into-your-agent)). `retrieval` installs
+Quipu, Camayoc and Bobbin, which the agent step needs. To check prerequisites,
+run `caboodle doctor` after `plan` in the same directory (with no plan it checks
+`everything`, which needs Go); it exits 0 when ready, and warnings do not block.
 
 ```bash
+mkdir -p ~/caboodle && cd ~/caboodle
 curl -fsSLO https://raw.githubusercontent.com/scbrown/caboodle/main/examples/caboodle-intent.toml
 caboodle plan --profile retrieval --intent caboodle-intent.toml
 caboodle install
@@ -79,6 +88,15 @@ bobbin: verified
 
 `hook bundle` lines are expected without Shantytown. Each `verified` is a passed
 functional round trip; [the walkthrough](https://scbrown.github.io/caboodle/getting-started.html) covers recovery.
+
+**Success check:** `caboodle install` exits 0 and prints `<tool>: verified` for
+every tool in the plan (`quipu`, `camayoc`, `bobbin` for `retrieval`). Recheck at
+any time with `caboodle verify` from `~/caboodle`: same lines, exit 0. A failing
+tool prints `<tool>: FAILED: …` and the command exits nonzero.
+
+The install leaves these in `~/caboodle`: `caboodle-intent.toml` (downloaded
+above), `caboodle-plan.toml` (the reviewed plan) and `.caboodle/` (install
+state). Keep the directory; `verify`, `update` and a resumed `install` read it.
 
 ## On your own code
 
@@ -108,7 +126,9 @@ claude mcp add bobbin -- bobbin serve
 
 `claude mcp add` uses the default `local` scope: the server is registered for
 this project only, which matches an index of this repository. Repeat the four
-lines in each repository you want searchable. Without `bobbin init`, `bobbin
+lines in each repository you want searchable. `bobbin init` creates `.bobbin/`
+in the repository and, if the repository has a `.gitignore`, appends `.bobbin/`
+to it; review that change before you commit. Without `bobbin init`, `bobbin
 serve` exits with `Bobbin not initialized` and Claude Code reports the server as
 failed to connect.
 

@@ -6,7 +6,7 @@ use caboodle::{
     doctor,
     embedding::EmbeddingModel,
     emission, engine, interview,
-    model::{CrewMode, InstallIntent, Plan, Profile, QuipuFlavor},
+    model::{CrewMode, InstallIntent, Plan, Profile, QuipuFlavor, State},
     observability, projection,
 };
 use clap::{Parser, Subcommand, ValueEnum};
@@ -33,6 +33,9 @@ enum Commands {
         /// Plan to check; without one, every tool in the everything profile is checked
         #[arg(short, long, default_value = "caboodle-plan.toml")]
         plan: PathBuf,
+        /// Install state; when it records every planned tool verified, doctor says so
+        #[arg(long, default_value = ".caboodle/state.json")]
+        state: PathBuf,
     },
     /// Run the resumable guided interview and write a reviewable plan
     Init {
@@ -309,10 +312,15 @@ fn update_release_tool(value: &str) -> Result<String, String> {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
-        Commands::Doctor { plan } => {
+        Commands::Doctor { plan, state } => {
+            let mut installed = false;
             let scope = if plan.exists() {
                 println!("doctor: checking {}", plan.display());
-                doctor::Scope::from_plan(&Plan::read(&plan)?)
+                let read = Plan::read(&plan)?;
+                installed = doctor::installed(&read, &State::read(&state)?);
+                let mut scope = doctor::Scope::from_plan(&read);
+                scope.work_dir = doctor::is_work_dir(&plan);
+                scope
             } else {
                 println!(
                     "doctor: no plan at {}; checking every tool in the everything profile",
@@ -322,7 +330,7 @@ fn main() -> Result<()> {
             };
             let findings = doctor::diagnose(&scope);
             let stdout = std::io::stdout();
-            if !doctor::report(&findings, &mut stdout.lock())? {
+            if !doctor::report(&findings, installed, &mut stdout.lock())? {
                 std::process::exit(1);
             }
         }

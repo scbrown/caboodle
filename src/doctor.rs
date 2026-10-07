@@ -21,7 +21,7 @@ use crate::adapter::which_all;
 
 use crate::{
     adapter,
-    model::{CrewMode, Plan, Profile, QuipuFlavor, ToolName},
+    model::{CrewMode, Plan, Profile, QuipuFlavor, State, ToolName},
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -54,6 +54,10 @@ pub struct Scope {
     pub tools: Vec<ToolName>,
     pub quipu_flavor: QuipuFlavor,
     pub crew: Option<CrewMode>,
+    /// Doctor runs in the caboodle work directory, which holds the plan. MCP
+    /// servers are registered per indexed repository, so none is expected
+    /// here (aegis-65xet3).
+    pub work_dir: bool,
 }
 
 impl Scope {
@@ -62,6 +66,7 @@ impl Scope {
             tools: plan.tools.clone(),
             quipu_flavor: plan.quipu_flavor,
             crew: plan.crew.as_ref().map(|crew| crew.mode),
+            work_dir: false,
         }
     }
 
@@ -70,8 +75,28 @@ impl Scope {
             tools: Profile::Everything.tools(),
             quipu_flavor: QuipuFlavor::Release,
             crew: None,
+            work_dir: false,
         }
     }
+}
+
+/// Whether `state` records every tool `plan` selects as verified.
+pub fn installed(plan: &Plan, state: &State) -> bool {
+    !plan.tools.is_empty()
+        && plan.tools.iter().all(|tool| {
+            state
+                .tools
+                .get(tool.as_str())
+                .is_some_and(|recorded| recorded.verified)
+        })
+}
+
+/// A plan given by a bare file name lives in the current directory, which is
+/// then the caboodle work directory.
+pub fn is_work_dir(plan: &Path) -> bool {
+    plan.parent().map_or(true, |dir| {
+        dir.as_os_str().is_empty() || dir == Path::new(".")
+    })
 }
 
 /// Versions such as quipu's span several lines; a report line keeps one.
@@ -212,7 +237,22 @@ pub(crate) fn parse_mcp_list(text: &str) -> Vec<(String, bool)> {
         .collect()
 }
 
-pub(crate) fn mcp_findings(expected: &[&str], listed: &[(String, bool)]) -> Vec<Finding> {
+/// The registration the README gives: the binary by absolute path, so an
+/// agent started outside a login shell still finds it (aegis-m9txqn), and for
+/// bobbin the indexed repository by absolute path too.
+pub(crate) fn mcp_add_command(want: &str) -> String {
+    if want == "bobbin" {
+        "bobbin init && bobbin index && claude mcp add bobbin -- \"$(command -v bobbin)\" serve \"$PWD\"".to_owned()
+    } else {
+        format!("claude mcp add {want} -- \"$(command -v {want})\" serve")
+    }
+}
+
+pub(crate) fn mcp_findings(
+    expected: &[&str],
+    listed: &[(String, bool)],
+    work_dir: bool,
+) -> Vec<Finding> {
     expected
         .iter()
         .map(|want| match listed.iter().find(|(name, _)| name == want) {
@@ -222,10 +262,15 @@ pub(crate) fn mcp_findings(expected: &[&str], listed: &[(String, bool)]) -> Vec<
                 format!("mcp {want}"),
                 "registered but NOT connecting; agents in this directory get no tools from it. Run `claude mcp list` for the error",
             ),
+            None if work_dir => Finding::new(
+                Level::Ok,
+                format!("mcp {want}"),
+                format!("not registered here, as expected: registration is per repository, and this is the caboodle work directory. In each repository you want searchable, run: `{}`", mcp_add_command(want)),
+            ),
             None => Finding::new(
                 Level::Warn,
                 format!("mcp {want}"),
-                format!("not registered for this directory; agents here get no {want} tools. After install: `claude mcp add {want} -- {want} serve`"),
+                format!("not registered for this directory; agents here get no {want} tools. After install, from inside this repository: `{}`", mcp_add_command(want)),
             ),
         })
         .collect()
@@ -251,6 +296,7 @@ fn check_mcp(scope: &Scope) -> Vec<Finding> {
         Ok(out) if out.status.success() => mcp_findings(
             &expected,
             &parse_mcp_list(&String::from_utf8_lossy(&out.stdout)),
+            scope.work_dir,
         ),
         Ok(out) => vec![Finding::new(
             Level::Warn,
@@ -536,8 +582,10 @@ fn check_quipu_server() -> Finding {
     }
 }
 
-/// Print findings and return true when nothing blocks an install.
-pub fn report<W: Write>(findings: &[Finding], output: &mut W) -> Result<bool> {
+/// Print findings and return true when nothing blocks an install. `installed`
+/// is true when the state records every planned tool as verified, so the
+/// summary says the install happened instead of offering one (aegis-65xet3).
+pub fn report<W: Write>(findings: &[Finding], installed: bool, output: &mut W) -> Result<bool> {
     for finding in findings {
         let tag = match finding.level {
             Level::Ok => "ok  ",
@@ -554,16 +602,28 @@ pub fn report<W: Write>(findings: &[Finding], output: &mut W) -> Result<bool> {
         .iter()
         .filter(|finding| finding.level == Level::Warn)
         .count();
-    if failures == 0 {
+    let plural = if warnings == 1 { "" } else { "s" };
+    if failures == 0 && installed {
         writeln!(
             output,
-            "doctor: ready to install ({warnings} warning{})",
-            if warnings == 1 { "" } else { "s" }
+            "doctor: installed and verified ({warnings} warning{plural}); recheck with `caboodle verify`"
+        )?;
+    } else if failures == 0 {
+        writeln!(
+            output,
+            "doctor: ready to install ({warnings} warning{plural})"
         )?;
     } else {
+        // Say the install happened even when something now blocks it, so a
+        // FAIL line cannot read as "nothing was installed".
+        let earlier = if installed {
+            "installed and verified earlier, but "
+        } else {
+            ""
+        };
         writeln!(
             output,
-            "doctor: {failures} blocker{} — fix the FAIL lines, then rerun `caboodle doctor`",
+            "doctor: {earlier}{failures} blocker{} — fix the FAIL lines, then rerun `caboodle doctor`",
             if failures == 1 { "" } else { "s" }
         )?;
     }
@@ -592,14 +652,14 @@ yupana: yupana serve - ✗ Failed to connect\n";
     #[test]
     fn mcp_findings_distinguish_connected_failing_and_missing() {
         let listed = parse_mcp_list(MCP_LIST);
-        let got = mcp_findings(&["bobbin", "yupana", "quipu"], &listed);
+        let got = mcp_findings(&["bobbin", "yupana", "quipu"], &listed, false);
         assert_eq!(got[0].level, Level::Ok);
         assert_eq!(got[1].level, Level::Warn);
         assert!(got[1].detail.contains("NOT connecting"));
         assert_eq!(got[2].level, Level::Warn);
         assert!(got[2].detail.contains("not registered"));
         // A clean install with zero servers: every expected one is reported, none silently.
-        assert!(mcp_findings(&["bobbin"], &[])
+        assert!(mcp_findings(&["bobbin"], &[], false)
             .iter()
             .all(|f| f.level == Level::Warn));
     }
@@ -707,11 +767,95 @@ yupana: yupana serve - ✗ Failed to connect\n";
     fn report_fails_only_on_blockers() {
         let mut out = Vec::new();
         let warn_only = [Finding::new(Level::Warn, "x", "y")];
-        assert!(report(&warn_only, &mut out).unwrap());
+        assert!(report(&warn_only, false, &mut out).unwrap());
         let blocked = [Finding::new(Level::Fail, "x", "y")];
-        assert!(!report(&blocked, &mut out).unwrap());
+        assert!(!report(&blocked, false, &mut out).unwrap());
         let text = String::from_utf8(out).unwrap();
         assert!(text.contains("ready to install (1 warning)"));
         assert!(text.contains("FAIL x: y"));
+    }
+
+    // aegis-65xet3 item 1: the hint is the README's absolute-path form, never
+    // the bare name that failed with ENOENT in clean-room run 22422.
+    #[test]
+    fn missing_registration_hint_uses_the_absolute_path_form() {
+        for work_dir in [false, true] {
+            let got = mcp_findings(&["bobbin"], &[], work_dir);
+            assert!(
+                got[0]
+                    .detail
+                    .contains(r#"claude mcp add bobbin -- "$(command -v bobbin)" serve "$PWD""#),
+                "{}",
+                got[0].detail
+            );
+            assert!(
+                !got[0].detail.contains("-- bobbin serve"),
+                "{}",
+                got[0].detail
+            );
+        }
+        let readme = include_str!("../README.md");
+        assert!(
+            readme.contains(r#"claude mcp add bobbin -- "$(command -v bobbin)" serve "$PWD""#),
+            "doctor and README must give the same registration"
+        );
+    }
+
+    // aegis-65xet3 item 2: after an install every planned tool is verified in
+    // state, and the summary says so instead of offering to install.
+    #[test]
+    fn summary_reports_an_install_that_happened() {
+        let plan = Plan::for_profile(Profile::Retrieval);
+        let mut state = State::read(Path::new("/nonexistent/state.json")).unwrap();
+        assert!(!installed(&plan, &state), "empty state is not installed");
+        for tool in &plan.tools {
+            state.tools.insert(
+                tool.as_str().to_owned(),
+                crate::model::ToolState {
+                    version: "1".into(),
+                    applied: true,
+                    verified: true,
+                },
+            );
+        }
+        assert!(installed(&plan, &state));
+        let first = plan.tools[0].as_str().to_owned();
+        state.tools.get_mut(&first).unwrap().verified = false;
+        assert!(
+            !installed(&plan, &state),
+            "one unverified tool is not installed"
+        );
+
+        let mut out = Vec::new();
+        assert!(report(&[], true, &mut out).unwrap());
+        let text = String::from_utf8(out).unwrap();
+        assert!(text.contains("installed and verified"), "{text}");
+        assert!(!text.contains("ready to install"), "{text}");
+        let blocked = [Finding::new(Level::Fail, "x", "y")];
+        let mut out = Vec::new();
+        assert!(!report(&blocked, true, &mut out).unwrap());
+        let text = String::from_utf8(out).unwrap();
+        assert!(
+            text.contains("installed and verified earlier, but 1 blocker"),
+            "{text}"
+        );
+    }
+
+    // aegis-65xet3 item 3: in the caboodle work dir a missing per-repository
+    // registration is expected, not a warning; elsewhere it still warns.
+    #[test]
+    fn missing_registration_does_not_warn_in_the_work_dir() {
+        assert!(is_work_dir(Path::new("caboodle-plan.toml")));
+        assert!(is_work_dir(Path::new("./caboodle-plan.toml")));
+        assert!(!is_work_dir(Path::new("/elsewhere/caboodle-plan.toml")));
+        let here = mcp_findings(&["bobbin"], &[], true);
+        assert_eq!(here[0].level, Level::Ok, "{}", here[0].detail);
+        assert!(
+            here[0].detail.contains("per repository"),
+            "{}",
+            here[0].detail
+        );
+        let repo = mcp_findings(&["bobbin"], &[], false);
+        assert_eq!(repo[0].level, Level::Warn);
     }
 }

@@ -137,8 +137,8 @@ For a standalone harness, or until the adapter is available, register explicitly
 For Claude Code, substitute your deployment's reviewed HTTP MCP endpoints:
 
 ```bash
-claude mcp add bobbin -- bobbin serve
-claude mcp add yupana -- yupana serve
+claude mcp add bobbin -- "$(command -v bobbin)" serve "$PWD"
+claude mcp add yupana -- "$(command -v yupana)" serve
 claude mcp add --transport http forgejo https://forgejo-mcp.example.com/mcp
 claude mcp add --transport http homelab https://homelab-mcp.example.com/mcp
 claude mcp list
@@ -214,12 +214,12 @@ a fresh in-memory store without a local download step:
 
 ```bash
 quipu import \
-  https://github.com/scbrown/quipu/releases/download/quipu-ai-v0.3.29/quipu-quipu-ai-v0.3.29-repository.qpack.tar.gz
+  https://github.com/scbrown/quipu/releases/download/quipu-ai-v0.11.1/quipu-quipu-ai-v0.11.1-repository.qpack.tar.gz
 ```
 
-That URL keeps its old name on purpose: releases cut before the rename publish
-the asset as `*-repository.qpack.tar.gz`. Newer releases publish
-`*-repository.pendant.tar.gz`, and for one release both names.
+Releases still publish the asset as `*-repository.qpack.tar.gz` (checked on
+quipu-ai-v0.11.1). The pendant rename has not shipped yet; when it does, the
+asset becomes `*-repository.pendant.tar.gz`.
 
 For a modified graph, `quipu share --since <parent-share> --out <delta-dir>`
 writes a parent-bound SPARQL 1.1 Update delta. Import rejects a wrong parent,

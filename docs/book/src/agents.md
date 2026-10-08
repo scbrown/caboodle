@@ -7,16 +7,18 @@ agent call servers supplied by the installed tools.
 
 ## Standalone agent
 
-After installing the retrieval profile, register Bobbin with Claude Code:
+After installing the retrieval profile, register Bobbin with Claude Code. Run it
+from the repository to index, and register by **absolute path**: MCP clients launch
+servers without your shell's `PATH`, so a bare `bobbin` fails with `ENOENT`:
 
 ```bash
-claude mcp add bobbin -- bobbin serve
+claude mcp add bobbin -- "$(command -v bobbin)" serve "$PWD"
 ```
 
 For code-intel or everything, also register Yupana:
 
 ```bash
-claude mcp add yupana -- yupana serve
+claude mcp add yupana -- "$(command -v yupana)" serve
 claude mcp list
 ```
 

@@ -89,9 +89,8 @@ with an absent control, reader-path retrieval, and an idempotent replay.
 Use `--skip-install` when package installation belongs to another system; the
 version and functional checks still run.
 
-Yupana installs from its checksum-pinned v0.7.0 release and proves `callers` on
-an isolated fixture repository. Desire Path publishes no release archive, so
-CABOODLE builds it from the revision its `v0.3.2` tag names (`1f457ec`), stamps
+Yupana installs from its checksum-pinned v0.10.7 release and proves `callers` on
+an isolated fixture repository. CABOODLE builds Desire Path from the revision its `v0.3.2` tag names (`1f457ec`), stamps
 that identity into `dp version`, and proves an isolated ingest/list round trip. Neither
 verification can write into the user's normal Yupana state or Desire Path DB.
 

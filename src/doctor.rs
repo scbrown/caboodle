@@ -357,6 +357,21 @@ fn check_graph() -> Vec<Finding> {
     if !reachable {
         return findings;
     }
+    match crate::quipu_credential::verify(&server) {
+        Ok(()) => findings.push(Finding::new(
+            Level::Ok,
+            "quipu credential",
+            "canonical file 0400/0700 and authenticated /shapes read accepted",
+        )),
+        Err(error) => {
+            findings.push(Finding::new(
+                Level::Fail,
+                "quipu credential",
+                format!("{error:#}"),
+            ));
+            return findings;
+        }
+    }
     let base = server.trim_end_matches('/');
     // The namespace is the setting people most often get wrong, so echo it and
     // check the server actually holds facts under it.

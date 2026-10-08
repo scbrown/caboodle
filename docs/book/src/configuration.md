@@ -102,8 +102,13 @@ Doctor checks the protected `/episode` route with `{}`. The server authorizes
 before rejecting the incomplete episode, so no graph data is written. It reports
 accepted authorization, missing token, rejected token, read-only server, or an
 unknown write path (including no HTTP response). This is authorization evidence,
-not a successful storage commit. `caboodle verify` separately exercises installed
-tools in isolated scratch stores.
+not a successful storage commit. Doctor also requires a nonempty canonical file
+with mode `0400` and parent mode `0700`, and an authenticated `/shapes` read
+returning 2xx. `caboodle verify` runs that live credential proof before recording
+Quipu as verified, then exercises installed tools in isolated scratch stores.
+Set `QUIPU_SERVER` to the intended server; without it, verify uses the plan's
+Quipu MCP URL or `http://localhost:3030`. Missing, rejected, or unproven
+credentials leave verification incomplete. Public health is not an auth check.
 
 ## Quipu MCP for Claude Code
 

@@ -403,6 +403,21 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     for line in hook_bundles_verify(plan)? {
         println!("hook bundle {line}");
     }
+    if plan.tools.contains(&crate::model::ToolName::Quipu) {
+        if let Some(record) = state.tools.get_mut("quipu") {
+            record.verified = false;
+            state.write(state_path)?;
+        }
+        let server = std::env::var("QUIPU_SERVER").unwrap_or_else(|_| {
+            plan.quipu_mcp
+                .as_ref()
+                .map(|mcp| mcp.url.clone())
+                .unwrap_or_else(|| "http://localhost:3030".to_owned())
+        });
+        crate::quipu_credential::verify(&server)
+            .context("live Quipu client credential verification")?;
+        println!("quipu credential: canonical file 0400/0700 and authenticated read verified");
+    }
     for &name in &plan.tools {
         let adapter = adapter(name, plan.quipu_flavor);
         let version = adapter

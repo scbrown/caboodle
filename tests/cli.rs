@@ -69,6 +69,19 @@ expected = "fixture-result"
 }
 
 fn install_fakes(root: &Path, bin: &Path) {
+    let credential_dir = root.join(".config/quipu");
+    fs::create_dir_all(&credential_dir).unwrap();
+    fs::set_permissions(&credential_dir, fs::Permissions::from_mode(0o700)).unwrap();
+    let token = credential_dir.join("token");
+    if token.exists() {
+        fs::remove_file(&token).unwrap();
+    }
+    fs::write(&token, "good-token\n").unwrap();
+    fs::set_permissions(
+        credential_dir.join("token"),
+        fs::Permissions::from_mode(0o400),
+    )
+    .unwrap();
     // The fixture stack member (fixture-members feature, aegis-1i5h1j) joins the
     // everything profile. Put its REAL program from the committed release on
     // PATH, so profile tests run its real hermetic verify.
@@ -300,6 +313,16 @@ case "$args" in
     done
     printf '%s' "${FAKE_MODEL_BODY:-caboodle-model-fixture}" > "$out"
     printf '%s\n' fetched >> "$FAKE_MODEL_FETCH_LOG"
+    ;;
+  *"/shapes"*)
+    config=''; previous=''
+    for arg do
+      if [ "$previous" = --config ]; then config=$arg; fi
+      previous=$arg
+    done
+    if [ "${FAKE_SHAPES_STATUS:-}" != '' ]; then printf '%s' "$FAKE_SHAPES_STATUS"
+    elif [ -n "$config" ] && grep -q 'Bearer good-token"' "$config"; then printf '200'
+    else printf '401'; fi
     ;;
   *"/version"*)
     if [ "${FAKE_QUIPU_LANCEDB:-}" = present ]; then echo '{"version":"0.3.27","features":{"lancedb":true,"onnx":true}}'
@@ -2361,7 +2384,6 @@ exit 2
 "#,
     );
     fs::create_dir_all(root.join(".config/quipu")).unwrap();
-    fs::write(root.join(".config/quipu/token"), "good-token\n").unwrap();
 }
 
 #[test]
@@ -2518,18 +2540,26 @@ fn quipu_mcp_verify_fails_on_a_refused_token_and_is_unknown_without_a_control() 
         .assert()
         .success();
 
+    fs::remove_file(root.path().join(".config/quipu/token")).unwrap();
     fs::write(root.path().join(".config/quipu/token"), "wrong-token\n").unwrap();
+    fs::set_permissions(
+        root.path().join(".config/quipu/token"),
+        fs::Permissions::from_mode(0o400),
+    )
+    .unwrap();
     command(root.path(), &bin)
         .args(["verify"])
         .assert()
         .failure()
-        .stderr(
-            predicate::str::contains("FAIL:").and(predicate::str::contains(
-                "refused the headersHelper's bearer",
-            )),
-        );
+        .stderr(predicate::str::contains("Quipu credential rejected"));
 
+    fs::remove_file(root.path().join(".config/quipu/token")).unwrap();
     fs::write(root.path().join(".config/quipu/token"), "good-token\n").unwrap();
+    fs::set_permissions(
+        root.path().join(".config/quipu/token"),
+        fs::Permissions::from_mode(0o400),
+    )
+    .unwrap();
     command(root.path(), &bin)
         .args(["verify"])
         .env("FAKE_MCP_OPEN", "1")
@@ -2544,7 +2574,9 @@ fn quipu_mcp_verify_fails_on_a_refused_token_and_is_unknown_without_a_control() 
         .args(["verify"])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("FAIL:").and(predicate::str::contains("no Quipu token")));
+        .stderr(predicate::str::contains(
+            "missing canonical Quipu credential",
+        ));
 }
 
 #[test]
@@ -2603,13 +2635,13 @@ fn quipu_mcp_restores_the_previous_entry_when_the_add_fails() {
 }
 
 #[test]
-fn quipu_mcp_bakes_the_planned_token_file_and_warns_on_shell_only_tokens() {
+fn quipu_mcp_bakes_the_planned_token_file_with_canonical_installation() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
     quipu_mcp_fixture(root.path(), &bin);
-    // This host keeps its token somewhere other than ~/.config/quipu/token.
-    fs::remove_file(root.path().join(".config/quipu/token")).unwrap();
+    // This host retains an explicit token override in addition to the required
+    // canonical installation. Neither path stores a credential in the plan.
     let host_file = root.path().join("host-convention/quipu_token");
     fs::create_dir_all(host_file.parent().unwrap()).unwrap();
     fs::write(&host_file, "good-token\n").unwrap();
@@ -2640,8 +2672,8 @@ fn quipu_mcp_bakes_the_planned_token_file_and_warns_on_shell_only_tokens() {
     let helper = fs::read_to_string(root.path().join(".local/bin/quipu-mcp-headers")).unwrap();
     assert!(helper.contains(host_file.to_str().unwrap()) && !helper.contains("good-token"));
 
-    // A plan WITHOUT the baked path, where only this shell's variable finds the
-    // token, passes but says Claude Code must see that variable too.
+    // A plan without the baked path also passes: the canonical installation
+    // gives Claude a token even when it does not inherit this shell's override.
     command(root.path(), &bin)
         .args([
             "plan",
@@ -2661,9 +2693,7 @@ fn quipu_mcp_bakes_the_planned_token_file_and_warns_on_shell_only_tokens() {
         .env("QUIPU_AUTH_TOKEN_FILE", &host_file)
         .assert()
         .success()
-        .stdout(predicate::str::contains(
-            "WARNING: the helper found a token only through QUIPU_AUTH_TOKEN_FILE",
-        ));
+        .stdout(predicate::str::contains("WARNING").not());
 }
 
 #[test]
@@ -2937,4 +2967,66 @@ fn verify_asserts_the_hook_bundles_without_a_crew_plan_and_before_the_tools() {
             "hook bundle bobbin: configured in",
         ))
         .stderr(predicate::str::contains("VERSION SKEW"));
+}
+
+#[test]
+fn live_credential_failure_invalidates_prior_verification_without_echoing_tokens() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .args(["install", "--skip-install"])
+        .assert()
+        .success();
+    let state_file = root.path().join(".caboodle/state.json");
+    for (mode, message) in [
+        ("missing", "missing canonical"),
+        ("permissions", "mode 0400"),
+        ("rejected", "credential rejected"),
+        ("open", "control returned HTTP 200"),
+    ] {
+        let token = root.path().join(".config/quipu/token");
+        if token.exists() {
+            fs::remove_file(&token).unwrap();
+        }
+        if mode != "missing" {
+            fs::write(
+                &token,
+                if mode == "rejected" {
+                    "fixture-rejected-secret"
+                } else {
+                    "good-token"
+                },
+            )
+            .unwrap();
+            fs::set_permissions(
+                &token,
+                fs::Permissions::from_mode(if mode == "permissions" { 0o600 } else { 0o400 }),
+            )
+            .unwrap();
+        }
+        // Deliberately seed an old green record before every failure.
+        let mut state: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&state_file).unwrap()).unwrap();
+        state["tools"]["quipu"]["verified"] = serde_json::json!(true);
+        fs::write(&state_file, state.to_string()).unwrap();
+        let mut cmd = command(root.path(), &bin);
+        cmd.arg("verify");
+        if mode == "open" {
+            cmd.env("FAKE_SHAPES_STATUS", "200");
+        }
+        cmd.assert()
+            .failure()
+            .stderr(predicate::str::contains(message))
+            .stderr(predicate::str::contains("fixture-rejected-secret").not())
+            .stdout(predicate::str::contains("quipu: verified").not());
+        let state: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&state_file).unwrap()).unwrap();
+        assert_eq!(state["tools"]["quipu"]["verified"], false);
+    }
 }

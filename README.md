@@ -83,6 +83,8 @@ quipu: applied
 camayoc: applied
 bobbin: applied
 stack configuration: applied
+hook bundle bobbin: source shipped copy
+hook bundle quipu: source shipped copy
 hook bundle NOT registered: `st` (shantytown) is not installed on this host. Install it and rerun `caboodle apply`; verify reports the bundles until then
 vocabulary: quechua v0.1.0 cached at ~/.local/share/caboodle/vocabulary/quechua-ns-v0.1.0.ttl (no plan quipu_db to load into)
 hook bundle NOT verified: `st` (shantytown) is not installed on this host, so no hook bundle is registered here

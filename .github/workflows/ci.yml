@@ -86,7 +86,14 @@ jobs:
           cd "$RUNNER_TEMP/caboodle-phase2"
           # The read-only preflight must call a clean runner ready before install.
           caboodle doctor 2>&1 | tee doctor.log
-          caboodle install 2>&1 | tee first-install.log
+          caboodle apply 2>&1 | tee first-apply.log
+          # A local CLI database roundtrip cannot prove a live client's auth.
+          # Issue a fresh fixture credential to an isolated authenticated server.
+          python3 "$GITHUB_WORKSPACE/scripts/start-credential-fixture.py" \
+            --home "$HOME" --root "$RUNNER_TEMP/caboodle-phase2/credential-fixture"
+          export QUIPU_SERVER=http://127.0.0.1:3030
+          echo "QUIPU_SERVER=$QUIPU_SERVER" >> "$GITHUB_ENV"
+          caboodle verify 2>&1 | tee first-install.log
           jq -e '
             .tools.quipu.verified == true and
             .tools.camayoc.verified == true and

@@ -151,7 +151,7 @@ environment variables and observability targets.
 | episode | A batch of facts written to quipu in one go. |
 | knot | One write to quipu over HTTP (`/knot`). |
 | ontology, shapes | The vocabulary quipu accepts and the rules (SHACL) that reject bad facts. |
-| share, pendant | A portable export of a quipu graph that another store can import. "Share" names the protocol; a pendant (formerly "qpack") is the artifact that travels. |
+| share, pendant | A portable export of a quipu graph that another store can import. "Share" names the protocol; a pendant is the artifact that travels. |
 | crew | Several named coding agents that work together, run by shantytown (terminal) or creel (browser). |
 | bead, `br` | An issue in [beads](https://github.com/Dicklesworthstone/beads_rust), a git-friendly issue tracker agents use as memory. |
 | MCP | Model Context Protocol, how an agent calls a tool's server. |

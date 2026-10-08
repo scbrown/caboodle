@@ -14,6 +14,7 @@ pub mod members;
 pub mod model;
 pub mod observability;
 pub mod projection;
+pub mod tool_bundles;
 
 #[cfg(unix)]
 pub mod release_update;

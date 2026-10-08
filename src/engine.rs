@@ -256,8 +256,14 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     }
     // After the tools and crew (which may have just installed st): register the
     // stack's hook bundles for the tools this plan installs (aegis-u1ybxo).
-    let bundles = crate::hook_bundles::selected(plan.tools.iter().map(|t| t.as_str()));
-    for line in crate::hook_bundles::register(&bundles, "st")? {
+    // Each tool's OWN bundle when the installed tool prints one (aegis-5s32or.5).
+    let resolved = crate::tool_bundles::resolve(&crate::hook_bundles::selected(
+        plan.tools.iter().map(|t| t.as_str()),
+    ));
+    for (name, _, source) in &resolved {
+        println!("hook bundle {name}: source {}", source.label());
+    }
+    for line in crate::hook_bundles::register(&crate::tool_bundles::as_pairs(&resolved), "st")? {
         println!("hook bundle {line}");
     }
     // seeds + Desire Path: redirect habitual `bd` to `sd`, never overwriting a
@@ -592,9 +598,10 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
 }
 
 fn hook_bundles_verify(plan: &Plan) -> Result<Vec<String>> {
-    crate::hook_bundles::verify(&crate::hook_bundles::selected(
+    let resolved = crate::tool_bundles::resolve(&crate::hook_bundles::selected(
         plan.tools.iter().map(|t| t.as_str()),
-    ))
+    ));
+    crate::hook_bundles::verify(&crate::tool_bundles::as_pairs(&resolved))
 }
 
 pub fn verify_questions(plan: &Plan, db: Option<&Path>) -> Result<()> {

@@ -728,7 +728,7 @@ impl Adapter for Bobbin {
     }
 }
 
-const YUPANA_VERSION: &str = "0.10.7";
+const YUPANA_VERSION: &str = "0.12.2";
 
 impl Adapter for Yupana {
     fn name(&self) -> ToolName {
@@ -797,20 +797,20 @@ fn yupana_release_target() -> Result<&'static str> {
     yupana_release_for(env::consts::ARCH, env::consts::OS).map(|(target, _)| target)
 }
 
-// Digests of the published v0.10.7 archives, verified against SHA256SUMS.
+// Digests of the published v0.12.2 archives, verified against SHA256SUMS.
 fn yupana_release_for(arch: &str, os: &str) -> Result<(&'static str, &'static str)> {
     match (arch, os) {
         ("x86_64", "linux") => Ok((
             "x86_64-linux-gnu",
-            "7ed132173fa6c141772b368c851c1559997c958b808e0d46220142e2edab4922",
+            "b98491b53ebadfe1f2f087cb820c238f12712a0cbfe0102d43e0cc1707e9f7ce",
         )),
         ("aarch64", "macos") => Ok((
             "aarch64-apple-darwin",
-            "90acb9a228c3e80282824322c25b550a4ea536f2c422d50288190afade6a6302",
+            "12e5ad44e3d2fd97a9f5539645ab0ecad6911c0eef90f6fa32e7d5f2181daac1",
         )),
         ("x86_64", "macos") => Ok((
             "x86_64-apple-darwin",
-            "362f27c7ea9c6da2c940cf74706284c9f96a230364d0d55ae12b31e1676c9266",
+            "744f5a1d80c78722b153d978b82f4b556fec004ea2609f7686d4f02876f96ef2",
         )),
         _ => bail!("Yupana v{YUPANA_VERSION} has no checksummed CABOODLE release for {arch}-{os}"),
     }

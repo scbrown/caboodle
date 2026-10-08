@@ -97,12 +97,14 @@ before installing it. It refuses to replace a differing existing credential;
 rotation remains a separate decision. It creates the canonical file with mode
 `0400` and its parent with mode `0700`. No token is printed or stored in a plan.
 
-A nonempty `QUIPU_AUTH_TOKEN` takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
+A nonempty `QUIPU_AUTH_TOKEN` after trimming takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
 then the default `~/.config/quipu/token`. Files are read on every request so
 rotation reaches running sessions. An explicit file does not fall back to the
 default if missing. Existing deployments can retain their file override until
 provisioning and rotation move together; avoid independent copies of secrets.
 Token contents must never enter command arguments, logs or version control.
+Doctor and verify name the winning source without printing its value, including
+an environment value that shadows a valid canonical file.
 
 Doctor checks the protected `/episode` route with `{}`. The server authorizes
 before rejecting the incomplete episode, so no graph data is written. It reports

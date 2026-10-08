@@ -41,7 +41,13 @@ fn classify(code: u16) -> Result<()> {
 
 /// Prove the canonical file and the resolver-selected credential on this host.
 /// `/shapes` is an authenticated read; public health/query cannot prove auth.
-pub(crate) fn verify(server: &str) -> Result<()> {
+pub(crate) fn verify(server: &str) -> Result<String> {
+    let source = crate::quipu_auth::source();
+    verify_current(server).with_context(|| format!("Quipu credential source: {source}"))?;
+    Ok(source)
+}
+
+fn verify_current(server: &str) -> Result<()> {
     let home =
         env::var_os("HOME").context("HOME missing; cannot check canonical Quipu credential")?;
     check_file(Path::new(&home))?;

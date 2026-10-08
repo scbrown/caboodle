@@ -414,9 +414,9 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
                 .map(|mcp| mcp.url.clone())
                 .unwrap_or_else(|| "http://localhost:3030".to_owned())
         });
-        crate::quipu_credential::verify(&server)
+        let source = crate::quipu_credential::verify(&server)
             .context("live Quipu client credential verification")?;
-        println!("quipu credential: canonical file 0400/0700 and authenticated read verified");
+        println!("quipu credential: canonical file 0400/0700 and authenticated read verified; source: {source}");
     }
     for &name in &plan.tools {
         let adapter = adapter(name, plan.quipu_flavor);

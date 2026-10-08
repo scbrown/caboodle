@@ -3093,3 +3093,33 @@ fn issued_credential_provisioning_proves_acceptance_and_refuses_rotation() {
         "existing-different-identity"
     );
 }
+
+#[test]
+fn credential_diagnostic_names_an_environment_override_without_echoing_it() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    command(root.path(), &bin)
+        .arg("verify")
+        .env("QUIPU_AUTH_TOKEN", "fixture-rejected-secret")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "source: QUIPU_AUTH_TOKEN (environment)",
+        ))
+        .stderr(predicate::str::contains("credential rejected"))
+        .stderr(predicate::str::contains("fixture-rejected-secret").not());
+    command(root.path(), &bin)
+        .arg("verify")
+        .env("QUIPU_AUTH_TOKEN", " \n ")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "source: default ~/.config/quipu/token",
+        ));
+}

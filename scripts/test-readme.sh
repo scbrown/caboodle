@@ -7,7 +7,10 @@ repo=$(cd "$(dirname "$0")/.." && pwd)
 work=$(mktemp -d)
 cleanup() {
   if [ -f "$work/credential/server.pid" ]; then
-    kill "$(cat "$work/credential/server.pid")" 2>/dev/null || true
+    fixture_pid=$(cat "$work/credential/server.pid")
+    case "$(ps -p "$fixture_pid" -o args= 2>/dev/null || true)" in
+      *"$work/credential/fixture.db"*) kill "$fixture_pid" 2>/dev/null || true ;;
+    esac
   fi
   rm -rf "$work"
 }

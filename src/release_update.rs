@@ -46,12 +46,20 @@ pub(crate) fn stable_version(raw: &str) -> Result<(u64, u64, u64)> {
 }
 
 fn installed_version(output: &str) -> Result<(u64, u64, u64)> {
-    stable_version(
-        output
-            .split_whitespace()
-            .nth(1)
-            .context("binary omitted version")?,
-    )
+    let raw = output
+        .split_whitespace()
+        .nth(1)
+        .context("binary omitted version")?;
+    let base = if let Some((base, identity)) = raw.split_once("+local.") {
+        let sha = identity.strip_suffix(".dirty").unwrap_or(identity);
+        if sha.len() != 12 || !sha.bytes().all(|b| b.is_ascii_hexdigit()) {
+            bail!("invalid local source build identity: {raw}");
+        }
+        base
+    } else {
+        raw
+    };
+    stable_version(base)
 }
 
 /// Is `installed` strictly OLDER than `reviewed`? `None` when either string
@@ -422,6 +430,9 @@ fn update_binary(
         );
         return Ok(());
     }
+    if installed == wanted && before.contains("+local.") {
+        bail!("local source build installed ({before}); refusing same-version replacement by {}; publish a newer release to converge", release.tag_name);
+    }
     if check_only {
         println!("{}: published {}, installed {before}; assets available, install/functional proof not run", tool_id, release.tag_name);
         return Ok(());
@@ -471,7 +482,15 @@ fn update_binary(
     use std::os::unix::fs::PermissionsExt;
     fs::set_permissions(&candidate, fs::Permissions::from_mode(0o755))?;
     let after = text(candidate.to_str().unwrap(), &[version_arg])?;
-    if installed_version(&after)? != wanted {
+    // Published candidates must still be plain stable releases. Local metadata
+    // is recognized only on the installed side, never on a downloaded artifact.
+    if stable_version(
+        after
+            .split_whitespace()
+            .nth(1)
+            .context("candidate omitted version")?,
+    )? != wanted
+    {
         bail!("candidate version differs from published release");
     }
     let old_hash = hash(&destination)?;
@@ -614,6 +633,24 @@ mod tests {
         ] {
             assert!(stable_version(bad).is_err(), "{bad}");
         }
+    }
+    #[test]
+    fn local_identity_is_comparable_only_with_a_valid_stamp() {
+        for suffix in ["abcdef012345", "abcdef012345.dirty"] {
+            let installed = format!("yupana 0.12.0+local.{suffix}");
+            assert_eq!(installed_version(&installed).unwrap(), (0, 12, 0));
+            assert_eq!(behind_reviewed(&installed, "yupana 0.12.1"), Some(true));
+            assert_eq!(behind_reviewed(&installed, "yupana 0.12.0"), Some(false));
+        }
+        for bad in [
+            "unknown",
+            "abcdef012345.extra",
+            "abcdef01234",
+            "abcdef012345.dirty.dirty",
+        ] {
+            assert!(installed_version(&format!("yupana 0.12.0+local.{bad}")).is_err());
+        }
+        assert!(stable_version("0.12.0+local.abcdef012345").is_err());
     }
     #[test]
     fn checksum_requires_unique_exact_filename() {

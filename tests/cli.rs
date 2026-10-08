@@ -1904,6 +1904,44 @@ fn published_release_missing_assets_and_ambiguous_identity_never_install() {
 
 #[test]
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn local_source_builds_refuse_equal_releases_but_accept_newer_ones() {
+    for (base, suffix, check) in [
+        ("0.25.3", "abcdef012345", false),
+        ("0.25.3", "abcdef012345.dirty", true),
+        ("0.25.2", "abcdef012345", false),
+        ("0.25.2", "abcdef012345.dirty", false),
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let bin = root.path().join("bin");
+        fs::create_dir(&bin).unwrap();
+        release_fixture(root.path(), &bin, false, false);
+        let script = fs::read_to_string(bin.join("bobbin")).unwrap();
+        fs::write(
+            bin.join("bobbin"),
+            script.replace("0.25.2", &format!("{base}+local.{suffix}")),
+        )
+        .unwrap();
+        let before = fs::read(bin.join("bobbin")).unwrap();
+        let mut cmd = command(root.path(), &bin);
+        cmd.args(["update-release", "--tool", "bobbin"]);
+        if check {
+            cmd.arg("--check");
+        }
+        if base == "0.25.3" {
+            cmd.assert()
+                .failure()
+                .stderr(predicate::str::contains("local source build installed"));
+            assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+            assert!(!root.path().join(".caboodle/state.json").exists());
+        } else {
+            cmd.assert().success();
+            assert_ne!(fs::read(bin.join("bobbin")).unwrap(), before);
+        }
+    }
+}
+
+#[test]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn published_release_can_update_the_installer_itself() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");

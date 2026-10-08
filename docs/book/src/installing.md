@@ -282,6 +282,10 @@ a timer or claim that another host or a long-running process has updated.
 `caboodle update-self` applies the same release, checksum, downgrade, backup and
 interruption-recovery controls to Caboodle itself. Its post-install contract
 requires the new binary's version and `update-release --help` to answer correctly.
+Self-update supports Linux x86_64, macOS x86_64, and macOS arm64, selecting the
+matching published archive and its `.sha256` asset. Other platforms refuse before
+release lookup. The extracted executable is written as a new file rather than
+restoring archive metadata, so archive extended attributes are not installed.
 Use `update-self --check` to inspect metadata. Bootstrap from a published release
 before scheduling this command; a same-version source build with different bytes
 is deliberately refused rather than silently overwritten. It replaces the copy

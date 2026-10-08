@@ -65,6 +65,11 @@ Run these in a new, empty directory that will stay put. It is caboodle's own
 working directory, NOT the repository you want indexed (that comes in
 [Wire it into your agent](#wire-it-into-your-agent)). `retrieval` installs
 Quipu, Camayoc and Bobbin, which the agent step needs. To check prerequisites,
+Set `QUIPU_SERVER` to the intended authenticated server and obtain an issued
+token from its administrator before verification. Install it with
+`caboodle provision-quipu-token --from /secure/issued-token --server <server-url>`.
+This proves acceptance and creates the canonical credential with `0400/0700`
+permissions; it refuses rotation of a differing existing credential. Then
 run `caboodle doctor` after `plan` in the same directory (with no plan it checks
 `everything`, which needs Go); it exits 0 when ready, and warnings do not block.
 
@@ -88,6 +93,7 @@ hook bundle quipu: source shipped copy
 hook bundle NOT registered: `st` (shantytown) is not installed on this host. Install it and rerun `caboodle apply`; verify reports the bundles until then
 vocabulary: quechua v0.1.0 cached at ~/.local/share/caboodle/vocabulary/quechua-ns-v0.1.0.ttl (no plan quipu_db to load into)
 hook bundle NOT verified: `st` (shantytown) is not installed on this host, so no hook bundle is registered here
+quipu credential: canonical file 0400/0700 and authenticated read verified
 quipu: verified
 camayoc: verified
 bobbin: verified

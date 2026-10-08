@@ -682,6 +682,16 @@ fn seed_self_test_store() -> Result<(tempfile::TempDir, std::path::PathBuf)> {
     Ok((dir, db))
 }
 
+/// Provision a pre-issued client credential; never mint or rotate an identity.
+pub fn provision_quipu_credential(source: &Path, server: &str) -> Result<()> {
+    let home = std::env::var_os("HOME").context("HOME required for canonical Quipu credential")?;
+    crate::quipu_credential::provision(source, server, Path::new(&home))?;
+    println!(
+        "quipu credential: issued file accepted and canonical installation verified (0400/0700)"
+    );
+    Ok(())
+}
+
 #[cfg(test)]
 mod convergence_tests {
     use super::{decide_convergence, Convergence};

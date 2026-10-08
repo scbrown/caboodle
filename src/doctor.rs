@@ -354,9 +354,6 @@ fn check_graph() -> Vec<Finding> {
         .unwrap_or_else(|| "http://localhost:3030".to_owned());
     let mut findings = vec![check_quipu_server()];
     let reachable = findings[0].detail.contains("is live");
-    if !reachable {
-        return findings;
-    }
     match crate::quipu_credential::verify(&server) {
         Ok(()) => findings.push(Finding::new(
             Level::Ok,
@@ -371,6 +368,9 @@ fn check_graph() -> Vec<Finding> {
             ));
             return findings;
         }
+    }
+    if !reachable {
+        return findings;
     }
     let base = server.trim_end_matches('/');
     // The namespace is the setting people most often get wrong, so echo it and

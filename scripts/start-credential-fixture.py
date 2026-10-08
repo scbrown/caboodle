@@ -20,8 +20,8 @@ parser.add_argument('--bind', default='127.0.0.1:3030')
 args = parser.parse_args()
 args.home = args.home.resolve()
 args.root = args.root.resolve()
-credential = args.home / '.config/quipu/token'
-if credential.exists():
+credential = args.root / 'issued-token'
+if (args.home / '.config/quipu/token').exists():
     raise SystemExit('fixture refuses an existing credential; use a fresh isolated HOME')
 args.root.mkdir(parents=True, mode=0o700, exist_ok=True)
 config_dir = args.root / '.bobbin'

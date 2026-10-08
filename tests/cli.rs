@@ -3030,3 +3030,66 @@ fn live_credential_failure_invalidates_prior_verification_without_echoing_tokens
         assert_eq!(state["tools"]["quipu"]["verified"], false);
     }
 }
+
+#[test]
+fn issued_credential_provisioning_proves_acceptance_and_refuses_rotation() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    let canonical = root.path().join(".config/quipu/token");
+    fs::remove_file(&canonical).unwrap();
+    let issued = root.path().join("issued");
+    fs::write(&issued, "fixture-rejected-secret").unwrap();
+    // A valid environment override must not hide a rejected issued file.
+    command(root.path(), &bin)
+        .args(["provision-quipu-token", "--from"])
+        .arg(&issued)
+        .args(["--server", "http://quipu.test"])
+        .env("QUIPU_AUTH_TOKEN", "good-token")
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("credential rejected"))
+        .stderr(predicate::str::contains("fixture-rejected-secret").not());
+    assert!(!canonical.exists());
+    fs::write(&issued, "good-token\n").unwrap();
+    command(root.path(), &bin)
+        .args(["provision-quipu-token", "--from"])
+        .arg(&issued)
+        .args(["--server", "http://quipu.test"])
+        .assert()
+        .success();
+    assert_eq!(fs::read_to_string(&canonical).unwrap(), "good-token");
+    assert_eq!(
+        fs::metadata(&canonical).unwrap().permissions().mode() & 0o777,
+        0o400
+    );
+    assert_eq!(
+        fs::metadata(canonical.parent().unwrap())
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777,
+        0o700
+    );
+    command(root.path(), &bin)
+        .args(["provision-quipu-token", "--from"])
+        .arg(&issued)
+        .args(["--server", "http://quipu.test"])
+        .assert()
+        .success();
+    fs::remove_file(&canonical).unwrap();
+    fs::write(&canonical, "existing-different-identity").unwrap();
+    fs::set_permissions(&canonical, fs::Permissions::from_mode(0o400)).unwrap();
+    command(root.path(), &bin)
+        .args(["provision-quipu-token", "--from"])
+        .arg(&issued)
+        .args(["--server", "http://quipu.test"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("refusing to replace"));
+    assert_eq!(
+        fs::read_to_string(&canonical).unwrap(),
+        "existing-different-identity"
+    );
+}

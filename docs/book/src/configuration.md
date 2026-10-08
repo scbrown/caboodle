@@ -88,8 +88,14 @@ installing a random token does not grant access.
 
 ```sh
 install -d -m 700 "$HOME/.config/quipu" && install -m 400 /secure/issued-token "$HOME/.config/quipu/token"
+caboodle provision-quipu-token --from /secure/issued-token --server https://your-quipu-server.example
 caboodle doctor
 ```
+
+`provision-quipu-token` proves the issued file against the authenticated server
+before installing it. It refuses to replace a differing existing credential;
+rotation remains a separate decision. It creates the canonical file with mode
+`0400` and its parent with mode `0700`. No token is printed or stored in a plan.
 
 A nonempty `QUIPU_AUTH_TOKEN` takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
 then the default `~/.config/quipu/token`. Files are read on every request so

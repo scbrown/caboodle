@@ -55,6 +55,58 @@ pub(crate) fn verify(server: &str) -> Result<()> {
     classify(read_status(server, Some(auth.path()), "caboodle-verify")?)
 }
 
+/// Install an issued credential after proving it, without replacing an identity.
+pub(crate) fn provision(source: &Path, server: &str, home: &Path) -> Result<()> {
+    use std::io::Write;
+    let value = fs::read_to_string(source).context("cannot read issued Quipu credential file")?;
+    let value = value.trim();
+    if value.is_empty() {
+        bail!("issued Quipu credential is empty; {FIX}");
+    }
+    let mut auth =
+        tempfile::NamedTempFile::new().context("create private credential probe config")?;
+    auth.write_all(crate::adapter::curl_auth_header_line(value)?.as_bytes())?;
+    if read_status(server, None, "auth-negative-probe")? != 401 {
+        bail!(
+            "Quipu credential acceptance unproven: unauthenticated /shapes control must return 401"
+        );
+    }
+    classify(read_status(server, Some(auth.path()), "caboodle-verify")?)?;
+    let path = home.join(".config/quipu/token");
+    match fs::read_to_string(&path) {
+        Ok(existing) if existing.trim() != value => bail!("refusing to replace an existing Quipu credential; rotation requires a separate explicit decision"),
+        Ok(_) => return check_file(home),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {},
+        Err(_) => bail!("cannot inspect existing Quipu credential; refusing to replace it"),
+    }
+    let parent = path.parent().expect("token has parent");
+    fs::create_dir_all(parent)?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(parent, fs::Permissions::from_mode(0o700))?;
+        let mut candidate =
+            tempfile::NamedTempFile::new_in(parent).context("stage canonical Quipu credential")?;
+        candidate.write_all(value.as_bytes())?;
+        candidate.as_file().sync_all()?;
+        candidate
+            .as_file()
+            .set_permissions(fs::Permissions::from_mode(0o400))?;
+        candidate.persist_noclobber(&path).map_err(|_| {
+            anyhow::anyhow!(
+                "canonical credential appeared during provisioning; refusing to replace it"
+            )
+        })?;
+    }
+    #[cfg(not(unix))]
+    {
+        bail!(
+            "cannot prove required 0400/0700 permissions on this platform; no credential installed"
+        );
+    }
+    check_file(home)
+}
+
 fn read_status(server: &str, auth: Option<&Path>, client: &str) -> Result<u16> {
     let mut command = Command::new("curl");
     command

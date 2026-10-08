@@ -71,7 +71,32 @@ fn names(
     tool: Option<ToolName>,
     tag: &str,
 ) -> Result<(&'static str, &'static str, String, String)> {
-    if env::consts::OS != "linux" || env::consts::ARCH != "x86_64" {
+    names_for_platform(tool, tag, env::consts::OS, env::consts::ARCH)
+}
+
+fn names_for_platform(
+    tool: Option<ToolName>,
+    tag: &str,
+    os: &str,
+    arch: &str,
+) -> Result<(&'static str, &'static str, String, String)> {
+    stable_version(tag)?;
+    if tool.is_none() {
+        let target = match (os, arch) {
+            ("linux", "x86_64") => "x86_64-unknown-linux-gnu",
+            ("macos", "x86_64") => "x86_64-apple-darwin",
+            ("macos", "aarch64") => "aarch64-apple-darwin",
+            _ => bail!("Caboodle self-update has no published target for {os}/{arch}"),
+        };
+        let archive = format!("caboodle-{tag}-{target}.tar.gz");
+        return Ok((
+            "caboodle",
+            "caboodle",
+            archive.clone(),
+            format!("{archive}.sha256"),
+        ));
+    }
+    if os != "linux" || arch != "x86_64" {
         bail!("release-update currently supports Linux x86_64 only");
     }
     stable_version(tag)?;
@@ -600,6 +625,29 @@ mod tests {
         // on a guess is the aegis-48dvl3 downgrade.
         assert_eq!(behind_reviewed("bobbin dev-build", "bobbin 0.16.2"), None);
         assert_eq!(behind_reviewed("bobbin", "bobbin 0.16.2"), None);
+    }
+    #[test]
+    fn self_update_uses_only_published_platform_archives() {
+        for (os, arch, triple) in [
+            ("linux", "x86_64", "x86_64-unknown-linux-gnu"),
+            ("macos", "x86_64", "x86_64-apple-darwin"),
+            ("macos", "aarch64", "aarch64-apple-darwin"),
+        ] {
+            let (repo, binary, archive, sums) =
+                names_for_platform(None, "v0.2.13", os, arch).unwrap();
+            assert_eq!((repo, binary), ("caboodle", "caboodle"));
+            assert_eq!(archive, format!("caboodle-v0.2.13-{triple}.tar.gz"));
+            assert_eq!(sums, format!("{archive}.sha256"));
+        }
+        for (os, arch) in [
+            ("linux", "aarch64"),
+            ("windows", "x86_64"),
+            ("macos", "arm"),
+        ] {
+            assert!(names_for_platform(None, "v0.2.13", os, arch).is_err());
+        }
+        // Do not infer the other tools' asset layouts from Caboodle's layout.
+        assert!(names_for_platform(Some(ToolName::Bobbin), "v0.2.13", "macos", "aarch64").is_err());
     }
     #[test]
     fn stable_versions_are_numeric_and_ambiguous_inputs_refused() {

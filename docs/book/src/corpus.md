@@ -5,6 +5,7 @@
 | quipu | governed knowledge-graph store |
 | bobbin | semantic index · retrieval · RAG |
 | camayoc | ontology bootstrap, ingress discipline, knowledge packs |
+| chaski | durable graph reactions and an isolated event delivery proof |
 | yupana | code-structure graph — impact, callers, verify |
 | desire-path | hallucinations → feature requests |
 | shantytown | crew harness (multi-agent, tmux-resident) |

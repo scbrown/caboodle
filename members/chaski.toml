@@ -1,0 +1,36 @@
+# Chaski's first packaged release. This candidate pin is derived from the
+# reproducible local wheel; do not merge until the reviewed release exists and
+# bump-member proves its published checksums and executable identity.
+# PyYAML is resolved by pip at installation; this digest pins Chaski's own code.
+name = "chaski"
+kind = "python-wheel"
+repo = "scbrown/chaski"
+version = "0.1.0"
+tag = "v{version}"
+asset = "chaski-{version}-py3-none-any.whl"
+version_argv = ["--version"]
+sums_asset = "checksums.txt"
+prerequisites = ["python3"]
+profiles = ["kg", "everything"]
+
+[sha256]
+any = "33641ad6b41cb0dde09b0661a24de1d776077ceda1c815d43f1a2dffe960afd0"
+
+[[programs]]
+name = "chaski"
+identity_argv = ["--help"]
+identity_contains = "The chaski CLI"
+
+# All commands execute inside CABOODLE's isolated verification directory.
+# The trigger receives the marker but never asserts it in its own output.
+# The final reader proves the real emitter/outbox/JSONL receiver path.
+[[verify]]
+argv = ["chaski", "events", "--directory", "."]
+absent = "{marker}"
+
+[[verify]]
+argv = ["chaski", "verify-event", "--directory", ".", "--marker", "{marker}"]
+
+[[verify]]
+argv = ["chaski", "events", "--directory", "."]
+present = "{marker}"

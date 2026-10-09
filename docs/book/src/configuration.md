@@ -165,3 +165,21 @@ Activate this entry only after the supporting Yupana release is installed.
 Verify a real edit's session-attributed `guard` metric and advisory output;
 rendered configuration alone does not prove edit coverage. Existing running
 agents pick up changed hooks on their next launch.
+
+## Externally owned Quipu
+
+Set `external_quipu = true` in a reviewed plan when another mechanism owns
+Quipu installation. The default is false. Caboodle resolves `quipu` and
+`quipu-server` from PATH, reads both versions, and records their canonical paths
+with the identity. It never installs, converges, or release-updates these files.
+Missing executables and incompatible versions fail; external ownership does not
+waive the isolated write/read round trip or hook registration checks. Other tools
+retain their managed-install and shadow checks. Build flavors are incompatible
+with external ownership because Caboodle does not build that installation.
+
+Verify uses the resolved client for both the entity and vocabulary round trips.
+An external source build has to support those contracts; a version banner alone
+is insufficient. `check-updates` reports external ownership rather than claiming
+release convergence. Apply records identity, while verify records functional
+proof. Changing executable paths invalidates retained verification even if the
+version strings match.

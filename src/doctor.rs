@@ -53,6 +53,7 @@ impl Finding {
 pub struct Scope {
     pub tools: Vec<ToolName>,
     pub quipu_flavor: QuipuFlavor,
+    pub external_quipu: bool,
     pub crew: Option<CrewMode>,
     /// Doctor runs in the caboodle work directory, which holds the plan. MCP
     /// servers are registered per indexed repository, so none is expected
@@ -65,6 +66,7 @@ impl Scope {
         Self {
             tools: plan.tools.clone(),
             quipu_flavor: plan.quipu_flavor,
+            external_quipu: plan.external_quipu,
             crew: plan.crew.as_ref().map(|crew| crew.mode),
             work_dir: false,
         }
@@ -74,6 +76,7 @@ impl Scope {
         Self {
             tools: Profile::Everything.tools(),
             quipu_flavor: QuipuFlavor::Release,
+            external_quipu: false,
             crew: None,
             work_dir: false,
         }
@@ -197,7 +200,25 @@ pub fn diagnose(scope: &Scope) -> Vec<Finding> {
     findings.extend(check_self_on_path(path.as_deref()));
     findings.extend(check_prerequisites(scope, path.as_deref()));
     for &tool in &scope.tools {
-        findings.extend(check_tool(tool, scope.quipu_flavor, path.as_deref()));
+        if tool == ToolName::Quipu && scope.external_quipu {
+            let mut plan = Plan::for_profile(Profile::Kg);
+            plan.external_quipu = true;
+            let identity = adapter::adapter_for_plan(tool, &plan).and_then(|a| a.version());
+            findings.push(match identity {
+                Ok(version) => Finding::new(
+                    Level::Ok,
+                    "quipu",
+                    format!("externally owned ({})", one_line(&version)),
+                ),
+                Err(error) => Finding::new(
+                    Level::Fail,
+                    "quipu",
+                    format!("external identity unavailable: {error:#}"),
+                ),
+            });
+        } else {
+            findings.extend(check_tool(tool, scope.quipu_flavor, path.as_deref()));
+        }
     }
     if scope.tools.contains(&ToolName::Camayoc) || scope.tools.contains(&ToolName::Quipu) {
         findings.extend(check_graph());

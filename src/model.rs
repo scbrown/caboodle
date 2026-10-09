@@ -292,6 +292,9 @@ pub struct Plan {
     pub quipu_db: Option<PathBuf>,
     #[serde(default, skip_serializing_if = "QuipuFlavor::is_release")]
     pub quipu_flavor: QuipuFlavor,
+    /// Quipu is owned outside Caboodle; prove the executables selected by PATH.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub external_quipu: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stack_config: Option<StackConfig>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -535,6 +538,7 @@ impl Plan {
             shares: Vec::new(),
             quipu_db: None,
             quipu_flavor: QuipuFlavor::default(),
+            external_quipu: false,
             stack_config: Some(StackConfig::recommended()),
             crew: None,
             intent: None,
@@ -579,6 +583,9 @@ impl Plan {
                 self.schema_version,
                 SCHEMA_VERSION
             );
+        }
+        if self.external_quipu && self.quipu_flavor != QuipuFlavor::Release {
+            bail!("external_quipu cannot request a Caboodle build flavor");
         }
         if self.tools.is_empty() {
             bail!("plan selects no tools");

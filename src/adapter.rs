@@ -197,6 +197,7 @@ pub fn adapter(name: ToolName, quipu_flavor: QuipuFlavor) -> Box<dyn Adapter> {
     match name {
         ToolName::Quipu => Box::new(Quipu {
             flavor: quipu_flavor,
+            external: None,
         }),
         ToolName::Camayoc => Box::new(Camayoc),
         ToolName::Bobbin => Box::new(Bobbin),
@@ -207,6 +208,26 @@ pub fn adapter(name: ToolName, quipu_flavor: QuipuFlavor) -> Box<dyn Adapter> {
                 .expect("a Member name is only minted for an embedded manifest"),
         )),
     }
+}
+
+/// Resolve external binaries once so identity and round trips use the same files.
+pub fn adapter_for_plan(name: ToolName, plan: &crate::model::Plan) -> Result<Box<dyn Adapter>> {
+    if name != ToolName::Quipu || !plan.external_quipu {
+        return Ok(adapter(name, plan.quipu_flavor));
+    }
+    let path = env::var_os("PATH");
+    let resolve = |name| -> Result<PathBuf> {
+        which_all(name, path.as_deref())
+            .into_iter()
+            .next()
+            .with_context(|| format!("external Quipu requires {name} on PATH"))?
+            .canonicalize()
+            .with_context(|| format!("resolve external {name}"))
+    };
+    Ok(Box::new(Quipu {
+        flavor: plan.quipu_flavor,
+        external: Some((resolve("quipu")?, resolve("quipu-server")?)),
+    }))
 }
 
 fn output<P, I, S>(program: P, args: I, cwd: Option<&Path>) -> Result<Output>
@@ -318,6 +339,7 @@ fn require_minimum_version(output: &str, minimum: (u64, u64, u64), program: &str
 
 struct Quipu {
     flavor: QuipuFlavor,
+    external: Option<(PathBuf, PathBuf)>,
 }
 
 const QUIPU_VERSION: &str = "0.9.0";
@@ -355,6 +377,9 @@ impl Adapter for Quipu {
     }
 
     fn install(&self) -> Result<()> {
+        if self.external.is_some() {
+            bail!("external Quipu is not owned by Caboodle; installation refused");
+        }
         match self.flavor {
             QuipuFlavor::Release => install_quipu_release(),
             // The published archive is the reviewed `full` build. LanceDB is
@@ -371,17 +396,45 @@ impl Adapter for Quipu {
         // `cargo install` writes these binaries under CARGO_HOME, which may be
         // later on PATH than a legacy Quipu install. Read back the location we
         // actually update so a successful install cannot be reported as stale.
-        let client = read_cargo_version("quipu")?;
+        let client = if let Some((client, _)) = &self.external {
+            read_version(
+                client
+                    .to_str()
+                    .context("external Quipu path is not UTF-8")?,
+            )?
+        } else {
+            read_cargo_version("quipu")?
+        };
         require_minimum_version(&client, (0, 3, 27), "quipu")?;
-        let server = read_cargo_version("quipu-server")?;
+        let server = if let Some((_, server)) = &self.external {
+            read_version(
+                server
+                    .to_str()
+                    .context("external server path is not UTF-8")?,
+            )?
+        } else {
+            read_cargo_version("quipu-server")?
+        };
         require_minimum_version(&server, (0, 3, 27), "quipu-server")?;
-        Ok(format!("{client}; {server}"))
+        Ok(match &self.external {
+            Some((c, s)) => format!(
+                "{client}; {server}; external executables: {} | {}",
+                c.display(),
+                s.display()
+            ),
+            None => format!("{client}; {server}"),
+        })
     }
 
     fn verify(&self) -> Result<()> {
         if self.flavor == QuipuFlavor::Lancedb {
             verify_quipu_lancedb_feature()?;
         }
+        let client = self
+            .external
+            .as_ref()
+            .map(|(client, _)| client.as_path())
+            .unwrap_or_else(|| Path::new("quipu"));
         let root = tempfile::tempdir().context("create quipu verification directory")?;
         let db = root.path().join("verify.db");
         let episode = root.path().join("episode.json");
@@ -398,7 +451,7 @@ impl Adapter for Quipu {
             "SELECT ?s ?label WHERE {{ ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . FILTER(?label = \"{marker}\") }}"
         );
         let before = checked(
-            "quipu",
+            client,
             [
                 OsStr::new("read"),
                 OsStr::new(&query),
@@ -412,7 +465,7 @@ impl Adapter for Quipu {
         }
 
         checked(
-            "quipu",
+            client,
             [
                 OsStr::new("episode"),
                 episode.as_os_str(),
@@ -422,7 +475,7 @@ impl Adapter for Quipu {
             None,
         )?;
         let after = checked(
-            "quipu",
+            client,
             [
                 OsStr::new("read"),
                 OsStr::new(&query),
@@ -436,7 +489,7 @@ impl Adapter for Quipu {
         }
         // The stack's shared vocabulary rides with Quipu: the pinned Quechua
         // release must load and resolve a term, with an absent-term control.
-        crate::vocabulary::verify().context("Quechua vocabulary verification")?;
+        crate::vocabulary::verify_at(client).context("Quechua vocabulary verification")?;
         Ok(())
     }
 }

@@ -235,6 +235,9 @@ pub fn guard_reviewed_update(tool: ToolName, desired: &str) -> Result<()> {
 /// Update one selected binary, preserving every other adapter's state and gate.
 pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) -> Result<()> {
     plan.validate()?;
+    if tool == ToolName::Quipu && plan.external_quipu {
+        bail!("external Quipu is not owned by Caboodle; release update refused");
+    }
     if !plan.tools.contains(&tool) {
         bail!("tool is not selected by the reviewed plan");
     }

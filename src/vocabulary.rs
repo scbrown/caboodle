@@ -85,9 +85,13 @@ pub fn ensure_cached() -> Result<PathBuf> {
 
 /// Knot the vocabulary's declarations into the store at `db`.
 pub fn load(db: &Path) -> Result<()> {
+    load_at(db, Path::new("quipu"))
+}
+
+fn load_at(db: &Path, client: &Path) -> Result<()> {
     let file = ensure_cached()?;
     checked(
-        "quipu",
+        client,
         [
             OsStr::new("knot"),
             file.as_os_str(),
@@ -100,9 +104,9 @@ pub fn load(db: &Path) -> Result<()> {
     Ok(())
 }
 
-fn ask(db: &Path, query: &str) -> Result<bool> {
+fn ask(db: &Path, query: &str, client: &Path) -> Result<bool> {
     let out = checked(
-        "quipu",
+        client,
         [
             OsStr::new("read"),
             OsStr::new(query),
@@ -118,13 +122,14 @@ fn ask(db: &Path, query: &str) -> Result<bool> {
     }
 }
 
-fn declared(db: &Path, term: &str) -> Result<bool> {
+fn declared(db: &Path, term: &str, client: &Path) -> Result<bool> {
     ask(
         db,
         &format!(
             "ASK {{ {{ <{NS}#{term}> a <http://www.w3.org/2000/01/rdf-schema#Class> }} UNION \
              {{ <{NS}#{term}> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> }} }}"
         ),
+        client,
     )
 }
 
@@ -133,26 +138,31 @@ fn declared(db: &Path, term: &str) -> Result<bool> {
 /// the pinned version and the known term, and must still not declare a term
 /// absent from every release (control 2).
 pub fn verify() -> Result<()> {
+    verify_at(Path::new("quipu"))
+}
+
+pub(crate) fn verify_at(client: &Path) -> Result<()> {
     let root = tempfile::tempdir().context("create Quechua verification directory")?;
     let db = root.path().join("vocabulary.db");
-    if declared(&db, KNOWN_TERM).unwrap_or(false) {
+    if declared(&db, KNOWN_TERM, client).unwrap_or(false) {
         bail!("Quechua control failed: an empty store already declares {KNOWN_TERM}");
     }
-    load(&db)?;
+    load_at(&db, client)?;
     let version = ask(
         &db,
         &format!(
             "ASK {{ <{NS}> <http://www.w3.org/2002/07/owl#versionInfo> \"{QUECHUA_VERSION}\" }}"
         ),
+        client,
     )?;
     if !version {
         bail!("the loaded Quechua file does not declare owl:versionInfo {QUECHUA_VERSION}");
     }
-    if !declared(&db, KNOWN_TERM)? {
+    if !declared(&db, KNOWN_TERM, client)? {
         bail!("Quechua v{QUECHUA_VERSION} loaded but quechua:{KNOWN_TERM} does not resolve");
     }
     let absent = "CaboodleVerifyAbsentTerm";
-    if declared(&db, absent)? {
+    if declared(&db, absent, client)? {
         bail!("Quechua control failed: an undeclared term resolved");
     }
     Ok(())

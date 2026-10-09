@@ -4,7 +4,7 @@ use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 
 use crate::{
-    adapter::adapter,
+    adapter::adapter_for_plan,
     configuration,
     crew::{self, CrewEvidence},
     embedding, emission,
@@ -73,7 +73,12 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
     let mut state = State::read(state_path)?;
     let mut failures = Vec::new();
     for &name in &plan.tools {
-        let adapter = adapter(name, plan.quipu_flavor);
+        if name == crate::model::ToolName::Quipu && plan.external_quipu {
+            // A failed external path/version probe cannot retain an earlier proof.
+            state.tools.remove(name.as_str());
+            state.write(state_path)?;
+        }
+        let adapter = adapter_for_plan(name, plan)?;
         let desired = adapter.desired_version();
         // aegis-5ctwu3: PRESENCE IS NOT CONVERGENCE. Until this match looked at
         // `is_current`, a binary that merely EXISTED was reported "applied" and
@@ -135,7 +140,10 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
                 }
                 }
 
-                Err(error) if !skip_install => {
+                Err(error)
+                    if !skip_install
+                        && !(name == crate::model::ToolName::Quipu && plan.external_quipu) =>
+                {
                     eprintln!("{}: not installed ({error:#}); installing", name.as_str());
                     adapter
                     .install()
@@ -159,7 +167,9 @@ pub fn apply(plan: &Plan, state_path: &Path, skip_install: bool) -> Result<State
         // shell ran the older release. Apply is the step that says done; it
         // checks what PATH runs, as verify does.
         let version = version.and_then(|version| {
-            check_path_resolution(name)?;
+            if !(name == crate::model::ToolName::Quipu && plan.external_quipu) {
+                check_path_resolution(name)?;
+            }
             Ok(version)
         });
         let version = match version {
@@ -404,7 +414,12 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
         println!("hook bundle {line}");
     }
     for &name in &plan.tools {
-        let adapter = adapter(name, plan.quipu_flavor);
+        if name == crate::model::ToolName::Quipu && plan.external_quipu {
+            // A failed external path/version probe cannot retain an earlier proof.
+            state.tools.remove(name.as_str());
+            state.write(state_path)?;
+        }
+        let adapter = adapter_for_plan(name, plan)?;
         let version = adapter
             .version()
             .with_context(|| format!("{} version read-back", name.as_str()))?;
@@ -428,7 +443,9 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
                 )
             }
         })?;
-        check_path_resolution(name)?;
+        if !(name == crate::model::ToolName::Quipu && plan.external_quipu) {
+            check_path_resolution(name)?;
+        }
         state.tools.insert(
             name.as_str().to_owned(),
             ToolState {
@@ -501,8 +518,15 @@ pub fn check_updates(plan: &Plan) -> Result<bool> {
     plan.validate()?;
     let mut current = true;
     for &name in &plan.tools {
-        let adapter = adapter(name, plan.quipu_flavor);
+        let adapter = adapter_for_plan(name, plan)?;
         let desired = adapter.desired_version();
+        if name == crate::model::ToolName::Quipu && plan.external_quipu {
+            println!(
+                "quipu: externally owned; release convergence not assessed ({})",
+                adapter.version()?
+            );
+            continue;
+        }
         match adapter.version() {
             Ok(installed) if adapter.is_current(&installed) => {
                 println!("{}: current ({installed})", name.as_str());
@@ -535,7 +559,14 @@ pub fn update(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     plan.validate()?;
     let mut state = State::read(state_path)?;
     for &name in &plan.tools {
-        let adapter = adapter(name, plan.quipu_flavor);
+        let adapter = adapter_for_plan(name, plan)?;
+        if name == crate::model::ToolName::Quipu && plan.external_quipu {
+            println!(
+                "quipu: externally owned; update skipped ({})",
+                adapter.version()?
+            );
+            continue;
+        }
         let before = adapter.version().ok();
         if before
             .as_deref()

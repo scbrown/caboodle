@@ -242,7 +242,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         let m = crate::members::get(name).context("unknown stack member")?;
         return update_member(m, state_path, check_only);
     }
-    update_binary(Some(plan), Some(tool), state_path, check_only, None)
+    update_binary(Some(plan), Some(tool), state_path, check_only, None, None)
 }
 
 /// Take the release-update state lock and finish any interrupted swap.
@@ -387,12 +387,30 @@ fn update_member(m: &crate::members::Manifest, state_path: &Path, check_only: bo
 
 /// Update Caboodle itself from a published checksummed release.
 pub fn update_self(state_path: &Path, check_only: bool) -> Result<()> {
-    update_binary(None, None, state_path, check_only, None)
+    update_binary(None, None, state_path, check_only, None, None)
 }
 
 /// Event-driven callers select the exact published installer release.
 pub fn update_self_at(state_path: &Path, check_only: bool, tag: &str) -> Result<()> {
-    update_binary(None, None, state_path, check_only, Some(tag))
+    update_binary(None, None, state_path, check_only, Some(tag), None)
+}
+
+/// Bind an exact installer release to independently obtained artifact evidence.
+pub fn update_self_pinned(
+    state_path: &Path,
+    check_only: bool,
+    tag: &str,
+    archive_sha256: &str,
+    binary_sha256: &str,
+) -> Result<()> {
+    update_binary(
+        None,
+        None,
+        state_path,
+        check_only,
+        Some(tag),
+        Some((archive_sha256, binary_sha256)),
+    )
 }
 
 fn release_path(tag: Option<&str>) -> Result<String> {
@@ -414,8 +432,23 @@ fn update_binary(
     state_path: &Path,
     check_only: bool,
     requested_tag: Option<&str>,
+    expected_artifacts: Option<(&str, &str)>,
 ) -> Result<()> {
     let endpoint = release_path(requested_tag)?;
+    if let Some((archive, binary)) = expected_artifacts {
+        if requested_tag.is_none() || tool.is_some() {
+            bail!("artifact binding requires an exact installer release");
+        }
+        for hash in [archive, binary] {
+            if hash.len() != 64
+                || !hash
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+            {
+                bail!("installer artifact binding requires lowercase SHA256 values");
+            }
+        }
+    }
     let tool_id = tool.map_or("caboodle", |t| t.as_str());
     let (repo, binary, _, _) = names(tool, "v0.0.0")?;
     let _lock = lock_state(state_path)?;
@@ -483,8 +516,12 @@ fn update_binary(
     );
     download_https(&format!("{base}/{archive_name}"), &archive)?;
     download_https(&format!("{base}/{sums_name}"), &sums)?;
-    if hash(&archive)? != checksum(&fs::read_to_string(sums)?, &archive_name)? {
+    let archive_hash = hash(&archive)?;
+    if archive_hash != checksum(&fs::read_to_string(sums)?, &archive_name)? {
         bail!("release archive SHA256 mismatch");
+    }
+    if expected_artifacts.is_some_and(|(expected, _)| expected != archive_hash) {
+        bail!("release archive differs from pre-install artifact evidence");
     }
     // Extract only the one named executable; never unpack archive paths onto disk.
     let members = text(
@@ -518,12 +555,15 @@ fn update_binary(
     fs::write(&candidate, output.stdout)?;
     use std::os::unix::fs::PermissionsExt;
     fs::set_permissions(&candidate, fs::Permissions::from_mode(0o755))?;
+    let new_hash = hash(&candidate)?;
+    if expected_artifacts.is_some_and(|(_, expected)| expected != new_hash) {
+        bail!("installer candidate differs from pre-install artifact evidence");
+    }
     let after = text(candidate.to_str().unwrap(), &[version_arg])?;
     if installed_version(&after)? != wanted {
         bail!("candidate version differs from published release");
     }
     let old_hash = hash(&destination)?;
-    let new_hash = hash(&candidate)?;
     let mut state = State::read(state_path)?;
     if old_hash == new_hash
         && state

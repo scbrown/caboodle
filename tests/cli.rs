@@ -1911,8 +1911,11 @@ fn published_release_missing_assets_and_ambiguous_identity_never_install() {
     )
 ))]
 fn published_release_can_update_the_installer_itself() {
-    self_update_fixture(false);
-    self_update_fixture(true);
+    self_update_fixture(false, None);
+    self_update_fixture(true, None);
+    self_update_fixture(false, Some("v0.2.1"));
+    self_update_fixture(true, Some("v0.2.1"));
+    self_update_fixture(false, Some("v0.2.2"));
 }
 
 #[cfg(any(
@@ -1922,7 +1925,7 @@ fn published_release_can_update_the_installer_itself() {
         any(target_arch = "x86_64", target_arch = "aarch64")
     )
 ))]
-fn self_update_fixture(bad_checksum: bool) {
+fn self_update_fixture(bad_checksum: bool, requested_tag: Option<&str>) {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
@@ -1970,12 +1973,26 @@ while [ "$#" -gt 0 ]; do
  case "$1" in --output|-o) shift; output=$1 ;; https://*) url=$1 ;; esac
  shift
 done
-case "$url" in */releases/latest) cat "$HOME/latest.json" ;; *) cp "$HOME/${url##*/}" "$output" ;; esac
+printf '%s\n' "$url" >> "$HOME/release-requests.log"
+case "$url" in */releases/latest|*/releases/tags/*) cat "$HOME/latest.json" ;; *) cp "$HOME/${url##*/}" "$output" ;; esac
 "#,
     );
+    let mut updater = command(root.path(), &bin);
+    updater.arg("update-self");
+    if let Some(tag) = requested_tag {
+        updater.args(["--tag", tag]);
+    }
+    if requested_tag == Some("v0.2.2") {
+        updater.assert().failure().stderr(predicate::str::contains(
+            "published metadata tag differs from requested installer release",
+        ));
+        assert_eq!(fs::read(bin.join("caboodle")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+        assert!(!root.path().join(".caboodle/release-backups").exists());
+        return;
+    }
     if bad_checksum {
-        command(root.path(), &bin)
-            .arg("update-self")
+        updater
             .assert()
             .failure()
             .stderr(predicate::str::contains("SHA256 mismatch"));
@@ -1983,13 +2000,14 @@ case "$url" in */releases/latest) cat "$HOME/latest.json" ;; *) cp "$HOME/${url#
         assert!(!root.path().join(".caboodle/state.json").exists());
         return;
     }
-    command(root.path(), &bin)
-        .arg("update-self")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains(
-            "caboodle: installed and verified v0.2.1",
-        ));
+    updater.assert().success().stdout(predicate::str::contains(
+        "caboodle: installed and verified v0.2.1",
+    ));
+    if requested_tag.is_some() {
+        let requests = fs::read_to_string(root.path().join("release-requests.log")).unwrap();
+        assert!(requests.contains("/releases/tags/v0.2.1"));
+        assert!(!requests.contains("/releases/latest"));
+    }
     assert!(fs::read_to_string(root.path().join(".caboodle/state.json"))
         .unwrap()
         .contains("caboodle 0.2.1"));

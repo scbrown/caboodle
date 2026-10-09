@@ -242,7 +242,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         let m = crate::members::get(name).context("unknown stack member")?;
         return update_member(m, state_path, check_only);
     }
-    update_binary(Some(plan), Some(tool), state_path, check_only)
+    update_binary(Some(plan), Some(tool), state_path, check_only, None)
 }
 
 /// Take the release-update state lock and finish any interrupted swap.
@@ -387,7 +387,25 @@ fn update_member(m: &crate::members::Manifest, state_path: &Path, check_only: bo
 
 /// Update Caboodle itself from a published checksummed release.
 pub fn update_self(state_path: &Path, check_only: bool) -> Result<()> {
-    update_binary(None, None, state_path, check_only)
+    update_binary(None, None, state_path, check_only, None)
+}
+
+/// Event-driven callers select the exact published installer release.
+pub fn update_self_at(state_path: &Path, check_only: bool, tag: &str) -> Result<()> {
+    update_binary(None, None, state_path, check_only, Some(tag))
+}
+
+fn release_path(tag: Option<&str>) -> Result<String> {
+    match tag {
+        None => Ok("releases/latest".into()),
+        Some(tag) => {
+            if !tag.starts_with('v') {
+                bail!("installer tag must be an exact stable v-prefixed version");
+            }
+            stable_version(tag)?;
+            Ok(format!("releases/tags/{tag}"))
+        }
+    }
 }
 
 fn update_binary(
@@ -395,7 +413,9 @@ fn update_binary(
     tool: Option<ToolName>,
     state_path: &Path,
     check_only: bool,
+    requested_tag: Option<&str>,
 ) -> Result<()> {
+    let endpoint = release_path(requested_tag)?;
     let tool_id = tool.map_or("caboodle", |t| t.as_str());
     let (repo, binary, _, _) = names(tool, "v0.0.0")?;
     let _lock = lock_state(state_path)?;
@@ -426,10 +446,13 @@ fn update_binary(
             "=https",
             "-H",
             "Accept: application/vnd.github+json",
-            &format!("https://api.github.com/repos/scbrown/{repo}/releases/latest"),
+            &format!("https://api.github.com/repos/scbrown/{repo}/{endpoint}"),
         ],
     )?;
     let release: Release = serde_json::from_str(&raw).context("parse published release")?;
+    if requested_tag.is_some_and(|tag| tag != release.tag_name) {
+        bail!("published metadata tag differs from requested installer release");
+    }
     if release.draft || release.prerelease {
         bail!("refusing draft/prerelease");
     }
@@ -609,6 +632,25 @@ fn update_binary(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn exact_installer_tag_selects_only_its_safe_release_path() {
+        assert_eq!(release_path(None).unwrap(), "releases/latest");
+        assert_eq!(
+            release_path(Some("v0.2.1")).unwrap(),
+            "releases/tags/v0.2.1"
+        );
+        for bad in [
+            "",
+            "0.2.1",
+            "v01.2.1",
+            "v0.2.1-rc1",
+            "../latest",
+            "v0.2.1?x=1",
+        ] {
+            assert!(release_path(Some(bad)).is_err(), "{bad}");
+        }
+    }
 
     #[test]
     fn behind_reviewed_reports_direction_and_refuses_to_guess() {

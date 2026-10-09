@@ -140,6 +140,9 @@ enum Commands {
         state: PathBuf,
         #[arg(long)]
         check: bool,
+        /// Select this exact published stable installer tag instead of latest.
+        #[arg(long)]
+        tag: Option<String>,
     },
     /// Maintainers: re-pin a stack member manifest to its published release,
     /// recording the digests the release publishes after hashing each asset
@@ -451,9 +454,10 @@ fn main() -> Result<()> {
             )?;
         }
         #[cfg(unix)]
-        Commands::UpdateSelf { state, check } => {
-            caboodle::release_update::update_self(&state, check)?;
-        }
+        Commands::UpdateSelf { state, check, tag } => match tag {
+            Some(tag) => caboodle::release_update::update_self_at(&state, check, &tag)?,
+            None => caboodle::release_update::update_self(&state, check)?,
+        },
         #[cfg(unix)]
         Commands::BumpMember {
             manifest,

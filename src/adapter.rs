@@ -556,7 +556,7 @@ struct Yupana;
 struct DesirePath;
 
 struct Camayoc;
-const BOBBIN_VERSION: &str = "0.25.2";
+const BOBBIN_VERSION: &str = "0.27.2";
 
 impl Adapter for Camayoc {
     fn name(&self) -> ToolName {

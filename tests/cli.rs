@@ -154,7 +154,7 @@ exit 2
         bin,
         "bobbin",
         r#"
-if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.25.2'; exit 0; fi
+if [ "${1:-}" = "--version" ]; then echo 'bobbin 0.27.2'; exit 0; fi
 if [ "${1:-}" = "init" ]; then mkdir -p .bobbin; exit 0; fi
 if [ "${1:-}" = "index" ]; then
   if [ -f fixture.rs ]; then cp fixture.rs .bobbin/indexed; else : > .bobbin/indexed; fi
@@ -667,7 +667,7 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
         .arg("check-updates")
         .assert()
         .success()
-        .stdout(predicate::str::contains("bobbin: current (bobbin 0.25.2)"));
+        .stdout(predicate::str::contains("bobbin: current (bobbin 0.27.2)"));
 
     fake_tool(
         &bin,
@@ -907,7 +907,7 @@ fn retrieval_plan_with_bobbin(
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
     install_fakes(root.path(), &bin);
-    if !functional || version != "0.25.2" {
+    if !functional || version != "0.27.2" {
         // Any subcommand but --version fails like a clap argument error, which is
         // what an old bobbin says to the reviewed release's verification contract.
         fake_tool(
@@ -934,14 +934,14 @@ fn apply_skip_install_refuses_a_stale_tool_naming_both_versions() {
         .assert()
         .failure()
         .stderr(predicate::str::contains("0.1.0"))
-        .stderr(predicate::str::contains("0.25.2"));
+        .stderr(predicate::str::contains("0.27.2"));
 }
 
 #[test]
 fn apply_skip_install_accepts_the_reviewed_release() {
     // Control for the test above: without it, "fails on a skew" is
     // indistinguishable from "apply --skip-install always fails".
-    let (root, bin) = retrieval_plan_with_bobbin("0.25.2", true);
+    let (root, bin) = retrieval_plan_with_bobbin("0.27.2", true);
     command(root.path(), &bin)
         .args(["apply", "--skip-install"])
         .assert()
@@ -977,7 +977,7 @@ fn verify_names_a_version_skew_before_the_tools_own_error() {
 #[test]
 fn verify_does_not_claim_a_skew_when_the_reviewed_release_fails() {
     // Control: the skew message must not fire on every verification failure.
-    let (root, bin) = retrieval_plan_with_bobbin("0.25.2", false);
+    let (root, bin) = retrieval_plan_with_bobbin("0.27.2", false);
     command(root.path(), &bin)
         .arg("verify")
         .assert()
@@ -1713,16 +1713,16 @@ fn release_fixture(root: &Path, bin: &Path, broken: bool, bad_checksum: bool) {
     let stage = root.join("release-stage");
     fs::create_dir(&stage).unwrap();
     let body = if broken {
-        "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'bobbin 0.25.3'; exit 0; fi\nexit 9\n"
+        "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'bobbin 0.27.3'; exit 0; fi\nexit 9\n"
             .to_owned()
     } else {
         fs::read_to_string(bin.join("bobbin"))
             .unwrap()
-            .replace("0.25.2", "0.25.3")
+            .replace("0.27.2", "0.27.3")
     };
     fs::write(stage.join("bobbin"), body).unwrap();
     fs::set_permissions(stage.join("bobbin"), fs::Permissions::from_mode(0o755)).unwrap();
-    let archive = root.join("bobbin-v0.25.3-x86_64-unknown-linux-gnu.tar.gz");
+    let archive = root.join("bobbin-v0.27.3-x86_64-unknown-linux-gnu.tar.gz");
     assert!(std::process::Command::new("tar")
         .args(["-czf"])
         .arg(&archive)
@@ -1740,10 +1740,10 @@ fn release_fixture(root: &Path, bin: &Path, broken: bool, bad_checksum: bool) {
     };
     fs::write(
         root.join("SHA256SUMS.txt"),
-        format!("{digest}  bobbin-v0.25.3-x86_64-unknown-linux-gnu.tar.gz\n"),
+        format!("{digest}  bobbin-v0.27.3-x86_64-unknown-linux-gnu.tar.gz\n"),
     )
     .unwrap();
-    fs::write(root.join("latest.json"), r#"{"tag_name":"v0.25.3","draft":false,"prerelease":false,"assets":[{"name":"bobbin-v0.25.3-x86_64-unknown-linux-gnu.tar.gz"},{"name":"SHA256SUMS.txt"}]}"#).unwrap();
+    fs::write(root.join("latest.json"), r#"{"tag_name":"v0.27.3","draft":false,"prerelease":false,"assets":[{"name":"bobbin-v0.27.3-x86_64-unknown-linux-gnu.tar.gz"},{"name":"SHA256SUMS.txt"}]}"#).unwrap();
     fake_tool(
         bin,
         "curl",
@@ -1759,7 +1759,7 @@ done
 case "$url" in
   */releases/latest) cat "$HOME/latest.json" ;;
   */SHA256SUMS.txt) cp "$HOME/SHA256SUMS.txt" "$output" ;;
-  */bobbin-v0.25.3-x86_64-unknown-linux-gnu.tar.gz) cp "$HOME/bobbin-v0.25.3-x86_64-unknown-linux-gnu.tar.gz" "$output" ;;
+  */bobbin-v0.27.3-x86_64-unknown-linux-gnu.tar.gz) cp "$HOME/bobbin-v0.27.3-x86_64-unknown-linux-gnu.tar.gz" "$output" ;;
   *) echo "unexpected URL" >&2; exit 99 ;;
 esac
 "#,
@@ -1782,9 +1782,9 @@ fn published_release_update_ignores_stale_pin_and_keeps_backup() {
         .args(["update-release", "--tool", "bobbin"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("installed and verified v0.25.3"));
+        .stdout(predicate::str::contains("installed and verified v0.27.3"));
     let state = fs::read_to_string(root.path().join(".caboodle/state.json")).unwrap();
-    assert!(state.contains("0.25.3"));
+    assert!(state.contains("0.27.3"));
     let backups: Vec<_> = fs::read_dir(root.path().join(".caboodle/release-backups/bobbin"))
         .unwrap()
         .collect();
@@ -1883,7 +1883,7 @@ fn reviewed_pin_update_cannot_undo_newer_published_binary() {
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
     release_fixture(root.path(), &bin, false, false);
-    fake_tool(&bin, "bobbin", "echo 'bobbin 0.25.3'");
+    fake_tool(&bin, "bobbin", "echo 'bobbin 0.27.3'");
     let before = fs::read(bin.join("bobbin")).unwrap();
     command(root.path(), &bin)
         .arg("update")
@@ -1904,11 +1904,11 @@ fn published_release_missing_assets_and_ambiguous_identity_never_install() {
         if mode == "missing" {
             fs::write(
                 root.path().join("latest.json"),
-                r#"{"tag_name":"v0.25.3","draft":false,"prerelease":false,"assets":[]}"#,
+                r#"{"tag_name":"v0.27.3","draft":false,"prerelease":false,"assets":[]}"#,
             )
             .unwrap();
         } else if mode == "equal" {
-            fake_tool(&bin, "bobbin", "echo 'bobbin 0.25.3'");
+            fake_tool(&bin, "bobbin", "echo 'bobbin 0.27.3'");
         } else if mode == "unreadable" {
             fake_tool(&bin, "bobbin", "echo 'bobbin unknown'");
         }
@@ -2138,7 +2138,7 @@ fn project_settings_rejects_empty_or_invalid_success_receipts() {
 
 #[test]
 fn install_continues_after_failure_invalidates_old_proof_and_resumes() {
-    let (root, bin) = retrieval_plan_with_bobbin("0.25.2", true);
+    let (root, bin) = retrieval_plan_with_bobbin("0.27.2", true);
     command(root.path(), &bin)
         .args(["install", "--skip-install"])
         .assert()
@@ -2176,7 +2176,7 @@ fn install_continues_after_failure_invalidates_old_proof_and_resumes() {
 
 #[test]
 fn apply_reports_all_version_failures_and_still_applies_later_tools() {
-    let (root, bin) = retrieval_plan_with_bobbin("0.25.2", true);
+    let (root, bin) = retrieval_plan_with_bobbin("0.27.2", true);
     fake_tool(&bin, "quipu", "echo 'broken quipu' >&2; exit 1");
     fs::write(root.path().join("camayoc/REVISION"), "").unwrap();
     command(root.path(), &bin)
@@ -2254,7 +2254,7 @@ fn release_download_recovers_visibly_from_server_and_transport_errors() {
                     .and(predicate::str::contains("retrying in 1s"))
                     .and(predicate::str::contains("succeeded on attempt 2/3")),
             )
-            .stdout(predicate::str::contains("installed and verified v0.25.3"));
+            .stdout(predicate::str::contains("installed and verified v0.27.3"));
         assert_eq!(
             fs::read_to_string(root.path().join("attempts")).unwrap(),
             "2"
@@ -2860,7 +2860,7 @@ fn apply_registers_exactly_the_hook_bundles_of_the_plans_tools() {
     // script, where quipu must NOT be registered, and a Gas Town host that has it.
     use std::os::unix::fs::PermissionsExt;
     for gas_town in [false, true] {
-        let (root, bin) = retrieval_plan_with_bobbin("0.25.2", true);
+        let (root, bin) = retrieval_plan_with_bobbin("0.27.2", true);
         if gas_town {
             let hooks = root.path().join(".gt/hooks");
             fs::create_dir_all(&hooks).unwrap();
@@ -2925,7 +2925,7 @@ fn verify_asserts_the_hook_bundles_without_a_crew_plan_and_before_the_tools() {
     // assert them only inside crew verification, which a plan without a crew
     // section never reaches, and only after every tool had verified, so on the
     // measured Mac a bobbin skew failed first and the bundles went unasserted.
-    let (root, bin) = retrieval_plan_with_bobbin("0.25.2", true);
+    let (root, bin) = retrieval_plan_with_bobbin("0.27.2", true);
     let plan = fs::read_to_string(root.path().join("caboodle-plan.toml")).unwrap();
     assert!(!plan.contains("[crew]"), "control: no crew section\n{plan}");
     fs::remove_file(bin.join("st-versions.log")).unwrap();

@@ -286,7 +286,15 @@ Self-update supports Linux x86_64, macOS x86_64, and macOS arm64, selecting the
 matching published archive and its `.sha256` asset. Other platforms refuse before
 release lookup. The extracted executable is written as a new file rather than
 restoring archive metadata, so archive extended attributes are not installed.
-Use `update-self --check` to inspect metadata. Bootstrap from a published release
+Event consumers can select an exact stable release with `update-self --tag v0.2.14`.
+To bind the download to evidence obtained before installation, also supply
+`--archive-sha256` and `--binary-sha256`. Both values must be lowercase SHA256
+digests; both flags require the exact tag and each other. CABOODLE compares the
+archive before extraction and the executable before running it or replacing the
+installed copy. A mismatch leaves the previous installer and state intact.
+
+Use `update-self --check` to inspect metadata; it does not download artifacts or
+prove either supplied hash. Bootstrap from a published release
 before scheduling this command; a same-version source build with different bytes
 is deliberately refused rather than silently overwritten. It replaces the copy
 PATH runs; when you invoke a different copy by its full path, it says that copy

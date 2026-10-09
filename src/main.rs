@@ -143,6 +143,12 @@ enum Commands {
         /// Select this exact published stable installer tag instead of latest.
         #[arg(long)]
         tag: Option<String>,
+        /// Bind the downloaded archive to pre-install release evidence.
+        #[arg(long, requires_all = ["tag", "binary_sha256"])]
+        archive_sha256: Option<String>,
+        /// Bind candidate bytes before executing or replacing the installer.
+        #[arg(long, requires_all = ["tag", "archive_sha256"])]
+        binary_sha256: Option<String>,
     },
     /// Maintainers: re-pin a stack member manifest to its published release,
     /// recording the digests the release publishes after hashing each asset
@@ -454,9 +460,23 @@ fn main() -> Result<()> {
             )?;
         }
         #[cfg(unix)]
-        Commands::UpdateSelf { state, check, tag } => match tag {
-            Some(tag) => caboodle::release_update::update_self_at(&state, check, &tag)?,
-            None => caboodle::release_update::update_self(&state, check)?,
+        Commands::UpdateSelf {
+            state,
+            check,
+            tag,
+            archive_sha256,
+            binary_sha256,
+        } => match (tag, archive_sha256, binary_sha256) {
+            (Some(tag), Some(archive), Some(binary)) => {
+                caboodle::release_update::update_self_pinned(
+                    &state, check, &tag, &archive, &binary,
+                )?
+            }
+            (Some(tag), None, None) => {
+                caboodle::release_update::update_self_at(&state, check, &tag)?
+            }
+            (None, None, None) => caboodle::release_update::update_self(&state, check)?,
+            _ => anyhow::bail!("installer artifact binding requires tag and both SHA256 values"),
         },
         #[cfg(unix)]
         Commands::BumpMember {

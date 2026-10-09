@@ -8,6 +8,19 @@ permissions:
   contents: read
 
 jobs:
+  self-update-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15-intel, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --locked --lib release_update::tests
+      - run: cargo test --locked --test cli published_release_can_update_the_installer_itself
+
   test:
     runs-on: ubuntu-latest
     steps:

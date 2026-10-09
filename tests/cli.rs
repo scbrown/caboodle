@@ -1903,18 +1903,49 @@ fn published_release_missing_assets_and_ambiguous_identity_never_install() {
 }
 
 #[test]
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[cfg(any(
+    all(target_os = "linux", target_arch = "x86_64"),
+    all(
+        target_os = "macos",
+        any(target_arch = "x86_64", target_arch = "aarch64")
+    )
+))]
 fn published_release_can_update_the_installer_itself() {
+    self_update_fixture(false, None, None);
+    self_update_fixture(true, None, None);
+    self_update_fixture(false, Some("v0.2.1"), None);
+    self_update_fixture(true, Some("v0.2.1"), None);
+    self_update_fixture(false, Some("v0.2.2"), None);
+    self_update_fixture(false, Some("v0.2.1"), Some("verified"));
+    self_update_fixture(false, Some("v0.2.1"), Some("archive-mismatch"));
+    self_update_fixture(false, Some("v0.2.1"), Some("binary-mismatch"));
+}
+
+#[cfg(any(
+    all(target_os = "linux", target_arch = "x86_64"),
+    all(
+        target_os = "macos",
+        any(target_arch = "x86_64", target_arch = "aarch64")
+    )
+))]
+fn self_update_fixture(bad_checksum: bool, requested_tag: Option<&str>, binding: Option<&str>) {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");
     fs::create_dir(&bin).unwrap();
-    release_fixture(root.path(), &bin, false, false);
+    install_fakes(root.path(), &bin);
     fake_tool(&bin, "caboodle", "echo 'caboodle 0.2.0'");
+    let before = fs::read(bin.join("caboodle")).unwrap();
     let stage = root.path().join("self-stage");
     fs::create_dir(&stage).unwrap();
-    fake_tool(&stage, "caboodle", "if [ \"$1\" = --version ]; then echo 'caboodle 0.2.1'; else echo '--tool bobbin yupana desire-path'; fi");
-    let name = "caboodle-v0.2.1-x86_64-unknown-linux-gnu.tar.gz";
-    let archive = root.path().join(name);
+    fake_tool(&stage, "caboodle", "touch \"$HOME/candidate-executed\"; if [ \"$1\" = --version ]; then echo 'caboodle 0.2.1'; else echo '--tool bobbin yupana desire-path'; fi");
+    let triple = match (std::env::consts::OS, std::env::consts::ARCH) {
+        ("linux", "x86_64") => "x86_64-unknown-linux-gnu",
+        ("macos", "x86_64") => "x86_64-apple-darwin",
+        ("macos", "aarch64") => "aarch64-apple-darwin",
+        _ => unreachable!(),
+    };
+    let name = format!("caboodle-v0.2.1-{triple}.tar.gz");
+    let archive = root.path().join(&name);
     assert!(std::process::Command::new("tar")
         .arg("-czf")
         .arg(&archive)
@@ -1925,7 +1956,11 @@ fn published_release_can_update_the_installer_itself() {
         .unwrap()
         .success());
     use sha2::{Digest, Sha256};
-    let digest = format!("{:x}", Sha256::digest(fs::read(&archive).unwrap()));
+    let digest = if bad_checksum {
+        "0".repeat(64)
+    } else {
+        format!("{:x}", Sha256::digest(fs::read(&archive).unwrap()))
+    };
     fs::write(
         root.path().join(format!("{name}.sha256")),
         format!("{digest}  {name}\n"),
@@ -1941,19 +1976,119 @@ while [ "$#" -gt 0 ]; do
  case "$1" in --output|-o) shift; output=$1 ;; https://*) url=$1 ;; esac
  shift
 done
-case "$url" in */releases/latest) cat "$HOME/latest.json" ;; *) cp "$HOME/${url##*/}" "$output" ;; esac
+printf '%s\n' "$url" >> "$HOME/release-requests.log"
+case "$url" in */releases/latest|*/releases/tags/*) cat "$HOME/latest.json" ;; *) cp "$HOME/${url##*/}" "$output" ;; esac
 "#,
     );
-    command(root.path(), &bin)
-        .arg("update-self")
-        .assert()
-        .success()
-        .stdout(predicate::str::contains(
-            "caboodle: installed and verified v0.2.1",
+    let mut updater = command(root.path(), &bin);
+    updater.arg("update-self");
+    if let Some(tag) = requested_tag {
+        updater.args(["--tag", tag]);
+    }
+    if let Some(binding) = binding {
+        let archive_hash = if binding == "archive-mismatch" {
+            "0".repeat(64)
+        } else {
+            format!("{:x}", Sha256::digest(fs::read(&archive).unwrap()))
+        };
+        let binary_hash = if binding == "binary-mismatch" {
+            "0".repeat(64)
+        } else {
+            format!(
+                "{:x}",
+                Sha256::digest(fs::read(stage.join("caboodle")).unwrap())
+            )
+        };
+        updater.args([
+            "--archive-sha256",
+            &archive_hash,
+            "--binary-sha256",
+            &binary_hash,
+        ]);
+        if binding != "verified" {
+            let expected = if binding == "archive-mismatch" {
+                "release archive differs from pre-install artifact evidence"
+            } else {
+                "installer candidate differs from pre-install artifact evidence"
+            };
+            updater
+                .assert()
+                .failure()
+                .stderr(predicate::str::contains(expected));
+            assert_eq!(fs::read(bin.join("caboodle")).unwrap(), before);
+            assert!(!root.path().join(".caboodle/state.json").exists());
+            assert!(!root.path().join(".caboodle/release-backups").exists());
+            assert!(!root.path().join("candidate-executed").exists());
+            return;
+        }
+    }
+    if requested_tag == Some("v0.2.2") {
+        updater.assert().failure().stderr(predicate::str::contains(
+            "published metadata tag differs from requested installer release",
         ));
+        assert_eq!(fs::read(bin.join("caboodle")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+        assert!(!root.path().join(".caboodle/release-backups").exists());
+        return;
+    }
+    if bad_checksum {
+        updater
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("SHA256 mismatch"));
+        assert_eq!(fs::read(bin.join("caboodle")).unwrap(), before);
+        assert!(!root.path().join(".caboodle/state.json").exists());
+        return;
+    }
+    updater.assert().success().stdout(predicate::str::contains(
+        "caboodle: installed and verified v0.2.1",
+    ));
+    if requested_tag.is_some() {
+        let requests = fs::read_to_string(root.path().join("release-requests.log")).unwrap();
+        assert!(requests.contains("/releases/tags/v0.2.1"));
+        assert!(!requests.contains("/releases/latest"));
+    }
     assert!(fs::read_to_string(root.path().join(".caboodle/state.json"))
         .unwrap()
         .contains("caboodle 0.2.1"));
+    let backup = fs::read_dir(root.path().join(".caboodle/release-backups/caboodle"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path();
+    assert_eq!(fs::read(backup).unwrap(), before);
+    assert!(root.path().join("candidate-executed").exists());
+}
+
+#[test]
+#[cfg(unix)]
+fn installer_artifact_binding_requires_exact_tag_and_both_valid_hashes() {
+    let root = tempfile::tempdir().unwrap();
+    for arguments in [
+        vec!["--archive-sha256", "invalid"],
+        vec!["--tag", "v0.2.1", "--binary-sha256", "invalid"],
+        vec![
+            "--tag",
+            "v0.2.1",
+            "--archive-sha256",
+            "invalid",
+            "--binary-sha256",
+            "invalid",
+        ],
+    ] {
+        Command::cargo_bin("caboodle")
+            .unwrap()
+            .current_dir(root.path())
+            .env_clear()
+            .env("HOME", root.path())
+            .env("PATH", root.path())
+            .arg("update-self")
+            .args(arguments)
+            .assert()
+            .failure();
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 0);
+    }
 }
 
 #[test]

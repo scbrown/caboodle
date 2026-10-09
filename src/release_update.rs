@@ -71,7 +71,32 @@ fn names(
     tool: Option<ToolName>,
     tag: &str,
 ) -> Result<(&'static str, &'static str, String, String)> {
-    if env::consts::OS != "linux" || env::consts::ARCH != "x86_64" {
+    names_for_platform(tool, tag, env::consts::OS, env::consts::ARCH)
+}
+
+fn names_for_platform(
+    tool: Option<ToolName>,
+    tag: &str,
+    os: &str,
+    arch: &str,
+) -> Result<(&'static str, &'static str, String, String)> {
+    stable_version(tag)?;
+    if tool.is_none() {
+        let target = match (os, arch) {
+            ("linux", "x86_64") => "x86_64-unknown-linux-gnu",
+            ("macos", "x86_64") => "x86_64-apple-darwin",
+            ("macos", "aarch64") => "aarch64-apple-darwin",
+            _ => bail!("Caboodle self-update has no published target for {os}/{arch}"),
+        };
+        let archive = format!("caboodle-{tag}-{target}.tar.gz");
+        return Ok((
+            "caboodle",
+            "caboodle",
+            archive.clone(),
+            format!("{archive}.sha256"),
+        ));
+    }
+    if os != "linux" || arch != "x86_64" {
         bail!("release-update currently supports Linux x86_64 only");
     }
     stable_version(tag)?;
@@ -217,7 +242,7 @@ pub fn update(plan: &Plan, tool: ToolName, state_path: &Path, check_only: bool) 
         let m = crate::members::get(name).context("unknown stack member")?;
         return update_member(m, state_path, check_only);
     }
-    update_binary(Some(plan), Some(tool), state_path, check_only)
+    update_binary(Some(plan), Some(tool), state_path, check_only, None, None)
 }
 
 /// Take the release-update state lock and finish any interrupted swap.
@@ -362,7 +387,43 @@ fn update_member(m: &crate::members::Manifest, state_path: &Path, check_only: bo
 
 /// Update Caboodle itself from a published checksummed release.
 pub fn update_self(state_path: &Path, check_only: bool) -> Result<()> {
-    update_binary(None, None, state_path, check_only)
+    update_binary(None, None, state_path, check_only, None, None)
+}
+
+/// Event-driven callers select the exact published installer release.
+pub fn update_self_at(state_path: &Path, check_only: bool, tag: &str) -> Result<()> {
+    update_binary(None, None, state_path, check_only, Some(tag), None)
+}
+
+/// Bind an exact installer release to independently obtained artifact evidence.
+pub fn update_self_pinned(
+    state_path: &Path,
+    check_only: bool,
+    tag: &str,
+    archive_sha256: &str,
+    binary_sha256: &str,
+) -> Result<()> {
+    update_binary(
+        None,
+        None,
+        state_path,
+        check_only,
+        Some(tag),
+        Some((archive_sha256, binary_sha256)),
+    )
+}
+
+fn release_path(tag: Option<&str>) -> Result<String> {
+    match tag {
+        None => Ok("releases/latest".into()),
+        Some(tag) => {
+            if !tag.starts_with('v') {
+                bail!("installer tag must be an exact stable v-prefixed version");
+            }
+            stable_version(tag)?;
+            Ok(format!("releases/tags/{tag}"))
+        }
+    }
 }
 
 fn update_binary(
@@ -370,7 +431,24 @@ fn update_binary(
     tool: Option<ToolName>,
     state_path: &Path,
     check_only: bool,
+    requested_tag: Option<&str>,
+    expected_artifacts: Option<(&str, &str)>,
 ) -> Result<()> {
+    let endpoint = release_path(requested_tag)?;
+    if let Some((archive, binary)) = expected_artifacts {
+        if requested_tag.is_none() || tool.is_some() {
+            bail!("artifact binding requires an exact installer release");
+        }
+        for hash in [archive, binary] {
+            if hash.len() != 64
+                || !hash
+                    .bytes()
+                    .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+            {
+                bail!("installer artifact binding requires lowercase SHA256 values");
+            }
+        }
+    }
     let tool_id = tool.map_or("caboodle", |t| t.as_str());
     let (repo, binary, _, _) = names(tool, "v0.0.0")?;
     let _lock = lock_state(state_path)?;
@@ -401,10 +479,13 @@ fn update_binary(
             "=https",
             "-H",
             "Accept: application/vnd.github+json",
-            &format!("https://api.github.com/repos/scbrown/{repo}/releases/latest"),
+            &format!("https://api.github.com/repos/scbrown/{repo}/{endpoint}"),
         ],
     )?;
     let release: Release = serde_json::from_str(&raw).context("parse published release")?;
+    if requested_tag.is_some_and(|tag| tag != release.tag_name) {
+        bail!("published metadata tag differs from requested installer release");
+    }
     if release.draft || release.prerelease {
         bail!("refusing draft/prerelease");
     }
@@ -435,8 +516,12 @@ fn update_binary(
     );
     download_https(&format!("{base}/{archive_name}"), &archive)?;
     download_https(&format!("{base}/{sums_name}"), &sums)?;
-    if hash(&archive)? != checksum(&fs::read_to_string(sums)?, &archive_name)? {
+    let archive_hash = hash(&archive)?;
+    if archive_hash != checksum(&fs::read_to_string(sums)?, &archive_name)? {
         bail!("release archive SHA256 mismatch");
+    }
+    if expected_artifacts.is_some_and(|(expected, _)| expected != archive_hash) {
+        bail!("release archive differs from pre-install artifact evidence");
     }
     // Extract only the one named executable; never unpack archive paths onto disk.
     let members = text(
@@ -470,12 +555,15 @@ fn update_binary(
     fs::write(&candidate, output.stdout)?;
     use std::os::unix::fs::PermissionsExt;
     fs::set_permissions(&candidate, fs::Permissions::from_mode(0o755))?;
+    let new_hash = hash(&candidate)?;
+    if expected_artifacts.is_some_and(|(_, expected)| expected != new_hash) {
+        bail!("installer candidate differs from pre-install artifact evidence");
+    }
     let after = text(candidate.to_str().unwrap(), &[version_arg])?;
     if installed_version(&after)? != wanted {
         bail!("candidate version differs from published release");
     }
     let old_hash = hash(&destination)?;
-    let new_hash = hash(&candidate)?;
     let mut state = State::read(state_path)?;
     if old_hash == new_hash
         && state
@@ -586,6 +674,25 @@ mod tests {
     use super::*;
 
     #[test]
+    fn exact_installer_tag_selects_only_its_safe_release_path() {
+        assert_eq!(release_path(None).unwrap(), "releases/latest");
+        assert_eq!(
+            release_path(Some("v0.2.1")).unwrap(),
+            "releases/tags/v0.2.1"
+        );
+        for bad in [
+            "",
+            "0.2.1",
+            "v01.2.1",
+            "v0.2.1-rc1",
+            "../latest",
+            "v0.2.1?x=1",
+        ] {
+            assert!(release_path(Some(bad)).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
     fn behind_reviewed_reports_direction_and_refuses_to_guess() {
         assert_eq!(behind_reviewed("bobbin 0.1.0", "bobbin 0.16.2"), Some(true));
         assert_eq!(
@@ -600,6 +707,29 @@ mod tests {
         // on a guess is the aegis-48dvl3 downgrade.
         assert_eq!(behind_reviewed("bobbin dev-build", "bobbin 0.16.2"), None);
         assert_eq!(behind_reviewed("bobbin", "bobbin 0.16.2"), None);
+    }
+    #[test]
+    fn self_update_uses_only_published_platform_archives() {
+        for (os, arch, triple) in [
+            ("linux", "x86_64", "x86_64-unknown-linux-gnu"),
+            ("macos", "x86_64", "x86_64-apple-darwin"),
+            ("macos", "aarch64", "aarch64-apple-darwin"),
+        ] {
+            let (repo, binary, archive, sums) =
+                names_for_platform(None, "v0.2.13", os, arch).unwrap();
+            assert_eq!((repo, binary), ("caboodle", "caboodle"));
+            assert_eq!(archive, format!("caboodle-v0.2.13-{triple}.tar.gz"));
+            assert_eq!(sums, format!("{archive}.sha256"));
+        }
+        for (os, arch) in [
+            ("linux", "aarch64"),
+            ("windows", "x86_64"),
+            ("macos", "arm"),
+        ] {
+            assert!(names_for_platform(None, "v0.2.13", os, arch).is_err());
+        }
+        // Do not infer the other tools' asset layouts from Caboodle's layout.
+        assert!(names_for_platform(Some(ToolName::Bobbin), "v0.2.13", "macos", "aarch64").is_err());
     }
     #[test]
     fn stable_versions_are_numeric_and_ambiguous_inputs_refused() {

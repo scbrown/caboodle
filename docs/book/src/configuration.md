@@ -88,22 +88,35 @@ installing a random token does not grant access.
 
 ```sh
 install -d -m 700 "$HOME/.config/quipu" && install -m 400 /secure/issued-token "$HOME/.config/quipu/token"
+caboodle provision-quipu-token --from /secure/issued-token --server https://your-quipu-server.example
 caboodle doctor
 ```
 
-A nonempty `QUIPU_AUTH_TOKEN` takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
+`provision-quipu-token` proves the issued file against the authenticated server
+before installing it. It refuses to replace a differing existing credential;
+rotation remains a separate decision. It creates the canonical file with mode
+`0400` and its parent with mode `0700`. No token is printed or stored in a plan.
+
+A nonempty `QUIPU_AUTH_TOKEN` after trimming takes precedence over `QUIPU_AUTH_TOKEN_FILE`,
 then the default `~/.config/quipu/token`. Files are read on every request so
 rotation reaches running sessions. An explicit file does not fall back to the
 default if missing. Existing deployments can retain their file override until
 provisioning and rotation move together; avoid independent copies of secrets.
 Token contents must never enter command arguments, logs or version control.
+Doctor and verify name the winning source without printing its value, including
+an environment value that shadows a valid canonical file.
 
 Doctor checks the protected `/episode` route with `{}`. The server authorizes
 before rejecting the incomplete episode, so no graph data is written. It reports
 accepted authorization, missing token, rejected token, read-only server, or an
 unknown write path (including no HTTP response). This is authorization evidence,
-not a successful storage commit. `caboodle verify` separately exercises installed
-tools in isolated scratch stores.
+not a successful storage commit. Doctor also requires a nonempty canonical file
+with mode `0400` and parent mode `0700`, and an authenticated `/shapes` read
+returning 2xx. `caboodle verify` runs that live credential proof before recording
+Quipu as verified, then exercises installed tools in isolated scratch stores.
+Set `QUIPU_SERVER` to the intended server; without it, verify uses the plan's
+Quipu MCP URL or `http://localhost:3030`. Missing, rejected, or unproven
+credentials leave verification incomplete. Public health is not an auth check.
 
 ## Quipu MCP for Claude Code
 

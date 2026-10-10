@@ -413,6 +413,21 @@ pub fn verify(plan: &Plan, state_path: &Path, evidence: &CrewEvidence) -> Result
     for line in hook_bundles_verify(plan)? {
         println!("hook bundle {line}");
     }
+    if plan.tools.contains(&crate::model::ToolName::Quipu) {
+        if let Some(record) = state.tools.get_mut("quipu") {
+            record.verified = false;
+            state.write(state_path)?;
+        }
+        let server = std::env::var("QUIPU_SERVER").unwrap_or_else(|_| {
+            plan.quipu_mcp
+                .as_ref()
+                .map(|mcp| mcp.url.clone())
+                .unwrap_or_else(|| "http://localhost:3030".to_owned())
+        });
+        let source = crate::quipu_credential::verify(&server)
+            .context("live Quipu client credential verification")?;
+        println!("quipu credential: canonical file 0400/0700 and authenticated read verified; source: {source}");
+    }
     for &name in &plan.tools {
         if name == crate::model::ToolName::Quipu && plan.external_quipu {
             // A failed external path/version probe cannot retain an earlier proof.
@@ -707,6 +722,16 @@ fn seed_self_test_store() -> Result<(tempfile::TempDir, std::path::PathBuf)> {
     )
     .context("seed the self-test question store")?;
     Ok((dir, db))
+}
+
+/// Provision a pre-issued client credential; never mint or rotate an identity.
+pub fn provision_quipu_credential(source: &Path, server: &str) -> Result<()> {
+    let home = std::env::var_os("HOME").context("HOME required for canonical Quipu credential")?;
+    crate::quipu_credential::provision(source, server, Path::new(&home))?;
+    println!(
+        "quipu credential: issued file accepted and canonical installation verified (0400/0700)"
+    );
+    Ok(())
 }
 
 #[cfg(test)]

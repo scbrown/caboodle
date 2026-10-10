@@ -375,6 +375,21 @@ fn check_graph() -> Vec<Finding> {
         .unwrap_or_else(|| "http://localhost:3030".to_owned());
     let mut findings = vec![check_quipu_server()];
     let reachable = findings[0].detail.contains("is live");
+    match crate::quipu_credential::verify(&server) {
+        Ok(source) => findings.push(Finding::new(
+            Level::Ok,
+            "quipu credential",
+            format!("canonical file 0400/0700 and authenticated /shapes read accepted; source: {source}"),
+        )),
+        Err(error) => {
+            findings.push(Finding::new(
+                Level::Fail,
+                "quipu credential",
+                format!("{error:#}"),
+            ));
+            return findings;
+        }
+    }
     if !reachable {
         return findings;
     }

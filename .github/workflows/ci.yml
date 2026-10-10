@@ -97,9 +97,21 @@ jobs:
           set -euo pipefail
           export PATH="$RUNNER_TEMP/caboodle/bin:$HOME/.cargo/bin:$PATH"
           cd "$RUNNER_TEMP/caboodle-phase2"
-          # The read-only preflight must call a clean runner ready before install.
-          caboodle doctor 2>&1 | tee doctor.log
-          caboodle install 2>&1 | tee first-install.log
+          # A clean host has no issued credential; doctor must name that blocker.
+          if caboodle doctor > doctor.log 2>&1; then
+            echo 'clean host unexpectedly passed credential diagnostics' >&2
+            exit 1
+          fi
+          grep -q 'missing canonical Quipu credential' doctor.log
+          caboodle apply 2>&1 | tee first-apply.log
+          # A local CLI database roundtrip cannot prove a live client's auth.
+          # Issue a fresh fixture credential to an isolated authenticated server.
+          python3 "$GITHUB_WORKSPACE/scripts/start-credential-fixture.py" \
+            --home "$HOME" --root "$RUNNER_TEMP/caboodle-phase2/credential-fixture"
+          export QUIPU_SERVER=http://127.0.0.1:3030
+          echo "QUIPU_SERVER=$QUIPU_SERVER" >> "$GITHUB_ENV"
+          caboodle provision-quipu-token --from "$RUNNER_TEMP/caboodle-phase2/credential-fixture/issued-token" --server "$QUIPU_SERVER"
+          caboodle verify 2>&1 | tee first-install.log
           jq -e '
             .tools.quipu.verified == true and
             .tools.camayoc.verified == true and

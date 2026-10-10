@@ -18,7 +18,7 @@ fn resolve(
     explicit: Option<&Path>,
     home: Option<&Path>,
 ) -> Result<Option<String>> {
-    if let Some(value) = value.filter(|s| !s.is_empty()) {
+    if let Some(value) = value.map(str::trim).filter(|s| !s.is_empty()) {
         return Ok(Some(value.to_owned()));
     }
     let default = home.map(|p| p.join(".config/quipu/token"));
@@ -33,6 +33,17 @@ fn resolve(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
         Err(_) => anyhow::bail!("cannot read Quipu token file; check QUIPU_AUTH_TOKEN_FILE or ~/.config/quipu/token permissions and UTF-8 encoding"),
     }
+}
+
+/// Name the selected source without ever rendering its credential value.
+pub(crate) fn source() -> String {
+    if env::var("QUIPU_AUTH_TOKEN").is_ok_and(|value| !value.trim().is_empty()) {
+        return "QUIPU_AUTH_TOKEN (environment)".to_owned();
+    }
+    if let Some(path) = env::var_os("QUIPU_AUTH_TOKEN_FILE").filter(|path| !path.is_empty()) {
+        return format!("QUIPU_AUTH_TOKEN_FILE={path:?}");
+    }
+    "default ~/.config/quipu/token".to_owned()
 }
 
 pub(crate) fn config() -> Result<Option<tempfile::NamedTempFile>> {

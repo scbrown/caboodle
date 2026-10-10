@@ -20,6 +20,7 @@ pub mod tool_bundles;
 pub mod release_update;
 
 mod quipu_auth;
+mod quipu_credential;
 #[cfg(unix)]
 pub mod quipu_mcp;
 pub mod vocabulary;

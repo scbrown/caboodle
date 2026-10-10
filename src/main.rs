@@ -28,6 +28,13 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Install an administrator-issued Quipu token after proving acceptance; never rotate
+    ProvisionQuipuToken {
+        #[arg(long = "from")]
+        source: PathBuf,
+        #[arg(long)]
+        server: String,
+    },
     /// Report, without changing anything, what would stop an install on this host
     Doctor {
         /// Plan to check; without one, every tool in the everything profile is checked
@@ -321,6 +328,9 @@ fn update_release_tool(value: &str) -> Result<String, String> {
 
 fn main() -> Result<()> {
     match Cli::parse().command {
+        Commands::ProvisionQuipuToken { source, server } => {
+            engine::provision_quipu_credential(&source, &server)?;
+        }
         Commands::Doctor { plan, state } => {
             let mut installed = false;
             let scope = if plan.exists() {

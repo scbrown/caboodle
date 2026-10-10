@@ -238,6 +238,16 @@ rm "${CARGO_HOME:-$HOME/.cargo}/bin/caboodle"
 rm -r .caboodle
 ```
 
+## Reviewed-pin drift
+
+`caboodle check-updates` proposes an update only when the installed version is
+older than the reviewed pin. A newer version is reported as ahead of the pin;
+an unparseable or same-version identity mismatch is reported as version drift.
+These reports remain nonzero because the installation differs from the review.
+`caboodle update` refuses a reviewed-pin downgrade before replacing the tool.
+There is no `--allow-downgrade` escape: a deliberate rollback requires a separately
+reviewed installation, rather than a normal stack update.
+
 ## Opt-in published binary updates
 
 After the initial install and plan review, track published stable releases for a

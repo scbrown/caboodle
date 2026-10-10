@@ -660,6 +660,30 @@ fn check_updates_is_green_when_reviewed_versions_run_and_red_on_drift() {
 }
 
 #[test]
+fn check_updates_reports_ahead_without_proposing_an_update_or_touching_the_tool() {
+    let root = tempfile::tempdir().unwrap();
+    let bin = root.path().join("bin");
+    fs::create_dir(&bin).unwrap();
+    install_fakes(root.path(), &bin);
+    command(root.path(), &bin)
+        .args(["plan", "--profile", "retrieval"])
+        .assert()
+        .success();
+    fake_tool(&bin, "bobbin", "echo 'bobbin 0.99.0'");
+    let before = fs::read(bin.join("bobbin")).unwrap();
+    command(root.path(), &bin)
+        .arg("check-updates")
+        .assert()
+        .failure()
+        .stdout(predicate::str::contains(
+            "bobbin: ahead of reviewed pin; downgrade refused",
+        ))
+        .stdout(predicate::str::contains("bobbin: update available").not());
+    assert_eq!(fs::read(bin.join("bobbin")).unwrap(), before);
+    assert!(!root.path().join(".caboodle/state.json").exists());
+}
+
+#[test]
 fn check_updates_reads_quipu_from_cargo_home_before_a_shadowing_path() {
     let root = tempfile::tempdir().unwrap();
     let bin = root.path().join("bin");

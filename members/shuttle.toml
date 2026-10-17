@@ -8,7 +8,7 @@
 name = "shuttle"
 kind = "python-wheel"
 repo = "scbrown/shuttle"
-version = "0.3.0"
+version = "0.4.0"
 tag = "v{version}"
 asset = "shuttle-{version}-py3-none-any.whl"
 version_argv = ["version"]
@@ -17,7 +17,7 @@ prerequisites = ["python3"]
 profiles = ["crew", "everything"]
 
 [sha256]
-any = "e9f7db9cc4815840ff548249bbd4bd09d555dc89f28e37638f3456dbd4d0a18d"
+any = "b7fe9f2cf3288f17f0f09cac7f446efa894f3e78e449b55bbdc3467d6f004bcc"
 
 # Every released shuttle (0.2.0 onward) prints this line in --help.
 [[programs]]

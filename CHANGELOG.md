@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0](https://github.com/scbrown/tambo/compare/v0.3.7...v0.4.0) (2026-10-17)
+
+
+### Features
+
+* **pendants:** select native monorepo project shares by checkout ([#167](https://github.com/scbrown/tambo/issues/167)) ([fe969dd](https://github.com/scbrown/tambo/commit/fe969dd7e9439dd6f50c9d9484f41f72cd7d4f77))
+* **pendants:** sync repository packs with opt-in hooks ([#165](https://github.com/scbrown/tambo/issues/165)) ([6054a00](https://github.com/scbrown/tambo/commit/6054a00fbeeedc9541c9049d40b8d2f19ca73b14))
+* **trust:** expose endpoint decisions for federation consumers ([#168](https://github.com/scbrown/tambo/issues/168)) ([70199b4](https://github.com/scbrown/tambo/commit/70199b472793ff94e1639c3d9c1b405ac1b3396d))
+
 ## [0.3.7](https://github.com/scbrown/tambo/compare/v0.3.6...v0.3.7) (2026-10-17)
 
 

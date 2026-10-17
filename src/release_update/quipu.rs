@@ -41,12 +41,14 @@ fn owned_pair() -> Result<[PathBuf; 2]> {
     let mut paths = Vec::new();
     for binary in ["quipu", "quipu-server"] {
         let path = selected_path(binary)?;
-        if !fs::symlink_metadata(&path)?.file_type().is_file()
-            || path.parent().context("binary directory")?.canonicalize()? != directory
-        {
-            bail!("Quipu release update requires both regular PATH binaries in CARGO_HOME/bin; refusing external, symlink or shadowed copy");
+        if path.parent().context("binary directory")?.canonicalize()? != directory {
+            bail!("Quipu release update requires owned PATH commands in CARGO_HOME/bin");
         }
-        paths.push(path.canonicalize()?);
+        if binary == "quipu" && !fs::symlink_metadata(&path)?.file_type().is_file() {
+            bail!("owned Quipu primary must be a regular non-symlink executable");
+        }
+        crate::quipu_layout::alias(&path)?;
+        paths.push(directory.join(binary));
     }
     Ok(paths.try_into().unwrap())
 }
@@ -93,8 +95,23 @@ fn extract_pair(archive: &Path, directory: &Path) -> Result<[PathBuf; 2]> {
         }
         // Refuse tar links/directories, even when -xO would dereference a link.
         let detail = text("tar", &["-tvzf", archive.to_str().unwrap(), "--", member])?;
+        if binary == "quipu-server"
+            && detail.starts_with('l')
+            && detail.lines().count() == 1
+            && detail.trim_end().ends_with(&format!("{member} -> quipu"))
+            && Path::new(member).parent()
+                == list
+                    .lines()
+                    .find(|p| Path::new(p).file_name().is_some_and(|n| n == "quipu"))
+                    .and_then(|p| Path::new(p).parent())
+        {
+            let path = directory.join(binary);
+            crate::quipu_layout::replace_alias(&path)?;
+            paths.push(path);
+            continue;
+        }
         if !detail.starts_with('-') || detail.lines().count() != 1 {
-            bail!("Quipu archive executable must be a regular file");
+            bail!("Quipu archive executable must be regular or the exact relative server alias");
         }
         let bytes = checked(
             "tar",
@@ -181,6 +198,10 @@ fn update_at(plan: &Plan, state_path: &Path, check: bool, pin: &Pin) -> Result<(
     if after[0].1 != wanted {
         bail!("Quipu candidate pair differs from reviewed version");
     }
+    let prior_aliases = [
+        crate::quipu_layout::alias(&paths[0])?,
+        crate::quipu_layout::alias(&paths[1])?,
+    ];
     let prior_hashes = [hash(&paths[0])?, hash(&paths[1])?];
     let new_hashes = [hash(&candidates[0])?, hash(&candidates[1])?];
     if before[0].1 == wanted && prior_hashes != new_hashes {
@@ -211,6 +232,7 @@ fn update_at(plan: &Plan, state_path: &Path, check: bool, pin: &Pin) -> Result<(
             .join(&prior_hashes[i]);
         atomic_copy(&paths[i], &backup)?;
         artifacts.push(transaction::Pending {
+            restore_alias: prior_aliases[i].clone(),
             tool: "quipu".into(),
             destination: paths[i].clone(),
             backup,
@@ -224,19 +246,29 @@ fn update_at(plan: &Plan, state_path: &Path, check: bool, pin: &Pin) -> Result<(
     if owned_pair()? != paths
         || versions(&paths)? != before
         || [hash(&paths[0])?, hash(&paths[1])?] != prior_hashes
+        || [
+            crate::quipu_layout::alias(&paths[0])?,
+            crate::quipu_layout::alias(&paths[1])?,
+        ] != prior_aliases
     {
         bail!("Quipu pair changed concurrently; refusing swap");
     }
     transaction::begin_pair(
         state_path,
         &transaction::PairPending {
+            runtime_aliases: candidates[1].is_symlink()
+                || prior_aliases.iter().any(Option::is_some),
             artifacts,
             previous_state,
         },
     )?;
     let result = (|| -> Result<()> {
         for i in 0..2 {
-            atomic_copy(&candidates[i], &paths[i])?;
+            if crate::quipu_layout::alias(&candidates[i])?.is_some() {
+                crate::quipu_layout::replace_alias(&paths[i])?;
+            } else {
+                atomic_copy(&candidates[i], &paths[i])?;
+            }
             durable::sync_dir(durable::parent(&paths[i]))?;
         }
         if [hash(&paths[0])?, hash(&paths[1])?] != new_hashes || versions(&paths)? != after {
@@ -285,6 +317,72 @@ mod tests {
     use std::{os::unix::fs::PermissionsExt, process::Command};
 
     #[test]
+    fn unified_archive_keeps_the_server_as_an_exact_relative_alias() {
+        let root = tempfile::tempdir().unwrap();
+        let source = root.path().join("release");
+        fs::create_dir(&source).unwrap();
+        fs::write(source.join("quipu"), b"private executable fixture").unwrap();
+        std::os::unix::fs::symlink("quipu", source.join("quipu-server")).unwrap();
+        let archive = root.path().join("release.tar.gz");
+        assert!(Command::new("tar")
+            .args(["-czf"])
+            .arg(&archive)
+            .arg("-C")
+            .arg(root.path())
+            .arg("release")
+            .status()
+            .unwrap()
+            .success());
+        let destination = root.path().join("out");
+        fs::create_dir(&destination).unwrap();
+        let paths = extract_pair(&archive, &destination).unwrap();
+        assert_eq!(fs::read_link(&paths[1]).unwrap(), Path::new("quipu"));
+        assert_eq!(
+            paths[0].canonicalize().unwrap(),
+            paths[1].canonicalize().unwrap()
+        );
+    }
+
+    #[test]
+    fn unified_archive_refuses_foreign_dangling_absolute_and_cross_directory_aliases() {
+        for (target, separate) in [
+            ("other", false),
+            ("../quipu", false),
+            ("/quipu", false),
+            ("quipu", true),
+        ] {
+            let root = tempfile::tempdir().unwrap();
+            let source = root.path().join("release");
+            fs::create_dir(&source).unwrap();
+            fs::write(source.join("quipu"), b"fixture").unwrap();
+            let server_dir = if separate {
+                let nested = source.join("nested");
+                fs::create_dir(&nested).unwrap();
+                nested
+            } else {
+                source.clone()
+            };
+            std::os::unix::fs::symlink(target, server_dir.join("quipu-server")).unwrap();
+            let archive = root.path().join("release.tar.gz");
+            assert!(Command::new("tar")
+                .arg("-czf")
+                .arg(&archive)
+                .arg("-C")
+                .arg(root.path())
+                .arg("release")
+                .status()
+                .unwrap()
+                .success());
+            let output = root.path().join("output");
+            fs::create_dir(&output).unwrap();
+            assert!(
+                extract_pair(&archive, &output).is_err(),
+                "accepted {target}/{separate}"
+            );
+        }
+    }
+
+    #[test]
     fn reviewed_pin_covers_exact_native_targets() {
         let pin: Pin = toml::from_str(include_str!("../../release-pins/quipu.toml")).unwrap();
         assert_eq!(pin.sha256.len(), 4);
@@ -304,6 +402,7 @@ mod tests {
     fn isolated_pair_update_and_refusal_controls() {
         for mode in [
             "success",
+            "unified-success",
             "bad-digest",
             "missing-checksum",
             "missing-server",
@@ -420,6 +519,9 @@ else exit 8; fi
                 "case \"$0\" in */cargo/bin/quipu) exit 19;; esac\nif [ 'false' = true ];",
             );
         }
+        if mode == "unified-success" {
+            candidate = format!("case \"$0\" in *quipu-server) case \"$1\" in --version) echo 'quipu-server 0.12.0';; --help) echo '--db --bind';; *) exit 8;; esac; exit 0;; esac\n{candidate}");
+        }
         script(&stage.join("quipu"), &candidate);
         let server_version = if mode == "mixed-candidate" {
             "0.12.1"
@@ -427,6 +529,10 @@ else exit 8; fi
             "0.12.0"
         };
         script(&stage.join("quipu-server"), &format!("case \"$1\" in --version) echo 'quipu-server {server_version}';; --help) echo '--db --bind';; *) exit 8;; esac"));
+        if mode == "unified-success" {
+            fs::remove_file(stage.join("quipu-server")).unwrap();
+            std::os::unix::fs::symlink("quipu", stage.join("quipu-server")).unwrap();
+        }
         let target = crate::adapter::quipu_release_target().unwrap();
         let name = format!("quipu-quipu-ai-v0.12.0-{target}.tar.gz");
         let archive = downloads.join(&name);
@@ -513,6 +619,7 @@ case "$url" in
                 let backup = root.join(format!("backup{i}"));
                 atomic_copy(path, &backup).unwrap();
                 artifacts.push(transaction::Pending {
+                    restore_alias: None,
                     tool: "quipu".into(),
                     destination: path.clone(),
                     backup,
@@ -522,6 +629,7 @@ case "$url" in
             transaction::begin_pair(
                 &state_path,
                 &transaction::PairPending {
+                    runtime_aliases: false,
                     artifacts,
                     previous_state: Some(state_before.clone()),
                 },
@@ -591,8 +699,15 @@ case "$url" in
             text(bin.join("qp").to_str().unwrap(), &["--version"]).unwrap(),
             text(paths[0].to_str().unwrap(), &["--version"]).unwrap()
         );
-        if mode == "success" {
+        if mode == "success" || mode == "unified-success" {
             result.unwrap();
+            if mode == "unified-success" {
+                assert_eq!(fs::read_link(&paths[1]).unwrap(), Path::new("quipu"));
+                assert_eq!(
+                    paths[0].canonicalize().unwrap(),
+                    paths[1].canonicalize().unwrap()
+                );
+            }
             assert_eq!(versions(&paths).unwrap()[0].1, (0, 12, 0));
             let state = State::read(&state_path).unwrap();
             assert!(state.tools["quipu"].verified);

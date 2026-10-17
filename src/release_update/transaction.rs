@@ -10,10 +10,16 @@ use std::{
 
 #[derive(Deserialize, Serialize)]
 pub(super) struct Pending {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub restore_alias: Option<String>,
     pub tool: String,
     pub destination: PathBuf,
     pub backup: PathBuf,
     pub sha256: String,
+}
+
+fn is_false(value: &bool) -> bool {
+    !value
 }
 
 fn journal(state: &Path) -> PathBuf {
@@ -21,6 +27,9 @@ fn journal(state: &Path) -> PathBuf {
 }
 
 pub(super) fn begin(state: &Path, pending: &Pending) -> Result<()> {
+    if pending.restore_alias.is_some() {
+        bail!("single artifact journal cannot restore an alias");
+    }
     durable::write(&journal(state), &serde_json::to_vec(pending)?)
 }
 
@@ -61,6 +70,9 @@ pub(super) fn recover(state: &Path) -> Result<()> {
         return restore_pair(state, &pair);
     }
     let pending: Pending = serde_json::from_slice(&bytes)?;
+    if pending.restore_alias.is_some() {
+        bail!("alias recovery requires its versioned Quipu pair journal");
+    }
     if hash(&pending.backup)? != pending.sha256 {
         bail!("pending rollback backup checksum mismatch; refusing recovery");
     }
@@ -90,6 +102,8 @@ pub(super) fn recover(state: &Path) -> Result<()> {
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct PairPending {
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub runtime_aliases: bool,
     pub artifacts: Vec<Pending>,
     pub previous_state: Option<Vec<u8>>,
 }
@@ -98,9 +112,33 @@ pub(super) fn begin_pair(state: &Path, pending: &PairPending) -> Result<()> {
     if pending.artifacts.len() != 2 {
         bail!("paired release must contain exactly two artifacts");
     }
+    validate_alias_targets(pending)?;
     let target = journal(state);
     durable::write(&target, &serde_json::to_vec(pending)?)?;
     durable::checkpoint("pair-journal-durable", &target)
+}
+
+fn validate_alias_targets(p: &PairPending) -> Result<()> {
+    if !p.runtime_aliases {
+        if p.artifacts.iter().any(|a| a.restore_alias.is_some()) {
+            bail!("alias metadata requires versioned pair journal");
+        }
+        return Ok(());
+    }
+    if p.artifacts.len() != 2
+        || p.artifacts.iter().any(|a| a.tool != "quipu")
+        || p.artifacts[0].destination.file_name() != Some(std::ffi::OsStr::new("quipu"))
+        || p.artifacts[1].destination.file_name() != Some(std::ffi::OsStr::new("quipu-server"))
+        || p.artifacts[0].destination.parent() != p.artifacts[1].destination.parent()
+        || p.artifacts[0].restore_alias.is_some()
+        || p.artifacts[1]
+            .restore_alias
+            .as_deref()
+            .is_some_and(|s| s != "quipu")
+    {
+        bail!("alias journal requires the exact same-directory owned Quipu layout");
+    }
+    Ok(())
 }
 
 fn restore_pair(state: &Path, pending: &PairPending) -> Result<()> {
@@ -109,23 +147,50 @@ fn restore_pair(state: &Path, pending: &PairPending) -> Result<()> {
     {
         bail!("invalid paired release journal");
     }
+    validate_alias_targets(pending)?;
     // Validate ALL backup bytes before restoring any of them.
-    for artifact in &pending.artifacts {
-        for path in [&artifact.backup, &artifact.destination] {
-            if !fs::symlink_metadata(path)?.file_type().is_file() {
-                bail!("paired recovery requires regular non-symlink files");
-            }
+    for (i, artifact) in pending.artifacts.iter().enumerate() {
+        if !fs::symlink_metadata(&artifact.backup)?
+            .file_type()
+            .is_file()
+        {
+            bail!("paired recovery requires regular backup files");
+        }
+        if !fs::symlink_metadata(&artifact.destination)?
+            .file_type()
+            .is_file()
+            && (!pending.runtime_aliases
+                || i != 1
+                || crate::quipu_layout::alias(&artifact.destination)?.as_deref() != Some("quipu"))
+        {
+            bail!(
+                "paired recovery requires regular non-symlink files or its exact versioned alias"
+            );
         }
         if hash(&artifact.backup)? != artifact.sha256 {
             bail!("paired rollback backup checksum mismatch; refusing recovery");
         }
     }
+    // Restore the companion/alias before the CLI; both old and new MCP remain coherent.
+    for artifact in pending.artifacts.iter().rev() {
+        if artifact.restore_alias.is_some() {
+            crate::quipu_layout::replace_alias(&artifact.destination)?;
+        } else {
+            atomic_copy(&artifact.backup, &artifact.destination)?;
+        }
+        durable::sync_dir(durable::parent(&artifact.destination))?;
+    }
+    // An alias points to the primary, which may still have candidate bytes until
+    // every restore has completed. Verify the complete layout only afterwards.
     for artifact in &pending.artifacts {
-        atomic_copy(&artifact.backup, &artifact.destination)?;
         if hash(&artifact.destination)? != artifact.sha256 {
             bail!("paired rollback read-back mismatch");
         }
-        durable::sync_dir(durable::parent(&artifact.destination))?;
+        if pending.runtime_aliases
+            && crate::quipu_layout::alias(&artifact.destination)? != artifact.restore_alias
+        {
+            bail!("paired rollback alias layout mismatch");
+        }
     }
     match &pending.previous_state {
         Some(bytes) => durable::write(state, bytes)?,
@@ -193,6 +258,7 @@ mod ordered_tests {
                 .join(name)
                 .join(hash(&destination).unwrap());
             artifacts.push(Pending {
+                restore_alias: None,
                 tool: "quipu".into(),
                 sha256: hash(&destination).unwrap(),
                 destination,
@@ -202,10 +268,101 @@ mod ordered_tests {
         (
             state,
             PairPending {
+                runtime_aliases: false,
                 artifacts,
                 previous_state: Some(b"prior exact state".to_vec()),
             },
         )
+    }
+
+    #[test]
+    fn interrupted_alias_update_restores_primary_before_verifying_alias_bytes() {
+        let root = tempfile::tempdir().unwrap();
+        let (state, mut pair) = fixture(root.path());
+        pair.runtime_aliases = true;
+        let primary = pair.artifacts[0].destination.clone();
+        let server = pair.artifacts[1].destination.clone();
+        fs::remove_file(&server).unwrap();
+        std::os::unix::fs::symlink("quipu", &server).unwrap();
+        pair.artifacts[1].restore_alias = Some("quipu".into());
+        pair.artifacts[1].sha256 = hash(&primary).unwrap();
+        for a in &pair.artifacts {
+            atomic_copy(&a.destination, &a.backup).unwrap();
+        }
+        begin_pair(&state, &pair).unwrap();
+        fs::write(&primary, b"new unconfirmed binary").unwrap();
+        fs::write(&state, b"new unconfirmed state").unwrap();
+        recover(&state).unwrap();
+        assert_eq!(fs::read(&primary).unwrap(), b"prior CLI");
+        assert_eq!(fs::read_link(&server).unwrap(), Path::new("quipu"));
+        assert_eq!(hash(&server).unwrap(), pair.artifacts[0].sha256);
+        assert_eq!(fs::read(&state).unwrap(), b"prior exact state");
+        assert!(!journal(&state).exists());
+    }
+
+    #[test]
+    fn interrupted_conversion_restores_two_regular_executables() {
+        let root = tempfile::tempdir().unwrap();
+        let (state, mut pair) = fixture(root.path());
+        pair.runtime_aliases = true;
+        for a in &pair.artifacts {
+            atomic_copy(&a.destination, &a.backup).unwrap();
+        }
+        begin_pair(&state, &pair).unwrap();
+        fs::write(&pair.artifacts[0].destination, b"candidate").unwrap();
+        crate::quipu_layout::replace_alias(&pair.artifacts[1].destination).unwrap();
+        recover(&state).unwrap();
+        for a in &pair.artifacts {
+            assert!(fs::symlink_metadata(&a.destination).unwrap().is_file());
+            assert_eq!(hash(&a.destination).unwrap(), a.sha256);
+        }
+        assert_eq!(fs::read(&state).unwrap(), b"prior exact state");
+        assert!(!journal(&state).exists());
+    }
+
+    #[test]
+    fn alias_recovery_refuses_corrupt_backup_or_foreign_link_before_any_write() {
+        for corrupt in [false, true] {
+            let root = tempfile::tempdir().unwrap();
+            let (state, mut pair) = fixture(root.path());
+            pair.runtime_aliases = true;
+            for a in &pair.artifacts {
+                atomic_copy(&a.destination, &a.backup).unwrap();
+            }
+            begin_pair(&state, &pair).unwrap();
+            let primary = &pair.artifacts[0].destination;
+            let server = &pair.artifacts[1].destination;
+            fs::write(primary, b"candidate").unwrap();
+            if corrupt {
+                fs::write(&pair.artifacts[1].backup, b"corrupt").unwrap();
+                crate::quipu_layout::replace_alias(server).unwrap();
+            } else {
+                fs::remove_file(server).unwrap();
+                std::os::unix::fs::symlink("foreign", server).unwrap();
+            }
+            let before = fs::read(journal(&state)).unwrap();
+            assert!(recover(&state).is_err());
+            assert_eq!(fs::read(primary).unwrap(), b"candidate");
+            assert_eq!(fs::read(&state).unwrap(), b"prior exact state");
+            assert_eq!(fs::read(journal(&state)).unwrap(), before);
+        }
+    }
+
+    #[test]
+    fn alias_journal_requires_exact_quipu_pair_and_old_journals_omit_extension() {
+        let root = tempfile::tempdir().unwrap();
+        let (state, mut pair) = fixture(root.path());
+        let old = serde_json::to_value(&pair).unwrap();
+        assert!(old.get("runtime_aliases").is_none());
+        assert!(old["artifacts"][0].get("restore_alias").is_none());
+        pair.runtime_aliases = true;
+        pair.artifacts[1].restore_alias = Some("foreign".into());
+        assert!(begin_pair(&state, &pair).is_err());
+        assert!(!journal(&state).exists());
+        pair.artifacts[1].restore_alias = Some("quipu".into());
+        pair.artifacts[0].tool = "other".into();
+        assert!(begin_pair(&state, &pair).is_err());
+        assert!(!journal(&state).exists());
     }
 
     #[test]

@@ -119,6 +119,7 @@ pub(super) fn prepare(
 impl Companion {
     pub fn pending(&self) -> transaction::Pending {
         transaction::Pending {
+            restore_alias: None,
             tool: "tambo".into(),
             destination: self.destination.clone(),
             backup: self.backup.clone(),

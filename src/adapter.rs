@@ -601,6 +601,13 @@ fn fetch_quipu_release(target: &str, download: &Path) -> Result<PathBuf> {
             bail!("Quipu release archive omitted {program}");
         }
     }
+    if !fs::symlink_metadata(unpacked.join("quipu"))?
+        .file_type()
+        .is_file()
+    {
+        bail!("Quipu primary archive executable must be regular");
+    }
+    crate::quipu_layout::alias(&unpacked.join("quipu-server"))?;
     Ok(unpacked)
 }
 
@@ -614,13 +621,18 @@ fn install_quipu_release() -> Result<()> {
         .unwrap_or_else(|| PathBuf::from(home).join(".cargo"))
         .join("bin");
     fs::create_dir_all(&bin).with_context(|| format!("create {}", bin.display()))?;
-    for program in ["quipu", "quipu-server"] {
-        let source = unpacked.join(program);
-        if !source.is_file() {
-            bail!("Quipu release archive omitted {}", source.display());
-        }
-        fs::copy(&source, bin.join(program))
-            .with_context(|| format!("install checksummed Quipu binary {program}"))?;
+    // Old reviewed releases keep their two regular executables. A unified
+    // archive installs one regular artifact and one exact relative alias.
+    let unified = crate::quipu_layout::alias(&unpacked.join("quipu-server"))?.is_some();
+    for program in if unified {
+        &["quipu"][..]
+    } else {
+        &["quipu", "quipu-server"][..]
+    } {
+        crate::quipu_layout::replace_regular(&unpacked.join(program), &bin.join(program))?;
+    }
+    if unified {
+        crate::quipu_layout::replace_alias(&bin.join("quipu-server"))?;
     }
     ensure_owned_quipu_alias()
 }
